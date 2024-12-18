@@ -1,83 +1,32 @@
-/* 基本重設 */
+/* 重設樣式 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
 }
 
 body {
-    line-height: 1.6;
-    color: #333;
-    background-color: #f4f4f4;
-}
-
-/* 頁首樣式 */
-header {
-    background-color: #0073e6;
-    color: #fff;
-    padding: 10px 0;
-    text-align: center;
-}
-
-header nav ul {
-    list-style: none;
+    background-color: black; /* 背景黑色 */
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
 }
 
-header nav ul li {
-    margin: 0 15px;
-}
-
-header nav ul li a {
-    color: #fff;
-    text-decoration: none;
-}
-
-/* 主要內容 */
-main {
-    padding: 20px;
-    text-align: center;
-}
-
-section {
-    margin-bottom: 20px;
-}
-
-/* 表單樣式 */
-form {
-    display: inline-block;
-    text-align: left;
-    margin-top: 10px;
-}
-
-form label {
-    display: block;
-    margin: 5px 0;
-}
-
-form input {
-    padding: 5px;
-    width: 100%;
-}
-
-button {
-    background-color: #0073e6;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #005bb5;
-}
-
-/* 頁腳樣式 */
-footer {
-    text-align: center;
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
+/* 文字覆蓋容器 */
+.text-overlay {
+    width: 681px; /* 根據圖片寬度設置 */
+    height: 450px; /* 根據圖片高度設置 */
+    background: url('face.jpeg') no-repeat center center; /* 設置圖片為背景 */
+    background-size: cover; /* 確保圖片填滿容器 */
+    -webkit-background-clip: text; /* 背景裁剪為文字 */
+    background-clip: text;
+    color: transparent; /* 隱藏文字顏色，顯示背景圖 */
+    font-size: 8px; /* 粒子化文字大小 */
+    line-height: 10px; /* 行距 */
+    overflow: hidden; /* 隱藏超出部分 */
+    text-align: justify; /* 文字對齊 */
+    filter: grayscale(1) brightness(1.5); /* 灰階 + 提亮 */
+    mix-blend-mode: hard-light; /* 混合模式 */
 }

@@ -1,11 +1,15 @@
-document.querySelector('form').addEventListener('submit', function(event) {
-    event.preventDefault(); // 防止表單提交
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
+// 獲取文字容器
+const container = document.getElementById('text-container');
+// 要填充的文字
+const text = 'Test for pictures ';
+// 初始文字內容
+let repeatedText = '';
 
-    if (name && email) {
-        alert(`感謝您的提交！\n姓名：${name}\n電子郵件：${email}`);
-    } else {
-        alert('請填寫所有欄位！');
-    }
-});
+// 動態填充文字，直到滿足容器的高度
+while (container.scrollHeight <= container.offsetHeight) {
+    repeatedText += text; // 不斷添加文字
+    container.textContent = repeatedText; // 將文字添加到容器
+}
+
+// 適配文字的額外設置
+container.textContent = repeatedText.trim(); // 去除多餘空格
