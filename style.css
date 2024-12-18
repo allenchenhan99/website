@@ -1,4 +1,3 @@
-/* 重設樣式 */
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +5,7 @@
 }
 
 body {
-    background-color: black; /* 背景黑色 */
+    background-color: black;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,19 +13,20 @@ body {
     overflow: hidden;
 }
 
-/* 文字覆蓋容器 */
 .text-overlay {
-    width: 681px; /* 根據圖片寬度設置 */
-    height: 450px; /* 根據圖片高度設置 */
-    background: url('face.jpeg') no-repeat center center; /* 設置圖片為背景 */
-    background-size: cover; /* 確保圖片填滿容器 */
-    -webkit-background-clip: text; /* 背景裁剪為文字 */
+    width: 681px;
+    height: 450px;
+    background: url('face.jpeg') no-repeat center center;
+    background-size: cover;
+    -webkit-background-clip: text;
     background-clip: text;
-    color: transparent; /* 隱藏文字顏色，顯示背景圖 */
-    font-size: 8px; /* 粒子化文字大小 */
-    line-height: 10px; /* 行距 */
-    overflow: hidden; /* 隱藏超出部分 */
-    text-align: justify; /* 文字對齊 */
-    filter: grayscale(1) brightness(1.5); /* 灰階 + 提亮 */
-    mix-blend-mode: hard-light; /* 混合模式 */
+    color: transparent;
+    font-size: 8px;
+    line-height: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: hidden;
+    text-align: justify;
+    filter: grayscale(1) brightness(1.5);
+    mix-blend-mode: hard-light;
 }
