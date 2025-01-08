@@ -9,30 +9,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 動態填充文字，直到滿足容器的高度
     function fillText() {
-        // 計算每行需要的文字數量
-        const containerWidth = container.offsetWidth;
-        const tempSpan = document.createElement('span');
-        tempSpan.style.font = window.getComputedStyle(container).font;
-        tempSpan.textContent = text;
-        document.body.appendChild(tempSpan);
-        const textWidth = tempSpan.offsetWidth;
-        document.body.removeChild(tempSpan);
+        // Add text-wrapping optimization
+        const words = text.split(' ');
+        const lineHeight = parseInt(window.getComputedStyle(container).lineHeight);
+        const containerHeight = container.offsetHeight;
+        const linesNeeded = Math.ceil(containerHeight / lineHeight);
         
-        // 計算每行需要重複的次數
-        const repetitionsPerLine = Math.ceil(containerWidth / textWidth) + 1;
-        
-        // 創建一行的文字
-        const line = text.repeat(repetitionsPerLine);
-        // 填充所有行直到超過容器高度
-        while (container.scrollHeight <= container.offsetHeight) {
-            result += line;
-            container.textContent = result;
-        }
-        // 確保完全填滿
-        for (let i = 0; i < 5; i++) {
-            result += line + '\n';
-        }   
+        // Create text that better fits the container
+        result = words.join(' ').repeat(linesNeeded * 2); // Multiply by 2 for safety
         container.textContent = result;
     }
     fillText();
+
+    // 左側滑動佇列條控制
+    const sidebar = document.getElementById('sidebar');
+    const openSidebarButton = document.getElementById('open-sidebar');
+    const closeSidebarButton = document.getElementById('close-sidebar');
+
+    // 點擊打開佇列條
+    openSidebarButton.addEventListener('click', () => {
+        sidebar.classList.add('active'); // 顯示佇列條
+    });
+
+    // 點擊關閉佇列條
+    closeSidebarButton.addEventListener('click', () => {
+        sidebar.classList.remove('active'); // 隱藏佇列條
+    });
 });
+
