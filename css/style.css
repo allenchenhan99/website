@@ -1,0 +1,141 @@
+/* 全局樣式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* 側邊欄樣式 */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px; /* 初始位置在視窗外 */
+    width: 250px;
+    height: 100%;
+    background-color: #a39d9d;
+    overflow: hidden;
+    transition: 0.3s ease;
+    z-index: 1000;
+    padding-top: 60px;
+}
+
+.sidebar.active {
+    left: 0; /* 顯示側邊欄 */
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px 20px;
+    text-align: left;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+.sidebar ul li a:hover {
+    background-color: #706e6e;
+}
+
+/* 按鈕樣式 */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.open-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background-color: #111;
+    color: white;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 11;
+}
+
+/* Icon styles for links */
+.icon {
+    width: 24px; /* 調整圖標寬度 */
+    height: 24px; /* 調整圖標高度 */
+    margin-right: 10px; /* 圖標與文字的間距 */
+    vertical-align: middle; /* 垂直對齊文字 */
+    border-radius: 50%; /* 如果需要圓形圖標 */
+    object-fit: cover; /* 確保圖片比例適配 */
+}
+
+.typing-effect {
+    font-family: monospace;
+    font-size: 20px; /* Adjust font size for clarity */
+    color: white;
+    text-align: center;
+    margin-top: -50px; /* Move text upwards */
+    margin-bottom: 20px; /* Add space between text and ASCII art */
+}
+
+.ascii-art {
+    font-family: monospace;
+    font-size: 12px;
+    color: white;
+    text-align: center;
+    white-space: pre;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -80%);
+    padding: 10px;
+}
+
+/* 文字覆蓋圖片效果 */
+.text-overlay {
+    width: 681px;
+    height: 450px;
+    background: url('../assets/images/face.jpeg') no-repeat center center;
+    background-size: cover;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: 8px;
+    line-height: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: hidden;
+    text-align: justify;
+    font-weight: bold;
+}
+
+/* 調整主要內容區域的位置 */
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}

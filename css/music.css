@@ -1,0 +1,143 @@
+/* 全局樣式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    color: white;
+    overflow: hidden;
+    transition: 0.3s ease;
+    z-index: 1000;
+    padding-top: 60px;
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    padding: 5px;
+}
+
+.sidebar ul li a:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar open/close buttons */
+.open-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background-color: transparent;
+    color: black;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 11;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: black;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* Content styles */
+.content {
+    margin-left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.active ~ .content {
+    margin-left: 250px;
+}
+
+/* Image container styles */
+.image-container {
+    width: 150px;
+    height: 150px;
+    margin: 20px;
+    flex-shrink: 0;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Icon styles for links */
+.icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    vertical-align: middle;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Text container styles */
+.text-container {
+    flex-grow: 1;
+    margin: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.text-container h1 {
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.text-container p {
+    line-height: 1.6;
+    font-size: 16px;
+    color: #555;
+}

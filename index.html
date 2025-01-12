@@ -4,25 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Website</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
-    <!-- 左側滑動佇列條 -->
-    <div id="sidebar" class="sidebar">
-        <button class="close-btn" id="close-sidebar">&times;</button>
-        <ul>
-            <li>
-                <a href="#profile">
-                    <img src="profile.png" alt="Profile Icon" class="icon">
-                    Profile
-                </a>
-            </li>
-        </ul>
+    <div id="app">
+        <!-- Sidebar toggle button -->
+        <button class="open-btn" @click="toggleSidebar(true)">&#9776;</button>
+
+        <!-- Sidebar -->
+        <div class="sidebar" :class="{ active: sidebarOpen }">
+            <button class="close-btn" @click="toggleSidebar(false)">&times;</button>
+            <ul>
+                <li>
+                    <a href="index.html">
+                        <img src="assets/images/home.png" alt="Home Icon" class="icon">
+                        Homepage
+                    </a>
+                </li>
+                <li>
+                    <a href="profile.html" target="_blank">
+                        <img src="assets/images/profile.png" alt="Profile Icon" class="icon">
+                        Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="cv.html" target="_blank">
+                        <img src="assets/images/CV.png" alt="CV Icon" class="icon">
+                        CV
+                    </a>
+                </li>
+                <li>
+                    <a href="music.html">
+                        <img src="assets/images/Music.png" alt="Music Icon" class="icon">
+                        Music
+                    </a>
+                </li>
+                <li>
+                    <a href="perfume.html" target="_blank">
+                        <img src="assets/images/Perfume.png" alt="Perfume Icon" class="icon">
+                        Perfume
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Typing Effect -->
+            <div class="ascii-art" id="ascii-art"></div>
+        </div>
     </div>
-    <!-- 左上角顯示佇列條的按鈕 -->
-    <button id="open-sidebar" class="open-btn">&#9776;</button>
-    <!-- Main Area -->
-    <div id="text-container" class="text-overlay">I'm lost then I'm found, but it's torture bein' in love. Don't let the pain control you, you're not alone. I don't care about what you think of me, I don't think about you at all. They don't understand you like I do. I'm sadder than most of you with the money and the freedom. You have to remember that you matter too. Love yourself, because no one else will. People always leave. Don't get too attached. I'm in pain, wanna put 10 shots in my brain. I used to beat kids at school just to get her to talk to me, yellin' at me, made me feel so low, like I ain't had no one to talk to. It's okay to be afraid. It's not okay to let fear control you. I like when you're around, but I hate when you leave. Life is worth living, so live another day. The pain in my heart just won't end. The words that I find just don't seem to compare. If you ever get the chance to treat them how they treated you, I hope you choose to walk away and do better. I'm alone, I'm stressed out, I'm scared, I'm paranoid. I'm in love with the thoughts, I'm in love with the memories. Kill me in my dreams and I'll never wake up. It's funny how the blessed ones had the most curses. I'm just tryna stay alive and take care of my people. I will never change. I will always be the same. I could never say I understand how you are all feeling, nor can I find the right words to say to you, but I do want you all to know, you are not alone. I can't seem to find someone's shoulder who will I put my head on, I lay in bed with a hundred and fret about things I did wrong. In life, you have to take chances. Sometimes those chances break you. I'm in need of help, I might just drown by myself. I'm outta tears to cry, so fuck it. Let the pain slide off. I gave her everything. She took my heart and left me lonely. It's always the darkest before the dawn. I'm sippin' Hennessy to fight away the memories. The pain inside just makes me feel so low.</div>
-    <script src="script.js"></script>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    sidebarOpen: false,
+                    asciiArt: '',
+                    currentCharIndex: 0
+                };
+            },
+            mounted() {
+                this.loadAsciiArt();
+            },
+            methods: {
+                toggleSidebar(open) {
+                    this.sidebarOpen = open;
+                },
+                loadAsciiArt() {
+                    fetch('asciiArt.txt')
+                        .then(response => response.text())
+                        .then(art => {
+                            this.asciiArt = art;
+                            this.typeAsciiArt();
+                        })
+                        .catch(error => console.error('Error loading ASCII art:', error));
+                },
+                typeAsciiArt() {
+                    const target = document.getElementById("ascii-art");
+                    const lines = this.asciiArt.split('\n');
+                    let currentBlock = 0;
+                    
+                    // 定義每個區塊的寬度順序
+                    const blockWidths = [
+                        10, 8, 8, 8, 9, 11, 8, 4, 9, 9,  // 第一行的區塊
+                        11, 9, 4, 8, 8, 8, 8, 9, 10, 8, 8, 4, 8, 8, 9, 9  // 第二行的區塊
+                    ];
+                    
+                    const displayNextBlock = () => {
+                        if (currentBlock < blockWidths.length) {
+                            const width = blockWidths[currentBlock];
+                            let blockContent = '';
+                            
+                            // 確定當前區塊的起始位置
+                            let startPos = 0;
+                            if (currentBlock < 10) {
+                                // 第一行的區塊
+                                for (let i = 0; i < currentBlock; i++) {
+                                    startPos += blockWidths[i];
+                                }
+                            } else {
+                                // 第二行的區塊，重新從0開始計算
+                                for (let i = 10; i < currentBlock; i++) {
+                                    startPos += blockWidths[i];
+                                }
+                            }
+                            
+                            // 如果是第二行的區塊，需要調整起始行
+                            const startLine = currentBlock < 10 ? 0 : 9;
+                            
+                            // 構建區塊內容（6行）
+                            for (let i = 0; i < 6; i++) {
+                                const line = lines[startLine + i];
+                                blockContent += line.substr(startPos, width) + '\n';
+                            }
+                            
+                            // 添加區塊到顯示區域
+                            if (currentBlock === 0) {
+                                target.textContent = blockContent;
+                            } else if (currentBlock === 10) {
+                                // 添加三個換行後再繼續
+                                target.textContent += '\n\n\n' + blockContent;
+                            } else {
+                                // 將新區塊添加到對應行的末尾
+                                const currentLines = target.textContent.split('\n');
+                                const newLines = blockContent.split('\n');
+                                
+                                for (let i = 0; i < 6; i++) {
+                                    if (currentBlock < 10) {
+                                        currentLines[i] = (currentLines[i] || '') + newLines[i];
+                                    } else {
+                                        currentLines[i + 9] = (currentLines[i + 9] || '') + newLines[i];
+                                    }
+                                }
+                                target.textContent = currentLines.join('\n');
+                            }
+                            
+                            currentBlock++;
+                            setTimeout(displayNextBlock, 100);
+                        }
+                    };
+
+                    displayNextBlock();
+                }
+            }
+        });
+
+        app.mount("#app");
+    </script>
 </body>
 </html>

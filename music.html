@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Page</title>
+    <link rel="stylesheet" href="css/music.css">
+    <script src="https://unpkg.com/vue@3"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar toggle button -->
+        <button class="open-btn" @click="toggleSidebar(true)">&#9776;</button>
+
+        <!-- Sidebar -->
+        <div class="sidebar" :class="{ active: sidebarOpen }">
+            <button class="close-btn" @click="toggleSidebar(false)">&times;</button>
+            <ul>
+                <li>
+                    <a href="index.html">
+                        <img src="assets/images/home.png" alt="Home Icon" class="icon">
+                        Homepage
+                    </a>
+                </li>
+                <li>
+                    <a href="profile.html" target="_blank">
+                        <img src="assets/images/profile.png" alt="Profile Icon" class="icon">
+                        Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="cv.html" target="_blank">
+                        <img src="assets/images/CV.png" alt="CV Icon" class="icon">
+                        CV
+                    </a>
+                </li>
+                <li>
+                    <a href="music.html">
+                        <img src="assets/images/Music.png" alt="Music Icon" class="icon">
+                        Music
+                    </a>
+                </li>
+                <li>
+                    <a href="perfume.html" target="_blank">
+                        <img src="assets/images/Perfume.png" alt="Perfume Icon" class="icon">
+                        Perfume
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Page Content -->
+        <div class="content">
+            <!-- Left top reserved space -->
+            <div class="image-container">
+                <img src="assets/images/Music.png" alt="Music Icon">
+            </div>
+
+            <!-- Main text area -->
+            <div class="text-container">
+                <h1>Welcome to the Music Page</h1>
+                <p>
+                    Here you can explore a curated list of songs, albums, and artists that resonate with passion and creativity.
+                    Music has the power to transcend boundaries, evoke emotions, and create lasting memories.
+                    Let the rhythm guide you on a melodic journey!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    sidebarOpen: false
+                };
+            },
+            methods: {
+                toggleSidebar(open) {
+                    this.sidebarOpen = open;
+                }
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>
