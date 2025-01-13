@@ -152,5 +152,9 @@ body {
 .ascii-animation img {
     max-width: 600px;
     height: auto;
-    margin-top: 400px; /* 調整與上方 ASCII art 的距離 */
+    margin-top: 600px;
+    opacity: 0.05; /* 初始透明度 */
+    border-radius: 30px; /* 添加圓角效果 */
+    /* 可選：添加輕微陰影效果使圖片更柔和 */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }

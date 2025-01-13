@@ -6,7 +6,8 @@ const app = Vue.createApp({
             currentCharIndex: 0,
             currentFrame: 0,
             totalFrames: 22,
-            animationInterval: null
+            animationInterval: null,
+            animationStartTime: null
         };
     },
     mounted() {
@@ -94,20 +95,31 @@ const app = Vue.createApp({
             displayNextBlock();
         },
         startAnimation() {
-            // 清除可能存在的舊動畫
             if (this.animationInterval) {
                 clearInterval(this.animationInterval);
             }
 
             const animationImg = document.querySelector('.ascii-animation img');
+            this.animationStartTime = Date.now();
             
             this.animationInterval = setInterval(() => {
-                // 更新圖片來源
-                animationImg.src = `asciiart/${this.currentFrame}.png`;
+                const elapsedTime = Date.now() - this.animationStartTime;
+                const fadeInDuration = 3000; // 3秒淡入
                 
-                // 增加幀數，到達最後一幀後重置
+                // 計算當前透明度
+                if (elapsedTime < fadeInDuration) {
+                    // 在前3秒內，opacity從0.05逐漸增加到1
+                    const opacity = 0.05 + (elapsedTime / fadeInDuration) * 0.95;
+                    animationImg.style.opacity = opacity;
+                } else {
+                    // 3秒後保持完全不透明
+                    animationImg.style.opacity = 1;
+                }
+                
+                // 更新圖片
+                animationImg.src = `asciiart/${this.currentFrame}.png`;
                 this.currentFrame = (this.currentFrame + 1) % (this.totalFrames + 1);
-            }, 20); // 每10毫秒更新一次
+            }, 20);
         }
     },
     beforeUnmount() {
