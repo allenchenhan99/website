@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Website</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="css/profile.css">
+    <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
     <div id="app">
@@ -22,7 +23,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="profile.html" target="_blank">
+                    <a href="profile.html">
                         <img src="assets/images/profile.png" alt="Profile Icon" class="icon">
                         Profile
                     </a>
@@ -48,16 +49,44 @@
             </ul>
         </div>
 
-        <!-- Main Content -->
+        <!-- Page Content -->
         <div class="content">
-            <div class="ascii-art" id="ascii-art"></div>
-            <div class="ascii-animation">
-                <img src="asciiart/0.png" alt="ASCII Animation">
+            <!-- Background image container -->
+            <div class="image-container">
+                <img src="assets/images/IMG_1049.JPG" alt="Background Photo">
+                <!-- 添加頭像容器 -->
+                <div class="profile-photo">
+                    <img src="assets/images/selfie.JPG" alt="Profile Photo">
+                </div>
+            </div>
+
+            <!-- Main text area -->
+            <div class="text-container">
+                <h1>Welcome to my Profile</h1>
+                <p>
+                    Hello! I'm a passionate individual with diverse interests in technology, music, and fragrances.
+                    This space is where I share my journey, experiences, and the things that inspire me.
+                    Feel free to explore and get to know more about who I am and what I do.
+                </p>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/vue@3"></script>
-    <script src="js/app.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    sidebarOpen: false
+                };
+            },
+            methods: {
+                toggleSidebar(open) {
+                    this.sidebarOpen = open;
+                }
+            }
+        });
+
+        app.mount('#app');
+    </script>
 </body>
 </html>

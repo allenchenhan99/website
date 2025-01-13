@@ -3,11 +3,15 @@ const app = Vue.createApp({
         return {
             sidebarOpen: false,
             asciiArt: '',
-            currentCharIndex: 0
+            currentCharIndex: 0,
+            currentFrame: 0,
+            totalFrames: 22,
+            animationInterval: null
         };
     },
     mounted() {
         this.loadAsciiArt();
+        this.startAnimation();
     },
     methods: {
         toggleSidebar(open) {
@@ -88,6 +92,28 @@ const app = Vue.createApp({
             };
 
             displayNextBlock();
+        },
+        startAnimation() {
+            // 清除可能存在的舊動畫
+            if (this.animationInterval) {
+                clearInterval(this.animationInterval);
+            }
+
+            const animationImg = document.querySelector('.ascii-animation img');
+            
+            this.animationInterval = setInterval(() => {
+                // 更新圖片來源
+                animationImg.src = `asciiart/${this.currentFrame}.png`;
+                
+                // 增加幀數，到達最後一幀後重置
+                this.currentFrame = (this.currentFrame + 1) % (this.totalFrames + 1);
+            }, 20); // 每10毫秒更新一次
+        }
+    },
+    beforeUnmount() {
+        // 組件銷毀前清除動畫interval
+        if (this.animationInterval) {
+            clearInterval(this.animationInterval);
         }
     }
 });
