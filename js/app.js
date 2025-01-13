@@ -1,55 +1,95 @@
 const app = Vue.createApp({
     data() {
         return {
-            sidebarOpen: false, // 側邊欄的開啟狀態
-            text: 'I\'m lost then I\'m found, but it\'s torture bein\' in love. Don\'t let the pain control you, you\'re not alone. I don\'t care about what you think of me, I don\'t think about you at all. They don\'t understand you like I do. I\'m sadder than most of you with the money and the freedom. You have to remember that you matter too. Love yourself, because no one else will. People always leave. Don\'t get too attached. I\'m in pain, wanna put 10 shots in my brain. I used to beat kids at school just to get her to talk to me...',
-            repeatedText: '', // 動態填充的文字
-            asciiArt: '' // ASCII art content
+            sidebarOpen: false,
+            asciiArt: '',
+            currentCharIndex: 0
         };
     },
     mounted() {
-        this.fillText(); // 當應用掛載後填充文字
-        this.loadAsciiArt(); // Load ASCII art when mounted
+        this.loadAsciiArt();
     },
     methods: {
         toggleSidebar(open) {
             this.sidebarOpen = open;
         },
-        fillText() {
-            const containerHeight = 400; // 文字覆蓋容器高度 (需與 CSS 高度一致)
-            const lineHeight = 8; // 行高 (需與 CSS 行高一致)
-            const linesNeeded = Math.ceil(containerHeight / lineHeight);
-
-            // 填充足夠的文字以覆蓋容器
-            this.repeatedText = this.text.repeat(linesNeeded);
-        },
         loadAsciiArt() {
             fetch('asciiArt.txt')
-                .then((response) => response.text())
-                .then((asciiArt) => {
-                    const asciiElement = document.getElementById('ascii-art');
-                    let index = 0;
-
-                    // Typing effect function
-                    const typeEffect = () => {
-                        if (index < asciiArt.length) {
-                            asciiElement.textContent += asciiArt[index];
-                            index++;
-
-                            // Move to the next line if the character is '\n'
-                            if (asciiArt[index - 1] === '\n') {
-                                asciiElement.textContent += '\n';
-                            }
-
-                            setTimeout(typeEffect, 10); // Typing speed (10 ms per character)
-                        }
-                    };
-
-                    typeEffect();
+                .then(response => response.text())
+                .then(art => {
+                    this.asciiArt = art;
+                    this.typeAsciiArt();
                 })
-                .catch((error) => console.error('Error fetching ASCII art:', error));
+                .catch(error => console.error('Error loading ASCII art:', error));
+        },
+        typeAsciiArt() {
+            const target = document.getElementById("ascii-art");
+            const lines = this.asciiArt.split('\n');
+            let currentBlock = 0;
+            
+            // 定義每個區塊的寬度順序
+            const blockWidths = [
+                10, 8, 8, 8, 9, 11, 8, 4, 9, 9,  // 第一行的區塊
+                11, 9, 4, 8, 8, 8, 8, 9, 10, 8, 8, 4, 8, 8, 9, 9  // 第二行的區塊
+            ];
+            
+            const displayNextBlock = () => {
+                if (currentBlock < blockWidths.length) {
+                    const width = blockWidths[currentBlock];
+                    let blockContent = '';
+                    
+                    // 確定當前區塊的起始位置
+                    let startPos = 0;
+                    if (currentBlock < 10) {
+                        // 第一行的區塊
+                        for (let i = 0; i < currentBlock; i++) {
+                            startPos += blockWidths[i];
+                        }
+                    } else {
+                        // 第二行的區塊，重新從0開始計算
+                        for (let i = 10; i < currentBlock; i++) {
+                            startPos += blockWidths[i];
+                        }
+                    }
+                    
+                    // 如果是第二行的區塊，需要調整起始行
+                    const startLine = currentBlock < 10 ? 0 : 9;
+                    
+                    // 構建區塊內容（6行）
+                    for (let i = 0; i < 6; i++) {
+                        const line = lines[startLine + i];
+                        blockContent += line.substr(startPos, width) + '\n';
+                    }
+                    
+                    // 添加區塊到顯示區域
+                    if (currentBlock === 0) {
+                        target.textContent = blockContent;
+                    } else if (currentBlock === 10) {
+                        // 添加三個換行後再繼續
+                        target.textContent += '\n\n\n' + blockContent;
+                    } else {
+                        // 將新區塊添加到對應行的末尾
+                        const currentLines = target.textContent.split('\n');
+                        const newLines = blockContent.split('\n');
+                        
+                        for (let i = 0; i < 6; i++) {
+                            if (currentBlock < 10) {
+                                currentLines[i] = (currentLines[i] || '') + newLines[i];
+                            } else {
+                                currentLines[i + 9] = (currentLines[i + 9] || '') + newLines[i];
+                            }
+                        }
+                        target.textContent = currentLines.join('\n');
+                    }
+                    
+                    currentBlock++;
+                    setTimeout(displayNextBlock, 100);
+                }
+            };
+
+            displayNextBlock();
         }
     }
 });
 
-app.mount('#app');
+app.mount("#app");
