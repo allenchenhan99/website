@@ -187,12 +187,16 @@ body {
     border-radius: 20px;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }
-
 /* 平板和大型手機 */
 @media screen and (max-width: 768px) {
     .ascii-art {
-        font-size: 8px;
+        font-size: 4px;
         transform: scale(0.8) translate(-60%, -100%); /* 整體縮放 */
+    }
+
+    .chipi-animation {
+        font-size: 4px;
+        transform: scale(0.8) translate(-60%, -100%);
     }
 
     .ascii-animation {
@@ -251,6 +255,11 @@ body {
         transform: scale(0.6) translate(-80%, -130%); /* 更小的縮放 */
     }
 
+    .chipi-animation {
+        font-size: 6px;
+        transform: scale(0.6) translate(-80%, -130%);
+    }
+
     .ascii-animation {
         top: 50%;
     }
@@ -283,6 +292,11 @@ body {
 /* 處理橫屏模式 */
 @media screen and (orientation: landscape) and (max-height: 500px) {
     .ascii-art {
+        top: 15%;
+        font-size: 8px;
+    }
+
+    .chipi-animation {
         top: 15%;
         font-size: 8px;
     }

@@ -184,23 +184,179 @@ body {
 /* 響應式調整 */
 @media screen and (max-width: 768px) {
     .record-player {
-        width: 150px;
-        height: 150px;
-        top: 15%;
+        width: 50px;
+        height: 50px;
+        top: 20%;
         left: 10%;
     }
-    
-    .record-player img {
-        top: -15px;    /* 根據較小的容器調整位置 */
-        left: -12px;
+
+    .text-container {
+        position: relative;
+        margin: 20px auto;
+        width: fit-content;
+        max-width: 90%;
+        font-size: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        border-radius: 8px;
+        left: 45%;
+        transform: translateX(-50%);
+    }
+
+    .image-container {
+        margin-bottom: 10px; /* 確保與文字容器分隔 */
+    }
+
+    .sidebar {
+        width: 85%;
+        left: -85%;
+    }
+
+    .sidebar.active {
+        left: 0;
     }
 }
 
+/* 平板和大型手機 */
+@media screen and (max-width: 768px) {
+    /* 調整側邊欄 */
+    .sidebar {
+        width: 85%;
+        left: -85%;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar.active ~ .content {
+        margin-left: 0;
+    }
+
+    /* 調整內容區域 */
+    .content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* 調整按鈕大小和位置 */
+    .open-btn {
+        top: 10px;
+        left: 10px;
+        font-size: 24px;
+        padding: 10px;
+    }
+
+    .close-btn {
+        font-size: 24px;
+        padding: 10px;
+    }
+
+    /* 調整側邊欄項目 */
+    .sidebar ul li {
+        padding: 12px 15px;
+    }
+
+    .sidebar ul li a {
+        font-size: 16px;
+    }
+
+    /* 確保圖標大小適中 */
+    .icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .record-player {
+        width: 150px;
+        height: 150px;
+        top: 20%;
+        left: 10%;
+    }
+
+    .text-container {
+        position: relative;
+        margin: 20px auto;
+        width: 90%;
+        padding: 15px;
+        left: 45%;
+    }
+}
+
+/* 小型手機 */
 @media screen and (max-width: 375px) {
+    .sidebar {
+        width: 85%;
+        left: -85%;
+    }
+
+    .sidebar ul li {
+        padding: 10px;
+    }
+
+    .sidebar ul li a {
+        font-size: 14px;
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
+    }
+
     .record-player {
         width: 100px;
         height: 100px;
-        top: 10%;
+        top: 15%;
         left: 8%;
     }
+
+    .text-container {
+        width: 95%;
+        padding: 12px;
+        margin: 15px auto;
+    }
+
+    .text-container h1 {
+        font-size: 24px;
+    }
+
+    .text-container p {
+        font-size: 14px;
+    }
+}
+
+/* 處理橫屏模式 */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    .record-player {
+        width: 120px;
+        height: 120px;
+        top: 20%;
+        left: 5%;
+    }
+
+    .text-container {
+        bottom: 20px;
+        padding: 15px;
+    }
+}
+
+/* 觸控設備優化 */
+@media (hover: none) {
+    .sidebar ul li a {
+        padding: 12px;
+    }
+
+    .sidebar ul li a:hover {
+        background-color: transparent;
+    }
+
+    .sidebar ul li a:active {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* 確保適當的視口設置 */
+@viewport {
+    width: device-width;
+    zoom: 1.0;
 }
