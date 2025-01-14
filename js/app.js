@@ -104,19 +104,16 @@ const app = Vue.createApp({
             
             this.animationInterval = setInterval(() => {
                 const elapsedTime = Date.now() - this.animationStartTime;
-                const fadeInDuration = 3000; // 3秒淡入
+                const fadeInDuration = 3000;
                 
-                // 計算當前透明度
                 if (elapsedTime < fadeInDuration) {
-                    // 在前3秒內，opacity從0.05逐漸增加到1
-                    const opacity = 0.05 + (elapsedTime / fadeInDuration) * 0.95;
+                    const opacity = 0.1 + (elapsedTime / fadeInDuration) * 0.9;
                     animationImg.style.opacity = opacity;
                 } else {
-                    // 3秒後保持完全不透明
                     animationImg.style.opacity = 1;
                 }
                 
-                // 更新圖片
+                // 更新圖片路徑
                 animationImg.src = `asciiart/${this.currentFrame}.png`;
                 this.currentFrame = (this.currentFrame + 1) % (this.totalFrames + 1);
             }, 20);

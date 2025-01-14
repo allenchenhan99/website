@@ -6,15 +6,13 @@
 }
 
 body {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50vh;
-    background-color: black;
-    color: white;
     font-family: Arial, sans-serif;
-    overflow: hidden;
+    background-color: #1e1e1e;
+    color: white;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow-y: auto; /* 開啟垂直滾動 */
 }
 
 /* 側邊欄樣式 */
@@ -106,11 +104,12 @@ body {
     color: white;
     text-align: center;
     white-space: pre;
-    position: absolute;
-    top: 50%;
+    position: fixed; /* 改為固定定位 */
+    top: 30%;
     left: 50%;
     transform: translate(-50%, -80%);
     padding: 10px;
+    z-index: 2; /* 確保在ascii-animation上方 */
 }
 
 /* 文字覆蓋圖片效果 */
@@ -133,28 +132,80 @@ body {
 
 /* 調整主要內容區域的位置 */
 .content {
+    min-height: 120vh; /* 確保內容高度超出視口，啟用滾動 */
+    padding: 20px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    height: 100vh;
-    width: 100%;
+    gap: 20px; /* 內容區塊的間距 */
+    position: relative; /* 添加相對定位 */
 }
 
 /* ASCII Animation styles */
 .ascii-animation {
+    position: fixed; /* 改為固定定位 */
+    top: 60%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 500px;
     width: 100%;
+    z-index: 1; /* 確保在ascii-art下方 */
 }
 
 .ascii-animation img {
     max-width: 600px;
     height: auto;
-    margin-top: 600px;
-    opacity: 0.05; /* 初始透明度 */
-    border-radius: 30px; /* 添加圓角效果 */
-    /* 可選：添加輕微陰影效果使圖片更柔和 */
+    margin-top: 400px;
+    opacity: 0.1;
+    border-radius: 20px;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* 平板和大型手機 */
+@media screen and (max-width: 768px) {
+    .ascii-animation img {
+        max-width: 90%; /* 改用百分比寬度 */
+        margin-top: 200px; /* 減少上方間距 */
+    }
+
+    .ascii-art {
+        font-size: 14px; /* 縮小 ASCII art 字體大小 */
+        line-height: 1.2;
+    }
+}
+
+/* 小型手機 */
+@media screen and (max-width: 375px) {
+    .ascii-animation img {
+        max-width: 95%;
+        margin-top: 150px;
+    }
+
+    .ascii-art {
+        font-size: 12px;
+        line-height: 1.1;
+    }
+}
+
+/* 確保在不同設備上的觸控體驗 */
+@media (hover: none) {
+    .ascii-animation img {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+/* 處理橫屏模式 */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    .ascii-animation img {
+        margin-top: 100px;
+        max-width: 70%;
+    }
+}
+
+/* 確保適當的視口設置 */
+@viewport {
+    width: device-width;
+    zoom: 1.0;
 }

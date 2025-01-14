@@ -12,8 +12,10 @@ body {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
+    margin: 0;
+    padding: 0;
     height: 100vh;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 /* Sidebar styles */
@@ -171,4 +173,131 @@ body {
     line-height: 1.6;
     font-size: 16px;
     color: #555;
+}
+
+/* 添加媒體查詢來處理移動設備 */
+@media screen and (max-width: 768px) {
+    /* 調整側邊欄 */
+    .sidebar {
+        width: 100%; /* 在手機上全寬顯示 */
+        left: -100%; /* 完全隱藏 */
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar.active ~ .content {
+        margin-left: 0; /* 側邊欄打開時不移動內容 */
+    }
+
+    /* 調整內容區域 */
+    .content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* 調整圓形頭像大小 */
+    .image-container::before {
+        width: 200px;  /* 較小的圓形遮罩 */
+        height: 200px;
+        top: 45%;
+    }
+
+    .image-container::after {
+        width: 190px;  /* 較小的頭像 */
+        height: 190px;
+        top: 45%;
+    }
+
+    /* 調整文字容器 */
+    .text-container {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .text-container h1 {
+        font-size: 20px;
+    }
+
+    .text-container p {
+        font-size: 14px;
+    }
+
+    /* 調整按鈕大小和位置 */
+    .open-btn {
+        top: 10px;
+        left: 10px;
+        font-size: 24px; /* 更大的按鈕方便點擊 */
+        padding: 10px;
+    }
+
+    .close-btn {
+        font-size: 24px;
+        padding: 10px;
+    }
+
+    /* 調整側邊欄項目 */
+    .sidebar ul li {
+        padding: 12px 15px;
+    }
+
+    .sidebar ul li a {
+        font-size: 16px;
+    }
+
+    /* 確保圖標大小適中 */
+    .icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* 針對更小的screen */
+@media screen and (max-width: 375px) {
+    .image-container::before {
+        width: 150px;
+        height: 150px;
+    }
+
+    .image-container::after {
+        width: 140px;
+        height: 140px;
+    }
+
+    .text-container {
+        margin: 8px;
+        padding: 12px;
+    }
+
+    .text-container h1 {
+        font-size: 18px;
+    }
+
+    .text-container p {
+        font-size: 13px;
+    }
+}
+
+/* 添加觸控優化 */
+@media (hover: none) {
+    /* 增加點擊區域 */
+    .sidebar ul li a {
+        padding: 12px;
+    }
+
+    /* 移除懸停效果，改為活動狀態效果 */
+    .sidebar ul li a:hover {
+        background-color: transparent;
+    }
+
+    .sidebar ul li a:active {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* 確保適當的視口設置 */
+@viewport {
+    width: device-width;
+    zoom: 1.0;
 }
