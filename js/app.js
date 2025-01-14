@@ -7,12 +7,17 @@ const app = Vue.createApp({
             currentFrame: 0,
             totalFrames: 22,
             animationInterval: null,
-            animationStartTime: null
+            animationStartTime: null,
+            asciiArtContent: [], // For chipi-animation
+            currentBatch: 0,
+            rowsPerBatch: 42,
+            totalBatches: 23,
         };
     },
     mounted() {
         this.loadAsciiArt();
         this.startAnimation();
+        this.loadChipiContent();
         document.querySelector('.content').addEventListener('click', this.handleContentClick);
     },
     methods: {
@@ -100,6 +105,29 @@ const app = Vue.createApp({
 
             displayNextBlock();
         },
+        loadChipiContent() {
+            fetch('chipi.txt')
+                .then(response => response.text())
+                .then(data => {
+                    this.asciiArtContent = data.split('\n');
+                    this.displayNextChipiBatch();
+                })
+                .catch(error => console.error('Error loading chipi content:', error));
+        },
+        displayNextChipiBatch() {
+            const chipiElement = document.getElementById('chipi-animation');
+            if (this.currentBatch < this.totalBatches) {
+                const start = this.currentBatch * this.rowsPerBatch;
+                const end = start + this.rowsPerBatch;
+                const batchContent = this.asciiArtContent.slice(start, end).join('\n');
+                chipiElement.textContent = batchContent;
+                this.currentBatch++;
+                setTimeout(this.displayNextChipiBatch, 20); // 每 500 毫秒顯示下一批內容
+            } else {
+                this.currentBatch = 0; // 循環播放
+                setTimeout(this.displayNextChipiBatch, 20);
+            }
+        },
         startAnimation() {
             if (this.animationInterval) {
                 clearInterval(this.animationInterval);
@@ -123,13 +151,13 @@ const app = Vue.createApp({
                 animationImg.src = `asciiart/${this.currentFrame}.png`;
                 this.currentFrame = (this.currentFrame + 1) % (this.totalFrames + 1);
             }, 20);
+        },
+        beforeUnmount() {
+            if (this.animationInterval) {
+                clearInterval(this.animationInterval);
+            }
+            document.querySelector('.content').removeEventListener('click', this.handleContentClick);
         }
-    },
-    beforeUnmount() {
-        if (this.animationInterval) {
-            clearInterval(this.animationInterval);
-        }
-        document.querySelector('.content').removeEventListener('click', this.handleContentClick);
     }
 });
 

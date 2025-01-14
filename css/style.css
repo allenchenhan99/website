@@ -108,14 +108,14 @@ body {
     color: white;
     text-align: center;
     white-space: pre;
-    position: fixed;
-    top: 30%;
+    position: absolute; /* 改為相對於內容滾動 */
+    top: 10%; /* 起始位置 */
     left: 50%;
-    transform: translate(-50%, -80%);
+    transform: translate(-50%, -10%);
     padding: 10px;
     z-index: 2;
-    max-width: 90vw; /* 限制最大寬度為視窗寬度的90% */
-    overflow-x: auto; /* 如果內容過寬，允許橫向滾動 */
+    max-width: 90vw; /* 限制寬度 */
+    overflow-x: auto;
 }
 
 /* 文字覆蓋圖片效果 */
@@ -145,6 +145,25 @@ body {
     align-items: center;
     gap: 20px; /* 內容區塊的間距 */
     position: relative; /* 添加相對定位 */
+}
+
+/* Chipi Animation Area */
+.chipi-animation {
+    font-family: monospace;
+    font-size: 10px; /* 調整字體大小 */
+    color: rgb(255, 255, 255);
+    text-align: center;
+    white-space: pre;
+    position: absolute; /* 固定在畫面中 */
+    top: 65%; /* 調整位置到頁面中間 */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    z-index: 3;
+    max-width: 90vw; /* 限制寬度 */
+    overflow-x: auto;
+    background: rgba(0, 0, 0, 0); /* 半透明背景以強調可讀性 */
+    border-radius: 100px;
 }
 
 /* ASCII Animation styles */
