@@ -19,10 +19,11 @@ body {
 .sidebar {
     position: fixed;
     top: 0;
-    left: -250px; /* 初始位置在視窗外 */
+    left: -250px;
     width: 250px;
     height: 100%;
-    background-color: #a39d9d;
+    background-color: #444444;
+    color: white;
     overflow: hidden;
     transition: 0.3s ease;
     z-index: 1000;
@@ -30,7 +31,7 @@ body {
 }
 
 .sidebar.active {
-    left: 0; /* 顯示側邊欄 */
+    left: 0;
 }
 
 .sidebar ul {
@@ -41,6 +42,7 @@ body {
 .sidebar ul li {
     padding: 15px 20px;
     text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar ul li a {
@@ -48,11 +50,12 @@ body {
     text-decoration: none;
     display: flex;
     align-items: center;
+    font-size: 16px;
     padding: 5px;
 }
 
 .sidebar ul li a:hover {
-    background-color: #706e6e;
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 /* 按鈕樣式 */
@@ -98,18 +101,21 @@ body {
     margin-bottom: 20px; /* Add space between text and ASCII art */
 }
 
+/* ASCII art 基本樣式 */
 .ascii-art {
     font-family: monospace;
     font-size: 12px;
     color: white;
     text-align: center;
     white-space: pre;
-    position: fixed; /* 改為固定定位 */
+    position: fixed;
     top: 30%;
     left: 50%;
     transform: translate(-50%, -80%);
     padding: 10px;
-    z-index: 2; /* 確保在ascii-animation上方 */
+    z-index: 2;
+    max-width: 90vw; /* 限制最大寬度為視窗寬度的90% */
+    overflow-x: auto; /* 如果內容過寬，允許橫向滾動 */
 }
 
 /* 文字覆蓋圖片效果 */
@@ -166,8 +172,8 @@ body {
 /* 平板和大型手機 */
 @media screen and (max-width: 768px) {
     .ascii-art {
-        font-size: 10px; /* 縮小 ASCII art 字體 */
-        top: 25%;        /* 調整位置 */
+        font-size: 8px;
+        transform: scale(0.8) translate(-60%, -100%); /* 整體縮放 */
     }
 
     .ascii-animation {
@@ -181,8 +187,8 @@ body {
 
     /* 調整側邊欄 */
     .sidebar {
-        width: 100%;    /* 全寬顯示 */
-        left: -100%;    /* 完全隱藏 */
+        width: 80%; /* 不要全寬，保留一些空間 */
+        left: -80%;
     }
 
     .sidebar.active {
@@ -222,8 +228,8 @@ body {
 /* 小型手機 */
 @media screen and (max-width: 375px) {
     .ascii-art {
-        font-size: 8px;  /* 進一步縮小字體 */
-        top: 20%;
+        font-size: 6px;
+        transform: scale(0.6) translate(-80%, -130%); /* 更小的縮放 */
     }
 
     .ascii-animation {
@@ -236,6 +242,11 @@ body {
     }
 
     /* 調整側邊欄項目 */
+    .sidebar {
+        width: 85%;
+        left: -85%;
+    }
+
     .sidebar ul li {
         padding: 10px;
     }
