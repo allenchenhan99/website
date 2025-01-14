@@ -165,42 +165,124 @@ body {
 
 /* 平板和大型手機 */
 @media screen and (max-width: 768px) {
-    .ascii-animation img {
-        max-width: 90%; /* 改用百分比寬度 */
-        margin-top: 200px; /* 減少上方間距 */
+    .ascii-art {
+        font-size: 10px; /* 縮小 ASCII art 字體 */
+        top: 25%;        /* 調整位置 */
     }
 
-    .ascii-art {
-        font-size: 14px; /* 縮小 ASCII art 字體大小 */
-        line-height: 1.2;
+    .ascii-animation {
+        top: 55%;       /* 調整動畫位置 */
+    }
+
+    .ascii-animation img {
+        max-width: 90%; /* 縮小圖片寬度 */
+        margin-top: 200px;
+    }
+
+    /* 調整側邊欄 */
+    .sidebar {
+        width: 100%;    /* 全寬顯示 */
+        left: -100%;    /* 完全隱藏 */
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar.active ~ .content {
+        margin-left: 0; /* 側邊欄打開時不移動內容 */
+    }
+
+    /* 調整按鈕大小和位置 */
+    .open-btn {
+        font-size: 24px;
+        padding: 10px;
+    }
+
+    .close-btn {
+        font-size: 24px;
+        padding: 10px;
+    }
+
+    /* 調整側邊欄項目 */
+    .sidebar ul li {
+        padding: 12px 15px;
+    }
+
+    .sidebar ul li a {
+        font-size: 16px;
+    }
+
+    .icon {
+        width: 20px;
+        height: 20px;
     }
 }
 
 /* 小型手機 */
 @media screen and (max-width: 375px) {
+    .ascii-art {
+        font-size: 8px;  /* 進一步縮小字體 */
+        top: 20%;
+    }
+
+    .ascii-animation {
+        top: 50%;
+    }
+
     .ascii-animation img {
         max-width: 95%;
         margin-top: 150px;
     }
 
-    .ascii-art {
-        font-size: 12px;
-        line-height: 1.1;
+    /* 調整側邊欄項目 */
+    .sidebar ul li {
+        padding: 10px;
     }
-}
 
-/* 確保在不同設備上的觸控體驗 */
-@media (hover: none) {
-    .ascii-animation img {
-        -webkit-tap-highlight-color: transparent;
+    .sidebar ul li a {
+        font-size: 14px;
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
     }
 }
 
 /* 處理橫屏模式 */
 @media screen and (orientation: landscape) and (max-height: 500px) {
+    .ascii-art {
+        top: 15%;
+        font-size: 8px;
+    }
+
+    .ascii-animation {
+        top: 65%;
+    }
+
     .ascii-animation img {
-        margin-top: 100px;
         max-width: 70%;
+        margin-top: 100px;
+    }
+}
+
+/* 觸控設備優化 */
+@media (hover: none) {
+    .sidebar ul li a {
+        padding: 12px;
+    }
+
+    .sidebar ul li a:hover {
+        background-color: transparent;
+    }
+
+    .sidebar ul li a:active {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .ascii-animation img {
+        -webkit-tap-highlight-color: transparent;
     }
 }
 
