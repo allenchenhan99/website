@@ -13,7 +13,7 @@ body {
     justify-content: flex-start;
     align-items: flex-start;
     height: 100vh;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 /* Sidebar styles */
@@ -183,6 +183,15 @@ body {
 
 /* 響應式調整 */
 @media screen and (max-width: 768px) {
+    body {
+        overflow-y: auto; /* 確保小屏設備可以滾動 */
+    }
+
+    .content {
+        height: auto; /* 適配內容高度 */
+        overflow: visible;
+    }
+
     .record-player {
         width: 50px;
         height: 50px;
