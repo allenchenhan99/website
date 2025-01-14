@@ -13,10 +13,16 @@ const app = Vue.createApp({
     mounted() {
         this.loadAsciiArt();
         this.startAnimation();
+        document.querySelector('.content').addEventListener('click', this.handleContentClick);
     },
     methods: {
         toggleSidebar(open) {
             this.sidebarOpen = open;
+        },
+        handleContentClick(event) {
+            if (this.sidebarOpen && !event.target.closest('.sidebar') && !event.target.closest('.open-btn')) {
+                this.toggleSidebar(false);
+            }
         },
         loadAsciiArt() {
             fetch('asciiArt.txt')
@@ -120,10 +126,10 @@ const app = Vue.createApp({
         }
     },
     beforeUnmount() {
-        // 組件銷毀前清除動畫interval
         if (this.animationInterval) {
             clearInterval(this.animationInterval);
         }
+        document.querySelector('.content').removeEventListener('click', this.handleContentClick);
     }
 });
 

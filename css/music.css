@@ -99,11 +99,7 @@ body {
 
 /* Image container styles */
 .image-container {
-    width: 100%;
-    height: 50vh;
-    margin: 0;
-    overflow: hidden;
-    position: relative;
+    position: relative; /* 設置為相對定位，讓 `.text-container` 絕對定位生效 */
 }
 
 .image-container img {
@@ -111,6 +107,7 @@ body {
     height: 100%;
     object-fit: cover;
     object-position: center;
+    transform: scaleX(-1); /* 水平翻轉圖片 */
 }
 
 /* Icon styles for links */
@@ -125,21 +122,85 @@ body {
 
 /* Text container styles */
 .text-container {
-    flex-grow: 1;
-    margin: 20px;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: absolute; /* 設置為絕對定位 */
+    bottom: 100px;      /* 距離父容器底部 20px，可以調整這個值改變位置 */
+    left: 50%;          /* 水平居中 */
+    transform: translateX(-50%); /* 調整位置至容器中心 */
+    width: 90%;         /* 設定寬度，根據需求調整 */
+    background: rgba(255, 255, 255, 0.9); /* 半透明背景，讓文字更突出 */
+    padding: 30px;      /* 內邊距，讓文字不緊貼容器邊緣 */
+    border-radius: 8px; /* 圓角效果 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 輕微陰影，增加立體感 */
+    z-index: 3;         /* 確保文字區塊顯示在圖片上方 */
 }
 
 .text-container h1 {
     margin-bottom: 10px;
-    font-size: 24px;
+    font-size: 35px;
 }
 
 .text-container p {
     line-height: 1.6;
     font-size: 16px;
     color: #555;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg); /* 起始角度 */
+    }
+    100% {
+        transform: rotate(360deg); /* 完成一圈 */
+    }
+}
+
+/* 添加唱片機圖片容器 */
+.record-player {
+    position: absolute;
+    top: 15%;          /* 可以調整這個值來改變垂直位置 */
+    left: 8%;          /* 可以調整這個值來改變水平位置 */
+    width: 200px;      /* 圓形容器的寬度 */
+    height: 200px;     /* 圓形容器的高度 */
+    border-radius: 50%; /* 將容器變為圓形 */
+    overflow: hidden;   /* 隱藏超出容器的部分 */
+    z-index: 2;
+    display: flex;      /* 使用 Flexbox 居中圖片 */
+    justify-content: center;
+    align-items: center;
+    animation: rotate 5s linear infinite;
+}
+
+.record-player img {
+    width: 110%;
+    height: 110%;
+    transform: translate(-50%, -50%); /* 平移使圖片中心對齊容器 */
+    position: absolute; /* 使用絕對定位以啟用精確位置控制 */
+    top: 50%;           /* 定位到容器的中心 */
+    left: 50%;
+    object-fit: cover;
+}
+
+
+/* 響應式調整 */
+@media screen and (max-width: 768px) {
+    .record-player {
+        width: 150px;
+        height: 150px;
+        top: 15%;
+        left: 10%;
+    }
+    
+    .record-player img {
+        top: -15px;    /* 根據較小的容器調整位置 */
+        left: -12px;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .record-player {
+        width: 100px;
+        height: 100px;
+        top: 10%;
+        left: 8%;
+    }
 }
