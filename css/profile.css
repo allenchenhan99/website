@@ -179,8 +179,8 @@ body {
 @media screen and (max-width: 768px) {
     /* 調整側邊欄 */
     .sidebar {
-        width: 100%; /* 在手機上全寬顯示 */
-        left: -100%; /* 完全隱藏 */
+        width: 80%; /* 改為 80% 而不是全寬 */
+        left: -80%;
     }
 
     .sidebar.active {
@@ -188,24 +188,18 @@ body {
     }
 
     .sidebar.active ~ .content {
-        margin-left: 0; /* 側邊欄打開時不移動內容 */
-    }
-
-    /* 調整內容區域 */
-    .content {
         margin-left: 0;
-        width: 100%;
     }
 
     /* 調整圓形頭像大小 */
     .image-container::before {
-        width: 200px;  /* 較小的圓形遮罩 */
+        width: 200px;
         height: 200px;
         top: 45%;
     }
 
     .image-container::after {
-        width: 190px;  /* 較小的頭像 */
+        width: 190px;
         height: 190px;
         top: 45%;
     }
@@ -226,9 +220,7 @@ body {
 
     /* 調整按鈕大小和位置 */
     .open-btn {
-        top: 10px;
-        left: 10px;
-        font-size: 24px; /* 更大的按鈕方便點擊 */
+        font-size: 24px;
         padding: 10px;
     }
 
@@ -246,15 +238,19 @@ body {
         font-size: 16px;
     }
 
-    /* 確保圖標大小適中 */
     .icon {
         width: 20px;
         height: 20px;
     }
 }
 
-/* 針對更小的screen */
+/* 小型手機 */
 @media screen and (max-width: 375px) {
+    .sidebar {
+        width: 85%; /* 與 style.css 保持一致 */
+        left: -85%;
+    }
+
     .image-container::before {
         width: 150px;
         height: 150px;
@@ -277,16 +273,27 @@ body {
     .text-container p {
         font-size: 13px;
     }
+
+    .sidebar ul li {
+        padding: 10px;
+    }
+
+    .sidebar ul li a {
+        font-size: 14px;
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
+    }
 }
 
-/* 添加觸控優化 */
+/* 觸控設備優化 */
 @media (hover: none) {
-    /* 增加點擊區域 */
     .sidebar ul li a {
         padding: 12px;
     }
 
-    /* 移除懸停效果，改為活動狀態效果 */
     .sidebar ul li a:hover {
         background-color: transparent;
     }
