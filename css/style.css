@@ -191,7 +191,7 @@ body {
 @media screen and (max-width: 768px) {
     .ascii-art {
         font-size: 4px;
-        transform: scale(0.8) translate(-60%, -100%); /* 整體縮放 */
+        transform: scale(0.8) translate(-60%, -10%); /* 整體縮放 */
     }
 
     .chipi-animation {
@@ -252,12 +252,12 @@ body {
 @media screen and (max-width: 375px) {
     .ascii-art {
         font-size: 6px;
-        transform: scale(0.6) translate(-80%, -130%); /* 更小的縮放 */
+        transform: scale(0.6) translate(-80%, -40%); /* 更小的縮放 */
     }
 
     .chipi-animation {
-        font-size: 6px;
-        transform: scale(0.6) translate(-80%, -130%);
+        font-size: 4px;
+        transform: scale(0.6) translate(-80%, -180%);
     }
 
     .ascii-animation {
