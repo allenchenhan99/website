@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV - Portfolio</title>
+    <link rel="stylesheet" href="css/cv.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <button class="close-btn">&times;</button>
+        <ul>
+            <li>
+                <a href="index.html">
+                    <img src="assets/images/home.png" alt="Home" class="icon">
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="profile.html">
+                    <img src="assets/images/profile.png" alt="Profile" class="icon">
+                    Profile
+                </a>
+            </li>
+            <li>
+                <a href="cv.html">
+                    <img src="assets/images/cv.png" alt="CV" class="icon">
+                    CV
+                </a>
+            </li>
+            <li>
+                <a href="music.html">
+                    <img src="assets/images/music.png" alt="Music" class="icon">
+                    Music
+                </a>
+            </li>
+            <li>
+                <a href="perfume.html">
+                    <img src="assets/images/perfume.png" alt="Perfume" class="icon">
+                    Perfume
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <button class="open-btn">☰</button>
+    <div class="content">
+        <div class="cv-container">
+            <div class="cv-block">
+                <h1>Curriculum Vitae</h1>
+                <p>Below are my Chinese and English resumes</p>
+            </div>
+            <div class="cv-blocks-container">
+                <div class="cv-block-left">
+                    <h2>Chinese Resume</h2>
+                    <embed src="./cv_pdf/Chinese_CV.pdf" type="application/pdf" width="100%" height="600px">
+                </div>
+                <div class="cv-block-right">
+                    <h2>English Resume</h2>
+                    <embed src="./cv_pdf/English_CV.pdf" type="application/pdf" width="100%" height="600px">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/cv.js"></script>
+</body>
+</html>

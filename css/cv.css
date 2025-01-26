@@ -1,0 +1,282 @@
+/* 全局樣式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    color: black;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Sidebar styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #444;
+    color: white;
+    overflow: hidden;
+    transition: 0.3s ease;
+    z-index: 1000;
+    padding-top: 60px;
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    padding: 5px;
+}
+
+.sidebar ul li a:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar open/close buttons */
+.open-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background-color: transparent;
+    color: black;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 11;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: black;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* Content styles */
+.content {
+    margin-left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.sidebar.active ~ .content {
+    margin-left: 250px;
+}
+
+/* Icon styles */
+.icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    vertical-align: middle;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* 響應式設計 */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 85%;
+        left: -85%;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar.active ~ .content {
+        margin-left: 0;
+    }
+
+    .content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* 添加觸控設備優化 */
+@media (hover: none) {
+    .sidebar ul li a {
+        padding: 12px;
+    }
+
+    .sidebar ul li a:hover {
+        background-color: transparent;
+    }
+
+    .sidebar ul li a:active {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* 確保適當的視口設置 */
+@viewport {
+    width: device-width;
+    zoom: 1.0;
+}
+
+/* 小型手機 */
+@media screen and (max-width: 375px) {
+    .sidebar {
+        width: 85%;
+        left: -85%;
+    }
+
+    .sidebar ul li {
+        padding: 10px;
+    }
+
+    .sidebar ul li a {
+        font-size: 14px;
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
+    }
+}
+/* CV Block styles */
+.cv-block {
+    margin: 50px auto;
+    width: calc(100% - 60px); /* 左右各留30px邊距 */
+    max-width: 1200px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.cv-block h1 {
+    margin-bottom: 10px;
+    font-size: 35px;
+}
+
+.cv-block p {
+    line-height: 1.6;
+    font-size: 16px;
+    color: #555;
+}
+
+/* 響應式設計 */
+@media screen and (max-width: 768px) {
+    .cv-block {
+        margin: 40px auto;
+        padding: 20px;
+        width: calc(100% - 40px); /* 左右各留20px邊距 */
+    }
+
+    .cv-block h1 {
+        font-size: 28px;
+    }
+}
+
+/* 小型手機 */
+@media screen and (max-width: 375px) {
+    .cv-block {
+        margin: 30px auto;
+        padding: 15px;
+        width: calc(100% - 30px); /* 左右各留15px邊距 */
+    }
+
+    .cv-block h1 {
+        font-size: 24px;
+    }
+
+    .cv-block p {
+        font-size: 14px;
+    }
+}
+
+/* CV Blocks Container */
+.cv-blocks-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px auto;
+    width: calc(100% - 40px); /* 左右各留20px邊距 */
+    max-width: 1200px;
+    gap: 20px; /* 區塊之間的間距 */
+}
+
+.cv-block-left, .cv-block-right {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.cv-block-left h2, .cv-block-right h2 {
+    margin-bottom: 50px;
+    font-size: 24px;
+    color: #555;
+}
+
+/* 響應式設計 */
+@media screen and (max-width: 768px) {
+    .cv-blocks-container {
+        flex-direction: column;
+        align-items: center;
+        width: calc(100% - 40px);
+        margin: 20px auto;
+    }
+
+    .cv-block-left, .cv-block-right {
+        width: 100%;
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+}
+
+/* 小型手機 */
+@media screen and (max-width: 375px) {
+    .cv-blocks-container {
+        width: calc(100% - 30px);
+        margin: 15px auto;
+    }
+
+    .cv-block-left, .cv-block-right {
+        padding: 12px;
+    }
+
+    .cv-block-left h2, .cv-block-right h2 {
+        font-size: 20px;
+    }
+}
