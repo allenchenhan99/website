@@ -6,9 +6,12 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #ffffff;
-    color: black;
+    font-family: 'Helvetica Neue', sans-serif;
+    background-image: url('../assets/images/pxfuel.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #333;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -25,7 +28,7 @@ body {
     left: -250px;
     width: 250px;
     height: 100%;
-    background-color: #444;
+    background-color: rgba(68, 68, 68, 0.9);
     color: white;
     overflow: hidden;
     transition: 0.3s ease;
@@ -58,7 +61,7 @@ body {
 }
 
 .sidebar ul li a:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 /* Sidebar open/close buttons */
@@ -67,11 +70,12 @@ body {
     top: 15px;
     left: 15px;
     background-color: transparent;
-    color: black;
+    color: white;
     border: none;
-    font-size: 20px;
+    font-size: 24px;
     cursor: pointer;
     z-index: 11;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
 .close-btn {
@@ -80,7 +84,7 @@ body {
     right: 20px;
     background: none;
     border: none;
-    color: black;
+    color: white;
     font-size: 30px;
     cursor: pointer;
 }
@@ -178,20 +182,22 @@ body {
     margin: 50px auto;
     width: calc(100% - 60px); /* 左右各留30px邊距 */
     max-width: 1200px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.85);
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .cv-block h1 {
     margin-bottom: 10px;
-    font-size: 35px;
+    font-size: 38px;
+    color: #000;
 }
 
 .cv-block p {
-    line-height: 1.6;
-    font-size: 16px;
+    line-height: 1.7;
+    font-size: 18px;
     color: #555;
 }
 
@@ -204,7 +210,7 @@ body {
     }
 
     .cv-block h1 {
-        font-size: 28px;
+        font-size: 32px;
     }
 }
 
@@ -217,11 +223,11 @@ body {
     }
 
     .cv-block h1 {
-        font-size: 24px;
+        font-size: 28px;
     }
 
     .cv-block p {
-        font-size: 14px;
+        font-size: 16px;
     }
 }
 
@@ -237,16 +243,17 @@ body {
 
 .cv-block-left, .cv-block-right {
     flex: 1;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.85);
     padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .cv-block-left h2, .cv-block-right h2 {
-    margin-bottom: 50px;
-    font-size: 24px;
-    color: #555;
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #333;
 }
 
 /* 響應式設計 */
@@ -261,7 +268,7 @@ body {
     .cv-block-left, .cv-block-right {
         width: 100%;
         margin-bottom: 20px;
-        padding: 15px;
+        padding: 20px;
     }
 }
 
@@ -273,10 +280,10 @@ body {
     }
 
     .cv-block-left, .cv-block-right {
-        padding: 12px;
+        padding: 15px;
     }
 
     .cv-block-left h2, .cv-block-right h2 {
-        font-size: 20px;
+        font-size: 22px;
     }
 }
