@@ -99,77 +99,20 @@ body {
     gap: 40px;
 }
 
-/* ===== ASCII Art ===== */
-.ascii-art {
-    font-family: monospace;
-    font-size: 10px;
-    line-height: 1.1;
-    color: var(--text);
+.page-header {
     text-align: center;
-    white-space: pre;
-    padding: 20px 0;
-    max-width: 100%;
-    overflow-x: auto;
-    transition: color 0.3s;
+    padding: 60px 0;
 }
 
-/* ===== Chipi Animation ===== */
-.chipi-animation {
-    font-family: monospace;
-    font-size: 8px;
-    line-height: 1;
+.page-header h1 {
+    font-size: 28px;
+    margin-bottom: 12px;
     color: var(--text);
-    text-align: center;
-    white-space: pre;
-    max-width: 100%;
-    overflow-x: auto;
-    transition: color 0.3s;
 }
 
-/* ===== Categories ===== */
-.categories {
-    width: 100%;
-    margin-top: 20px;
-}
-
-.category-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    border-top: 1px solid var(--border);
-}
-
-.category-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 8px;
-    text-decoration: none;
-    border-bottom: 1px solid var(--border);
-    transition: background-color 0.15s;
-}
-
-.category-item:hover {
-    background-color: var(--hover);
-}
-
-.category-title {
-    font-size: 16px;
-    color: var(--text);
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.category-item:hover .category-title {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1.5px;
-}
-
-.category-desc {
-    font-size: 13px;
+.page-header p {
+    font-size: 14px;
     color: var(--text-secondary);
-    transition: color 0.3s;
 }
 
 /* ===== Responsive ===== */
@@ -186,37 +129,12 @@ body {
         font-size: 13px;
     }
 
-    .ascii-art {
-        font-size: 5px;
-        line-height: 1;
-    }
-
-    .chipi-animation {
-        font-size: 5px;
-    }
-
     .content {
         padding: 24px 16px;
-    }
-
-    .category-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-        padding: 16px 8px;
     }
 }
 
 @media screen and (max-width: 375px) {
-    .ascii-art {
-        font-size: 3.5px;
-        line-height: 1;
-    }
-
-    .chipi-animation {
-        font-size: 3.5px;
-    }
-
     .nav-links {
         gap: 12px;
     }

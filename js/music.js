@@ -5,50 +5,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function adjustLayout() {
         if (window.innerWidth <= 768) {
-            // 將 text-container 移出 image-container
             if (imageContainer.contains(textContainer)) {
-                content.appendChild(textContainer); // 移動到 content 中
+                content.appendChild(textContainer);
             }
         } else {
-            // 恢復 text-container 到 image-container
             if (!imageContainer.contains(textContainer)) {
-                imageContainer.appendChild(textContainer); // 放回 image-container
+                imageContainer.appendChild(textContainer);
             }
         }
     }
 
-    // 初始化調整佈局
     adjustLayout();
-
-    // 監聽窗口大小變化事件
     window.addEventListener('resize', adjustLayout);
 });
 
 const app = Vue.createApp({
     data() {
         return {
-            sidebarOpen: false,
+            darkMode: true,
             isRotating: true
         };
     },
     methods: {
-        toggleSidebar(open) {
-            this.sidebarOpen = open;
+        toggleTheme() {
+            this.darkMode = !this.darkMode;
+            localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
+            this.applyTheme();
+        },
+        applyTheme() {
+            document.documentElement.setAttribute('data-theme', this.darkMode ? 'dark' : 'light');
         },
         toggleRotation() {
             this.isRotating = !this.isRotating;
-        },
-        handleContentClick(event) {
-            if (this.sidebarOpen && !event.target.closest('.sidebar') && !event.target.closest('.open-btn')) {
-                this.toggleSidebar(false);
-            }
         }
     },
     mounted() {
-        document.querySelector('.content').addEventListener('click', this.handleContentClick);
-    },
-    beforeUnmount() {
-        document.querySelector('.content').removeEventListener('click', this.handleContentClick);
+        const saved = localStorage.getItem('theme');
+        if (saved) {
+            this.darkMode = saved === 'dark';
+        } else {
+            this.darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        this.applyTheme();
     }
 });
 

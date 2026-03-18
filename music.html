@@ -1,57 +1,31 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Page</title>
     <link rel="stylesheet" href="css/music.css">
-    <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
     <div id="app">
-        <!-- Sidebar toggle button -->
-        <button class="open-btn" @click="toggleSidebar(true)">&#9776;</button>
-
-        <!-- Sidebar -->
-        <div class="sidebar" :class="{ active: sidebarOpen }">
-            <button class="close-btn" @click="toggleSidebar(false)">&times;</button>
-            <ul>
-                <li>
-                    <a href="index.html">
-                        <img src="assets/images/home.png" alt="Home Icon" class="icon">
-                        Homepage
-                    </a>
-                </li>
-                <li>
-                    <a href="profile.html">
-                        <img src="assets/images/profile.png" alt="Profile Icon" class="icon">
-                        Profile
-                    </a>
-                </li>
-                <li>
-                    <a href="cv.html">
-                        <img src="assets/images/CV.png" alt="CV Icon" class="icon">
-                        CV
-                    </a>
-                </li>
-                <li>
-                    <a href="music.html">
-                        <img src="assets/images/Music.png" alt="Music Icon" class="icon">
-                        Music
-                    </a>
-                </li>
-                <li>
-                                    <a href="profile.html">
-                                        <img src="assets/images/Perfume.png" alt="Perfume Icon" class="icon">
-                                        Perfume
-                                    </a>                </li>
-            </ul>
-        </div>
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="cv.html" class="nav-link">CV</a>
+                <a href="music.html" class="nav-link active">Music</a>
+                <a href="perfume.html" class="nav-link">Perfume</a>
+            </div>
+            <button class="theme-toggle" @click="toggleTheme" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                {{ darkMode ? '☀️' : '🌙' }}
+            </button>
+        </nav>
 
         <!-- Page Content -->
         <div class="content">
             <div class="image-container">
-                <img src="assets/images/pxfuel.jpg" alt="Music Icon">
+                <img src="assets/images/pxfuel.jpg" alt="Music Background">
                 <div class="record-player">
                     <img src="assets/images/record-player.jpg" alt="Record Player">
                 </div>
@@ -60,18 +34,18 @@
                     <h1>Welcome to the Music Page</h1>
                     <p>
                         Here, you can delve into the finer nuances of albums and songs—details that might often escape your notice—along with my personal reflections.
-                        Among the senses, apart from sight, perhaps only music can truly engage in a harmonious multitasking relationship with you over an extended period. 
-                        It transcends boundaries, defies cultural or linguistic barriers, and through carefully orchestrated melodies and emotive expressions, 
-                        allows you to immerse yourself in the emotions of the moment of creation, while simultaneously evoking profound sentiments and forging unforgettable memories. 
+                        Among the senses, apart from sight, perhaps only music can truly engage in a harmonious multitasking relationship with you over an extended period.
+                        It transcends boundaries, defies cultural or linguistic barriers, and through carefully orchestrated melodies and emotive expressions,
+                        allows you to immerse yourself in the emotions of the moment of creation, while simultaneously evoking profound sentiments and forging unforgettable memories.
                         Let the rhythm guide you on a melodic odyssey.
                     </p>
                     <p>
                         <br>
                     </p>
                     <p>
-                        The image above showcases an album cover reminiscent of the "Metaphorical" style by one of my favorite producers, DJs, and composers, "Nujabes". 
-                        His music possesses an extraordinary ability to anchor and soothe me during moments of emotional turbulence. 
-                        In contrast to the atmospheric intensity of modern trap music, the jazz hip-hop vibe he creates casts a more immersive and tranquilizing ambiance, 
+                        The image above showcases an album cover reminiscent of the "Metaphorical" style by one of my favorite producers, DJs, and composers, "Nujabes".
+                        His music possesses an extraordinary ability to anchor and soothe me during moments of emotional turbulence.
+                        In contrast to the atmospheric intensity of modern trap music, the jazz hip-hop vibe he creates casts a more immersive and tranquilizing ambiance,
                         enveloping the surrounding environment and drawing listeners into a state of mindful resonance.
                     </p>
                 </div>
@@ -79,6 +53,7 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/vue@3"></script>
     <script src="js/music.js"></script>
 </body>
 </html>

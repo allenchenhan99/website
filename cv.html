@@ -1,71 +1,283 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV - Portfolio</title>
+    <title>CV - Chen-Han Lin</title>
     <link rel="stylesheet" href="css/cv.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <button class="close-btn">&times;</button>
-        <ul>
-            <li>
-                <a href="index.html">
-                    <img src="assets/images/home.png" alt="Home" class="icon">
-                    Home
-                </a>
-            </li>
-            <li>
-                <a href="profile.html">
-                    <img src="assets/images/profile.png" alt="Profile" class="icon">
-                    Profile
-                </a>
-            </li>
-            <li>
-                <a href="cv.html">
-                    <img src="assets/images/cv.png" alt="CV" class="icon">
-                    CV
-                </a>
-            </li>
-            <li>
-                <a href="music.html">
-                    <img src="assets/images/music.png" alt="Music" class="icon">
-                    Music
-                </a>
-            </li>
-            <li>
-                <a href="profile.html">
-                    <img src="assets/images/perfume.png" alt="Perfume" class="icon">
-                    Perfume
-                </a>
-            </li>
-        </ul>
-    </div>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="cv.html" class="nav-link active">CV</a>
+                <a href="music.html" class="nav-link">Music</a>
+                <a href="perfume.html" class="nav-link">Perfume</a>
+            </div>
+            <button class="theme-toggle" @click="toggleTheme" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                {{ darkMode ? '☀️' : '🌙' }}
+            </button>
+        </nav>
 
-    <!-- Main Content -->
-    <button class="open-btn">☰</button>
-    <div class="content">
-        <div class="cv-container">
-            <div class="cv-block">
-                <h1>Curriculum Vitae</h1>
-                <p>Below are my Chinese and English resumes</p>
-            </div>
-            <div class="cv-blocks-container">
-                <div class="cv-block-left">
-                    <h2>Chinese Resume</h2>
-                    <embed src="./cv_pdf/Chinese_CV.pdf" type="application/pdf" width="100%" height="600px">
+        <!-- CV Content -->
+        <div class="cv-wrapper">
+            <!-- CV Header -->
+            <div class="cv-header">
+                <h1>{{ lang === 'en' ? 'Chen-Han Lin' : '林辰翰' }}</h1>
+                <p class="cv-subtitle">{{ lang === 'en' ? "Master's Student in Data Science and Engineering" : '數據科學與工程 碩士生' }}</p>
+                <div class="cv-contact">
+                    <span>allenchenhan99@gmail.com</span>
+                    <span>(+886) 978-261-955</span>
+                    <a href="https://github.com/allenchenhan99" target="_blank">GitHub</a>
+                    <a href="https://www.linkedin.com/in/allen-lin-488492344" target="_blank">LinkedIn</a>
                 </div>
-                <div class="cv-block-right">
-                    <h2>English Resume</h2>
-                    <embed src="./cv_pdf/English_CV.pdf" type="application/pdf" width="100%" height="600px">
+                <div class="cv-actions">
+                    <button class="lang-toggle" @click="toggleLang">
+                        {{ lang === 'en' ? '中文' : 'English' }}
+                    </button>
+                    <a :href="lang === 'en' ? './cv_pdf/English_CV.pdf' : './cv_pdf/Chinese_CV.pdf'" target="_blank" class="pdf-btn">
+                        {{ lang === 'en' ? '📄 View PDF' : '📄 查看 PDF' }}
+                    </a>
                 </div>
             </div>
+
+            <!-- Education -->
+            <section class="cv-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Education' : '學歷' }}</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2023/09 – {{ lang === 'en' ? 'Present' : '現在' }}</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? "Master's in Data Science and Engineering" : '數據科學與工程研究所' }}</h3>
+                            <div class="org">{{ lang === 'en' ? 'National Yang Ming Chiao Tung University' : '國立陽明交通大學' }}</div>
+                            <p>{{ lang === 'en' ? 'Machine Learning, Deep Learning, Data Science Project, Biostatistics' : '機器學習、深度學習、資料科學專題、生物統計' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2018/09 – 2022/06</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? "Bachelor's in Mathematics" : '數學系' }}</h3>
+                            <div class="org">{{ lang === 'en' ? 'National Cheng Kung University' : '國立成功大學' }}</div>
+                            <p>{{ lang === 'en' ? 'Probability and Statistics, Fourier Analysis, Data Structures and Algorithms' : '機率與統計、傅立葉分析、資料結構與演算法' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Research -->
+            <section class="cv-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Research' : '研究主題' }}</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">{{ lang === 'en' ? 'Completed Dec 2025' : '2025/12 完成' }}</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'Human Pose Estimation Based on Mamba State Space Architecture' : '基於 Mamba 狀態空間架構之人體姿態估計' }}</h3>
+                            <div class="org">{{ lang === 'en' ? 'Advisor: Prof. Chin-Tien Wu' : '指導教授：吳金典' }}</div>
+                            <p>{{ lang === 'en' ? 'Enhanced Video Pose Transformer (VPT) by integrating Mamba-based sequence blocks for GPU-accelerated 2D-to-3D human pose estimation. Reduced inference latency and training cost through CUDA-level optimization, parallelized data flow, and modular system integration.' : '強化現有之 VPT 模組，整合 Mamba 序列區塊以提升 GPU 加速的 2D 至 3D 人體姿態估計效率。透過 CUDA 層級優化、平行化資料流及模組化系統整合，降低推論延遲與訓練成本。' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Work Experience -->
+            <section class="cv-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Experience' : '工作經驗' }}</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2025/01 – {{ lang === 'en' ? 'Present' : '現在' }}</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'Research Assistant' : '研究助理' }}</h3>
+                            <div class="org">{{ lang === 'en' ? 'National Chung-Shan Institute of Science and Technology' : '國家中山科學研究院' }}</div>
+                            <p>{{ lang === 'en' ? 'Data conversion and algorithm development for data collection systems.' : '協助院方數據收集裝置進行資料轉換與演算法開發。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2024/09 – {{ lang === 'en' ? 'Present' : '現在' }}</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'High School Math Tutor' : '高中數學家教' }}</h3>
+                            <p>{{ lang === 'en' ? 'Tailored teaching with real-life examples, maintaining progress tracking with students and parents.' : '依學生程度與吸收狀況，結合生活實例協助理解課程，並與學生和家長保持互動，共同掌握進度與設定目標。' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Competitions -->
+            <section class="cv-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Competitions' : '比賽經歷' }}</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2026/02</div>
+                        <div class="timeline-content">
+                            <h3>TSMC IT CareerHack 2026</h3>
+                            <span class="badge">{{ lang === 'en' ? '1st Place' : '第一名' }}</span>
+                            <p>{{ lang === 'en' ? 'Designed and implemented an AI-powered agent system for automated code refactoring. Built multi-step reasoning pipelines that analyze code structure, detect anti-patterns and code smells, and apply targeted transformations to improve maintainability, readability, and performance while preserving functional correctness through automated test validation.' : '設計並實作 AI 驅動的代理系統進行自動化代碼重構。建構多步驟推理管線，分析程式碼結構、偵測反模式與程式碼異味，並應用針對性轉換以提升可維護性、可讀性與效能，同時透過自動化測試驗證確保功能正確性。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2024/01</div>
+                        <div class="timeline-content">
+                            <h3>TSMC IT CareerHack 2024</h3>
+                            <span class="badge">{{ lang === 'en' ? '4th Place' : '第四名' }}</span>
+                            <p>{{ lang === 'en' ? 'Fine-tuned Llava model with LoRA, applied data augmentation and image filtering. Researched Flamingo and Honeybee as alternatives.' : '利用 LoRA 微調 Llava 基礎模型，應用資料增強技術提升模型泛化能力。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2025/03 – 2025/04</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'AI GO Skyrocketed Stocks Forecasting' : '永豐 AI GO 競賽股神對決' }}</h3>
+                            <p>{{ lang === 'en' ? 'Trained ensemble models (XGBoost, Random Forest) and TabNet for stock prediction with correlation-based feature selection.' : '以 AI 技術預測台灣股市中的指數增長型股票，訓練 XGBoost、Random Forest 及 TabNet 模型。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2025/03</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'TSMC Intelligent Manufacturing Workshop' : 'TSMC 智慧製造工作坊' }}</h3>
+                            <span class="badge">{{ lang === 'en' ? 'Top-performing Team' : '最佳團隊' }}</span>
+                            <p>{{ lang === 'en' ? 'Formulated graph-based job-shop optimization using Integer Linear Programming (ILP) for optimal scheduling. Explored Greedy, DP, RL, and Genetic Algorithm approaches.' : '自動化系統 Scheduling 和 AI Agent 創意提案，運用整數線性規劃求解最佳排程。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2024/05 – 2024/06</div>
+                        <div class="timeline-content">
+                            <h3>AI CUP 2024 — {{ lang === 'en' ? 'UAV Image Generation' : '無人機影像資料生成' }}</h3>
+                            <span class="badge">{{ lang === 'en' ? 'Honorable Award' : '佳作' }}</span>
+                            <p>{{ lang === 'en' ? 'Processed and augmented training data with image normalization and mask-conditioned augmentation. Evaluated with FID.' : '以生成式 AI 建構無人機於自然環境偵察時所需之導航資訊，影像資料生成競賽。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2023/09 – 2023/11</div>
+                        <div class="timeline-content">
+                            <h3>TBrain AI GO — {{ lang === 'en' ? 'Housing Price Prediction' : '永豐房地產價格預測' }}</h3>
+                            <span class="badge">Top 4%</span>
+                            <p>{{ lang === 'en' ? 'Ensembled LightGBM and XGBoost for regression. Cleaned and merged multi-source datasets with hyperparameter tuning.' : '清理並合併多來源資料集，融合 LightGBM 和 XGBoost 提升迴歸準確度。' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects -->
+            <section class="cv-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Projects' : '專案' }}</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'Low-Rank Adaptation & Parameter-Efficient Tuning for Large Models' : '整合大型語言模型之低秩適應與多維參數高效微調' }}</h3>
+                            <p>{{ lang === 'en' ? 'LoRA + Adapter achieved +3.6% accuracy on vision tasks (0.8775 → 0.9134) with only 1.6% trainable parameters. LoRA + BitFit improved NLP accuracy on RoBERTa-base (0.931 → 0.945 on SST-2).' : '結合 LoRA 與 Adapter 在視覺任務上提升 3.6% 準確度，僅使用 1.6% 可訓練參數。LoRA + BitFit 在 RoBERTa-base 上提升 NLP 準確度。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'Pima Indian Diabetes Dataset — Data Science Project' : '以皮馬印地安人族群為基礎的第二型糖尿病風險預測' }}</h3>
+                            <p>{{ lang === 'en' ? 'Built classification pipelines with stratified k-fold CV and grid-search tuning. Achieved Accuracy 83.6%, ROC-AUC 91.2%, F1 86.3%.' : '建立分類管線，使用分層 k-fold 交叉驗證與網格搜尋調參，達到準確度 83.6%、ROC-AUC 91.2%。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'Simulating Oceanic Environments with OpenGL' : 'OpenGL 高擬真海洋環境之渲染與物理模擬' }}</h3>
+                            <p>{{ lang === 'en' ? 'Built real-time ocean scene in C++/OpenGL with dynamic wave animation, DuDv refraction, cubemap skybox, and Fresnel reflectance.' : '以 C++/OpenGL 建構即時海洋場景，包含動態波浪動畫、DuDv 折射、天空盒與菲涅耳反射。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'Game Theory Applied to Darts Strategies' : '賽局理論於飛鏢策略優化之應用' }}</h3>
+                            <p>{{ lang === 'en' ? 'Analyzed professional match data and framed checkout/target selection as a game-theoretic decision process.' : '分析職業比賽數據，將結帳/目標選擇建構為賽局理論決策過程。' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills -->
+            <section class="cv-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Skills' : '技能' }}</h2>
+                <div class="skills-group">
+                    <h3>{{ lang === 'en' ? 'Programming Languages' : '程式語言' }}</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">C++</span>
+                        <span class="skill-tag">C</span>
+                        <span class="skill-tag">SQL</span>
+                        <span class="skill-tag">Bash</span>
+                        <span class="skill-tag">Java</span>
+                        <span class="skill-tag">JavaScript</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h3>{{ lang === 'en' ? 'Tools & Platforms' : '工具與平台' }}</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">Docker</span>
+                        <span class="skill-tag">Linux</span>
+                        <span class="skill-tag">GCP</span>
+                        <span class="skill-tag">MATLAB</span>
+                        <span class="skill-tag">VirtualBox</span>
+                        <span class="skill-tag">MongoDB</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h3>{{ lang === 'en' ? 'Machine Learning & Optimization' : '機器學習與優化' }}</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">PyTorch</span>
+                        <span class="skill-tag">Transformer</span>
+                        <span class="skill-tag">Mamba</span>
+                        <span class="skill-tag">TabNet</span>
+                        <span class="skill-tag">CUDA</span>
+                        <span class="skill-tag">LoRA</span>
+                        <span class="skill-tag">XGBoost</span>
+                        <span class="skill-tag">LightGBM</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Extracurricular -->
+            <section class="cv-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Extracurricular' : '課外活動' }}</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'Darts Club — Founding Member' : '飛鏢社創社幹部' }}</h3>
+                            <p>{{ lang === 'en' ? '2020 National Collegiate Darts Championship · 9th Asian International Darts Open — Doubles B Division 5th Place' : '2020 全國大專飛鏢錦標賽 · 第九屆亞洲國際飛鏢公開賽 雙人組 B 級第五名' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PDF Download -->
+            <section class="cv-section pdf-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Download PDF' : '下載 PDF' }}</h2>
+                <div class="pdf-links">
+                    <a href="./cv_pdf/English_CV.pdf" target="_blank" class="pdf-card">
+                        <span class="pdf-icon">📄</span>
+                        <span>English CV</span>
+                    </a>
+                    <a href="./cv_pdf/Chinese_CV.pdf" target="_blank" class="pdf-card">
+                        <span class="pdf-icon">📄</span>
+                        <span>中文履歷</span>
+                    </a>
+                </div>
+            </section>
         </div>
     </div>
 
+    <script src="https://unpkg.com/vue@3"></script>
     <script src="js/cv.js"></script>
 </body>
 </html>

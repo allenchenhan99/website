@@ -1,59 +1,32 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Page</title>
     <link rel="stylesheet" href="css/profile.css">
-    <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
     <div id="app">
-        <!-- Sidebar toggle button -->
-        <button class="open-btn" @click="toggleSidebar(true)">&#9776;</button>
-
-        <!-- Sidebar -->
-        <div class="sidebar" :class="{ active: sidebarOpen }">
-            <button class="close-btn" @click="toggleSidebar(false)">&times;</button>
-            <ul>
-                <li>
-                    <a href="index.html">
-                        <img src="assets/images/home.png" alt="Home Icon" class="icon">
-                        Homepage
-                    </a>
-                </li>
-                <li>
-                    <a href="profile.html">
-                        <img src="assets/images/profile.png" alt="Profile Icon" class="icon">
-                        Profile
-                    </a>
-                </li>
-                <li>
-                    <a href="cv.html">
-                        <img src="assets/images/CV.png" alt="CV Icon" class="icon">
-                        CV
-                    </a>
-                </li>
-                <li>
-                    <a href="music.html">
-                        <img src="assets/images/Music.png" alt="Music Icon" class="icon">
-                        Music
-                    </a>
-                </li>
-                <li>
-                                    <a href="profile.html">
-                                        <img src="assets/images/Perfume.png" alt="Perfume Icon" class="icon">
-                                        Perfume
-                                    </a>                </li>
-            </ul>
-        </div>
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="profile.html" class="nav-link active">Profile</a>
+                <a href="cv.html" class="nav-link">CV</a>
+                <a href="music.html" class="nav-link">Music</a>
+                <a href="perfume.html" class="nav-link">Perfume</a>
+            </div>
+            <button class="theme-toggle" @click="toggleTheme" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                {{ darkMode ? '☀️' : '🌙' }}
+            </button>
+        </nav>
 
         <!-- Page Content -->
         <div class="content">
             <!-- Background image container -->
             <div class="image-container">
                 <img src="assets/images/IMG_1049.JPG" alt="Background Photo">
-                <!-- 添加頭像容器 -->
                 <div class="profile-photo">
                     <img src="assets/images/selfie.JPG" alt="Profile Photo">
                 </div>

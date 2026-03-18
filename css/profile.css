@@ -1,4 +1,31 @@
-/* 全局樣式 */
+/* ===== CSS Variables / Theme ===== */
+:root {
+    --bg: #171717;
+    --text: #fbfbfb;
+    --text-secondary: #888;
+    --border: #333;
+    --nav-bg: #171717;
+    --hover: #222;
+    --link: #ccc;
+    --link-hover: #fff;
+    --card-bg: #1e1e1e;
+    --card-shadow: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+    --bg: #f8f8f8;
+    --text: #111;
+    --text-secondary: #666;
+    --border: #ddd;
+    --nav-bg: #f8f8f8;
+    --hover: #eee;
+    --link: #444;
+    --link-hover: #000;
+    --card-bg: #fff;
+    --card-shadow: rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Reset & Base ===== */
 * {
     margin: 0;
     padding: 0;
@@ -6,100 +33,73 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* ===== Navigation ===== */
+.navbar {
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    overflow-y: auto;
-}
-
-/* Sidebar styles */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: -250px;
-    width: 250px;
-    height: 100%;
-    background-color: #444;
-    color: white;
-    overflow: hidden;
-    transition: 0.3s ease;
-    z-index: 1000;
-    padding-top: 60px;
-}
-
-.sidebar.active {
-    left: 0;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar ul li {
-    padding: 15px 20px;
-    text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar ul li a {
-    color: white;
-    text-decoration: none;
-    display: flex;
+    justify-content: space-between;
     align-items: center;
-    font-size: 16px;
-    padding: 5px;
+    padding: 20px 40px;
+    position: sticky;
+    top: 0;
+    background-color: var(--nav-bg);
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
 }
 
-.sidebar ul li a:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+.nav-links {
+    display: flex;
+    gap: 24px;
 }
 
-/* Sidebar open/close buttons */
-.open-btn {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    background-color: transparent;
-    color: black;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 11;
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+    padding: 4px 0;
 }
 
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 20px;
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text);
+}
+
+.nav-link.active {
+    border-bottom: 1.5px solid var(--text);
+}
+
+.theme-toggle {
     background: none;
-    border: none;
-    color: black;
-    font-size: 30px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 16px;
     cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    line-height: 1;
 }
 
-/* Content styles */
+.theme-toggle:hover {
+    background-color: var(--hover);
+}
+
+/* ===== Content styles ===== */
 .content {
-    margin-left: 0;
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
-    transition: margin-left 0.3s ease;
 }
 
-.sidebar.active ~ .content {
-    margin-left: 250px;
-}
-
-/* Image container styles */
+/* ===== Image container ===== */
 .image-container {
     width: 100%;
     height: 50vh;
@@ -115,21 +115,22 @@ body {
     object-position: center;
 }
 
-/* 添加圓形遮罩 */
+/* Circle mask */
 .image-container::before {
     content: '';
     position: absolute;
     top: 42%;
     left: 51%;
     transform: translate(-50%, -50%);
-    width: 300px;  /* 圓的直徑 */
-    height: 300px; /* 圓的直徑 */
-    background-color: #f4f4f4; /* 與 body 背景色相同 */
+    width: 300px;
+    height: 300px;
+    background-color: var(--bg);
     border-radius: 50%;
     z-index: 1;
+    transition: background-color 0.3s;
 }
 
-/* 頭像 */
+/* Avatar */
 .image-container::after {
     content: '';
     position: absolute;
@@ -144,54 +145,44 @@ body {
     z-index: 2;
 }
 
-/* Icon styles for links */
-.icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
-    vertical-align: middle;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-/* Text container styles */
+/* ===== Text container ===== */
 .text-container {
-    flex-grow: 1;
-    margin: 20px;
-    padding: 20px;
-    background: white;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    background: var(--card-bg);
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 5px var(--card-shadow);
+    border: 1px solid var(--border);
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .text-container h1 {
     margin-bottom: 10px;
     font-size: 24px;
+    color: var(--text);
 }
 
 .text-container p {
-    line-height: 1.6;
-    font-size: 16px;
-    color: #555;
+    line-height: 1.8;
+    font-size: 14px;
+    color: var(--text-secondary);
 }
 
-/* 添加媒體查詢來處理移動設備 */
+/* ===== Responsive ===== */
 @media screen and (max-width: 768px) {
-    /* 調整側邊欄 */
-    .sidebar {
-        width: 80%; /* 改為 80% 而不是全寬 */
-        left: -80%;
+    .navbar {
+        padding: 16px 20px;
     }
 
-    .sidebar.active {
-        left: 0;
+    .nav-links {
+        gap: 16px;
     }
 
-    .sidebar.active ~ .content {
-        margin-left: 0;
+    .nav-link {
+        font-size: 13px;
     }
 
-    /* 調整圓形頭像大小 */
     .image-container::before {
         width: 200px;
         height: 200px;
@@ -204,10 +195,9 @@ body {
         top: 45%;
     }
 
-    /* 調整文字容器 */
     .text-container {
         margin: 10px;
-        padding: 15px;
+        padding: 20px;
     }
 
     .text-container h1 {
@@ -215,42 +205,11 @@ body {
     }
 
     .text-container p {
-        font-size: 14px;
-    }
-
-    /* 調整按鈕大小和位置 */
-    .open-btn {
-        font-size: 24px;
-        padding: 10px;
-    }
-
-    .close-btn {
-        font-size: 24px;
-        padding: 10px;
-    }
-
-    /* 調整側邊欄項目 */
-    .sidebar ul li {
-        padding: 12px 15px;
-    }
-
-    .sidebar ul li a {
-        font-size: 16px;
-    }
-
-    .icon {
-        width: 20px;
-        height: 20px;
+        font-size: 13px;
     }
 }
 
-/* 小型手機 */
 @media screen and (max-width: 375px) {
-    .sidebar {
-        width: 85%; /* 與 style.css 保持一致 */
-        left: -85%;
-    }
-
     .image-container::before {
         width: 150px;
         height: 150px;
@@ -261,9 +220,17 @@ body {
         height: 140px;
     }
 
+    .nav-links {
+        gap: 12px;
+    }
+
+    .nav-link {
+        font-size: 12px;
+    }
+
     .text-container {
         margin: 8px;
-        padding: 12px;
+        padding: 15px;
     }
 
     .text-container h1 {
@@ -271,40 +238,6 @@ body {
     }
 
     .text-container p {
-        font-size: 13px;
+        font-size: 12px;
     }
-
-    .sidebar ul li {
-        padding: 10px;
-    }
-
-    .sidebar ul li a {
-        font-size: 14px;
-    }
-
-    .icon {
-        width: 16px;
-        height: 16px;
-    }
-}
-
-/* 觸控設備優化 */
-@media (hover: none) {
-    .sidebar ul li a {
-        padding: 12px;
-    }
-
-    .sidebar ul li a:hover {
-        background-color: transparent;
-    }
-
-    .sidebar ul li a:active {
-        background-color: rgba(0, 0, 0, 0.1);
-    }
-}
-
-/* 確保適當的視口設置 */
-@viewport {
-    width: device-width;
-    zoom: 1.0;
 }

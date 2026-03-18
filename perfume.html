@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfume Page</title>
+    <link rel="stylesheet" href="css/perfume.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="cv.html" class="nav-link">CV</a>
+                <a href="music.html" class="nav-link">Music</a>
+                <a href="perfume.html" class="nav-link active">Perfume</a>
+            </div>
+            <button class="theme-toggle" @click="toggleTheme" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                {{ darkMode ? '☀️' : '🌙' }}
+            </button>
+        </nav>
+
+        <!-- Page Content -->
+        <main class="content">
+            <div class="page-header">
+                <h1>Perfume</h1>
+                <p>Coming soon — my fragrance journey and reviews.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="js/perfume.js"></script>
+</body>
+</html>

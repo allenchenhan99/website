@@ -1,4 +1,31 @@
-/* 全局樣式 */
+/* ===== CSS Variables / Theme ===== */
+:root {
+    --bg: #171717;
+    --text: #fbfbfb;
+    --text-secondary: #888;
+    --border: #333;
+    --nav-bg: #171717;
+    --hover: #222;
+    --link: #ccc;
+    --link-hover: #fff;
+    --card-bg: #1e1e1e;
+    --card-shadow: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+    --bg: #f8f8f8;
+    --text: #111;
+    --text-secondary: #666;
+    --border: #ddd;
+    --nav-bg: #f8f8f8;
+    --hover: #eee;
+    --link: #444;
+    --link-hover: #000;
+    --card-bg: #fff;
+    --card-shadow: rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Reset & Base ===== */
 * {
     margin: 0;
     padding: 0;
@@ -6,165 +33,139 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* ===== Navigation ===== */
+.navbar {
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    height: 100vh;
-    overflow-y: auto;
-}
-
-/* Sidebar styles */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: -250px;
-    width: 250px;
-    height: 100%;
-    background-color: #444444;
-    color: white;
-    overflow: hidden;
-    transition: 0.3s ease;
-    z-index: 1000;
-    padding-top: 60px;
-}
-
-.sidebar.active {
-    left: 0;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar ul li {
-    padding: 15px 20px;
-    text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar ul li a {
-    color: white;
-    text-decoration: none;
-    display: flex;
+    justify-content: space-between;
     align-items: center;
-    font-size: 16px;
-    padding: 5px;
+    padding: 20px 40px;
+    position: sticky;
+    top: 0;
+    background-color: var(--nav-bg);
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
 }
 
-.sidebar ul li a:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+.nav-links {
+    display: flex;
+    gap: 24px;
 }
 
-/* Sidebar open/close buttons */
-.open-btn {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    background-color: transparent;
-    color: black;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 11;
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+    padding: 4px 0;
 }
 
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 20px;
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text);
+}
+
+.nav-link.active {
+    border-bottom: 1.5px solid var(--text);
+}
+
+.theme-toggle {
     background: none;
-    border: none;
-    color: black;
-    font-size: 30px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 16px;
     cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    line-height: 1;
 }
 
-/* Content styles */
+.theme-toggle:hover {
+    background-color: var(--hover);
+}
+
+/* ===== Content styles ===== */
 .content {
-    margin-left: 0;
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
-    transition: margin-left 0.3s ease;
 }
 
-.sidebar.active ~ .content {
-    margin-left: 250px;
-}
-
-/* Image container styles */
+/* ===== Image container ===== */
 .image-container {
-    position: relative; /* 設置為相對定位，讓 `.text-container` 絕對定位生效 */
+    position: relative;
 }
 
-.image-container img {
+.image-container > img {
     width: 100%;
-    height: 100%;
+    height: auto;
+    display: block;
     object-fit: cover;
     object-position: center;
-    transform: scaleX(-1); /* 水平翻轉圖片 */
+    transform: scaleX(-1);
 }
 
-/* Icon styles for links */
-.icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
-    vertical-align: middle;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-/* Text container styles */
+/* ===== Text container ===== */
 .text-container {
-    position: absolute; /* 設置為絕對定位 */
-    bottom: 50px;      /* 距離父容器底部 20px，可以調整這個值改變位置 */
-    left: 50%;          /* 水平居中 */
-    transform: translateX(-50%); /* 調整位置至容器中心 */
-    width: 90%;         /* 設定寬度，根據需求調整 */
-    background: rgba(255, 255, 255, 0.9); /* 半透明背景，讓文字更突出 */
-    padding: 30px;      /* 內邊距，讓文字不緊貼容器邊緣 */
-    border-radius: 8px; /* 圓角效果 */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 輕微陰影，增加立體感 */
-    z-index: 3;         /* 確保文字區塊顯示在圖片上方 */
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 900px;
+    background: rgba(23, 23, 23, 0.92);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px var(--card-shadow);
+    border: 1px solid var(--border);
+    z-index: 3;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+[data-theme="light"] .text-container {
+    background: rgba(255, 255, 255, 0.92);
 }
 
 .text-container h1 {
     margin-bottom: 10px;
-    font-size: 35px;
+    font-size: 28px;
+    color: var(--text);
 }
 
 .text-container p {
-    line-height: 1.6;
-    font-size: 16px;
-    color: #555;
+    line-height: 1.8;
+    font-size: 14px;
+    color: var(--text-secondary);
 }
 
+/* ===== Record player animation ===== */
 @keyframes rotate {
     0% {
-        transform: rotate(0deg); /* 起始角度 */
+        transform: rotate(0deg);
     }
     100% {
-        transform: rotate(360deg); /* 完成一圈 */
+        transform: rotate(360deg);
     }
 }
 
-/* 添加唱片機圖片容器 */
 .record-player {
     position: absolute;
-    top: 15%;          /* 可以調整這個值來改變垂直位置 */
-    left: 8%;          /* 可以調整這個值來改變水平位置 */
-    width: 200px;      /* 圓形容器的寬度 */
-    height: 200px;     /* 圓形容器的高度 */
-    border-radius: 50%; /* 將容器變為圓形 */
-    overflow: hidden;   /* 隱藏超出容器的部分 */
+    top: 15%;
+    left: 8%;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
     z-index: 2;
-    display: flex;      /* 使用 Flexbox 居中圖片 */
+    display: flex;
     justify-content: center;
     align-items: center;
     animation: rotate 5s linear infinite;
@@ -173,112 +174,39 @@ body {
 .record-player img {
     width: 110%;
     height: 110%;
-    transform: translate(-50%, -50%); /* 平移使圖片中心對齊容器 */
-    position: absolute; /* 使用絕對定位以啟用精確位置控制 */
-    top: 50%;           /* 定位到容器的中心 */
+    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50%;
     left: 50%;
     object-fit: cover;
 }
 
-
-/* 響應式調整 */
+/* ===== Responsive ===== */
 @media screen and (max-width: 768px) {
+    .navbar {
+        padding: 16px 20px;
+    }
+
+    .nav-links {
+        gap: 16px;
+    }
+
+    .nav-link {
+        font-size: 13px;
+    }
+
     body {
-        overflow-y: auto; /* 確保小屏設備可以滾動 */
+        overflow-y: auto;
     }
 
     .content {
-        height: auto; /* 適配內容高度 */
+        height: auto;
         overflow: visible;
     }
 
     .record-player {
-        width: 50px;
-        height: 50px;
-        top: 20%;
-        left: 10%;
-    }
-
-    .text-container {
-        position: relative;
-        margin: 20px auto;
-        width: fit-content;
-        max-width: 90%;
-        font-size: 10px;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 15px;
-        border-radius: 8px;
-        left: 45%;
-        transform: translateX(-50%);
-    }
-
-    .image-container {
-        margin-bottom: 10px; /* 確保與文字容器分隔 */
-    }
-
-    .sidebar {
-        width: 85%;
-        left: -85%;
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-}
-
-/* 平板和大型手機 */
-@media screen and (max-width: 768px) {
-    /* 調整側邊欄 */
-    .sidebar {
-        width: 85%;
-        left: -85%;
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-
-    .sidebar.active ~ .content {
-        margin-left: 0;
-    }
-
-    /* 調整內容區域 */
-    .content {
-        margin-left: 0;
-        width: 100%;
-    }
-
-    /* 調整按鈕大小和位置 */
-    .open-btn {
-        top: 10px;
-        left: 10px;
-        font-size: 24px;
-        padding: 10px;
-    }
-
-    .close-btn {
-        font-size: 24px;
-        padding: 10px;
-    }
-
-    /* 調整側邊欄項目 */
-    .sidebar ul li {
-        padding: 12px 15px;
-    }
-
-    .sidebar ul li a {
-        font-size: 16px;
-    }
-
-    /* 確保圖標大小適中 */
-    .icon {
-        width: 20px;
-        height: 20px;
-    }
-
-    .record-player {
-        width: 150px;
-        height: 150px;
+        width: 100px;
+        height: 100px;
         top: 20%;
         left: 10%;
     }
@@ -287,54 +215,56 @@ body {
         position: relative;
         margin: 20px auto;
         width: 90%;
-        padding: 15px;
-        left: 45%;
+        padding: 20px;
+        left: auto;
+        transform: none;
+        bottom: auto;
+    }
+
+    .image-container {
+        margin-bottom: 10px;
+    }
+
+    .text-container h1 {
+        font-size: 22px;
+    }
+
+    .text-container p {
+        font-size: 13px;
     }
 }
 
-/* 小型手機 */
 @media screen and (max-width: 375px) {
-    .sidebar {
-        width: 85%;
-        left: -85%;
+    .nav-links {
+        gap: 12px;
     }
 
-    .sidebar ul li {
-        padding: 10px;
-    }
-
-    .sidebar ul li a {
-        font-size: 14px;
-    }
-
-    .icon {
-        width: 16px;
-        height: 16px;
+    .nav-link {
+        font-size: 12px;
     }
 
     .record-player {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
         top: 15%;
         left: 8%;
     }
 
     .text-container {
         width: 95%;
-        padding: 12px;
+        padding: 15px;
         margin: 15px auto;
     }
 
     .text-container h1 {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .text-container p {
-        font-size: 14px;
+        font-size: 12px;
     }
 }
 
-/* 處理橫屏模式 */
 @media screen and (orientation: landscape) and (max-height: 500px) {
     .record-player {
         width: 120px;
@@ -347,25 +277,4 @@ body {
         bottom: 20px;
         padding: 15px;
     }
-}
-
-/* 觸控設備優化 */
-@media (hover: none) {
-    .sidebar ul li a {
-        padding: 12px;
-    }
-
-    .sidebar ul li a:hover {
-        background-color: transparent;
-    }
-
-    .sidebar ul li a:active {
-        background-color: rgba(0, 0, 0, 0.1);
-    }
-}
-
-/* 確保適當的視口設置 */
-@viewport {
-    width: device-width;
-    zoom: 1.0;
 }
