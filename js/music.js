@@ -1,29 +1,9 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const imageContainer = document.querySelector('.image-container');
-    const textContainer = document.querySelector('.text-container');
-    const content = document.querySelector('.content');
-
-    function adjustLayout() {
-        if (window.innerWidth <= 768) {
-            if (imageContainer.contains(textContainer)) {
-                content.appendChild(textContainer);
-            }
-        } else {
-            if (!imageContainer.contains(textContainer)) {
-                imageContainer.appendChild(textContainer);
-            }
-        }
-    }
-
-    adjustLayout();
-    window.addEventListener('resize', adjustLayout);
-});
-
 const app = Vue.createApp({
     data() {
         return {
             darkMode: true,
-            isRotating: true
+            viewMode: 'grid',
+            posts: []
         };
     },
     methods: {
@@ -35,18 +15,33 @@ const app = Vue.createApp({
         applyTheme() {
             document.documentElement.setAttribute('data-theme', this.darkMode ? 'dark' : 'light');
         },
-        toggleRotation() {
-            this.isRotating = !this.isRotating;
+        loadPosts() {
+            fetch('posts/music.json')
+                .then(res => res.json())
+                .then(data => { this.posts = data; })
+                .catch(err => console.error('Error loading posts:', err));
         }
     },
     mounted() {
-        const saved = localStorage.getItem('theme');
-        if (saved) {
-            this.darkMode = saved === 'dark';
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            this.darkMode = savedTheme === 'dark';
         } else {
             this.darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
         }
         this.applyTheme();
+
+        const savedView = localStorage.getItem('music-view');
+        if (savedView) {
+            this.viewMode = savedView;
+        }
+
+        this.loadPosts();
+    },
+    watch: {
+        viewMode(val) {
+            localStorage.setItem('music-view', val);
+        }
     }
 });
 

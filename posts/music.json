@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "date": "2026/03/15",
+        "title": "Nujabes — Metaphorical Music",
+        "tag": "Jazz Hip-Hop",
+        "cover": "assets/images/pxfuel.jpg",
+        "excerpt": "這張專輯是我接觸 jazz hip-hop 的起點。每一首歌都像是一段旅程，從開頭的鋼琴到結尾的 fade out，節奏感恰到好處。Nujabes 的混音技術讓爵士取樣與 hip-hop 節拍完美融合，創造出一種獨特的沉浸式聆聽體驗。"
+    },
+    {
+        "id": 2,
+        "date": "2026/03/10",
+        "title": "Tycho — Dive",
+        "tag": "Electronic",
+        "cover": "",
+        "excerpt": "完美的氛圍音樂。寫程式的時候放這張專輯，會進入一種非常專注的 flow state。音層的堆疊從頭到尾都非常克制，不會有突兀的轉折打斷你的思緒。"
+    },
+    {
+        "id": 3,
+        "date": "2026/03/01",
+        "title": "DJ Okawari — Luv Letter",
+        "tag": "Lo-Fi",
+        "cover": "",
+        "excerpt": "日系 lo-fi 的代表作之一。鋼琴旋律搭配溫暖的節拍，很適合下午時光。每一首歌都帶著淡淡的懷舊感，像是在翻閱一本老相簿。"
+    },
+    {
+        "id": 4,
+        "date": "2026/02/20",
+        "title": "J Dilla — Donuts",
+        "tag": "Hip-Hop",
+        "cover": "",
+        "excerpt": "傳奇製作人的最後一張作品。每段 beat 都只有一兩分鐘，卻每一段都是經典。這張專輯重新定義了 beat tape 的可能性，在病床上完成卻充滿了生命力。"
+    }
+]

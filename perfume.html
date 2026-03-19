@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfume Page</title>
+    <title>Perfume</title>
     <link rel="stylesheet" href="css/perfume.css">
 </head>
 <body>
@@ -22,13 +22,76 @@
             </button>
         </nav>
 
-        <!-- Page Content -->
-        <main class="content">
-            <div class="page-header">
-                <h1>Perfume</h1>
-                <p>Coming soon — my fragrance journey and reviews.</p>
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Perfume</h1>
+            <p>Scents that define moments — a curated journal of fragrances I've explored, worn, and loved.</p>
+        </div>
+
+        <!-- Main -->
+        <div class="main">
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-bar-left">
+                    <span class="filter-label">Collection</span>
+                    <div class="filter-mode">
+                        <button :class="{ active: filterMode === 'scent' }" @click="filterMode = 'scent'; activeFilter = 'All'">By Scent</button>
+                        <button :class="{ active: filterMode === 'brand' }" @click="filterMode = 'brand'; activeFilter = 'All'">By Brand</button>
+                    </div>
+                </div>
+                <span class="count-label">{{ filteredPosts.length }} fragrances</span>
             </div>
-        </main>
+
+            <!-- Filter Tags -->
+            <div class="filter-tags">
+                <button
+                    v-for="tag in filterOptions"
+                    :key="tag"
+                    class="filter-tag"
+                    :class="{ active: activeFilter === tag }"
+                    @click="activeFilter = tag"
+                >{{ tag }}</button>
+            </div>
+
+            <!-- Featured (first post) -->
+            <div class="featured" v-if="filteredPosts.length > 0">
+                <div class="featured-img" :style="filteredPosts[0].cover ? { backgroundImage: 'url(' + filteredPosts[0].cover + ')' } : {}">
+                    <span v-if="!filteredPosts[0].cover" class="bottle-icon">🧴</span>
+                </div>
+                <div class="featured-body">
+                    <span class="brand-label">{{ filteredPosts[0].brand }}</span>
+                    <h3>{{ filteredPosts[0].name }}</h3>
+                    <div class="notes">
+                        <span class="tag" v-for="s in filteredPosts[0].scents" :key="s">{{ s }}</span>
+                    </div>
+                    <p>{{ filteredPosts[0].excerpt }}</p>
+                    <span class="post-date">{{ filteredPosts[0].date }}</span>
+                </div>
+            </div>
+
+            <!-- Grid (rest of posts) -->
+            <div class="section-label" v-if="filteredPosts.length > 1">More from collection</div>
+            <div class="grid" v-if="filteredPosts.length > 1">
+                <div class="grid-card" v-for="post in filteredPosts.slice(1)" :key="post.id">
+                    <div class="grid-img" :style="post.cover ? { backgroundImage: 'url(' + post.cover + ')' } : {}">
+                        <span v-if="!post.cover" class="bottle-icon">🧴</span>
+                    </div>
+                    <div class="grid-body">
+                        <span class="brand-label">{{ post.brand }}</span>
+                        <h3>{{ post.name }}</h3>
+                        <div class="notes">
+                            <span class="tag" v-for="s in post.scents" :key="s">{{ s }}</span>
+                        </div>
+                        <p class="excerpt">{{ post.excerpt }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div class="empty-state" v-if="filteredPosts.length === 0">
+                <p>No fragrances found for this filter.</p>
+            </div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/vue@3"></script>

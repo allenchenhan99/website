@@ -22,14 +22,13 @@
             </button>
         </nav>
 
-        <!-- Page Content -->
-        <div class="content">
+        <!-- Hero Section -->
+        <div class="hero">
             <div class="image-container">
                 <img src="assets/images/pxfuel.jpg" alt="Music Background">
                 <div class="record-player">
                     <img src="assets/images/record-player.jpg" alt="Record Player">
                 </div>
-                <!-- Main text area -->
                 <div class="text-container">
                     <h1>Welcome to the Music Page</h1>
                     <p>
@@ -39,15 +38,86 @@
                         allows you to immerse yourself in the emotions of the moment of creation, while simultaneously evoking profound sentiments and forging unforgettable memories.
                         Let the rhythm guide you on a melodic odyssey.
                     </p>
-                    <p>
-                        <br>
-                    </p>
+                    <p><br></p>
                     <p>
                         The image above showcases an album cover reminiscent of the "Metaphorical" style by one of my favorite producers, DJs, and composers, "Nujabes".
                         His music possesses an extraordinary ability to anchor and soothe me during moments of emotional turbulence.
                         In contrast to the atmospheric intensity of modern trap music, the jazz hip-hop vibe he creates casts a more immersive and tranquilizing ambiance,
                         enveloping the surrounding environment and drawing listeners into a state of mindful resonance.
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Playlists Section -->
+        <div class="playlists-section">
+            <h2 class="playlists-title">Playlists</h2>
+            <div class="playlists-grid">
+                <div class="playlist-card">
+                    <h3>Western Hip-Hop</h3>
+                    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/0zOH4tLo3gS91K392iVukK?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                </div>
+                <div class="playlist-card">
+                    <h3>Korean Hip-Hop</h3>
+                    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/5FEkaCPvkQamrTWBAIvSra?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts Section -->
+        <div class="posts-section">
+            <div class="posts-header">
+                <h2 class="posts-title">Posts</h2>
+                <div class="view-toggle">
+                    <button :class="{ active: viewMode === 'grid' }" @click="viewMode = 'grid'" title="Grid view">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="11" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="1" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </button>
+                    <button :class="{ active: viewMode === 'list' }" @click="viewMode = 'list'" title="List view">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <rect x="1" y="2" width="16" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="1" y="8" width="16" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="1" y="14" width="16" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid View -->
+            <div v-if="viewMode === 'grid'" class="posts-grid">
+                <div class="grid-card" v-for="post in posts" :key="post.id">
+                    <div class="grid-cover" :style="post.cover ? { backgroundImage: 'url(' + post.cover + ')' } : {}">
+                        <span v-if="!post.cover">No Cover</span>
+                    </div>
+                    <div class="grid-body">
+                        <div class="grid-meta">
+                            <span class="tag">{{ post.tag }}</span>
+                            <span class="post-date">{{ post.date }}</span>
+                        </div>
+                        <h3 class="post-title">{{ post.title }}</h3>
+                        <p class="post-excerpt">{{ post.excerpt }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div v-if="viewMode === 'list'" class="posts-list">
+                <div class="list-post" v-for="post in posts" :key="post.id">
+                    <div class="list-cover" :style="post.cover ? { backgroundImage: 'url(' + post.cover + ')' } : {}">
+                        <span v-if="!post.cover">No Cover</span>
+                    </div>
+                    <div class="list-body">
+                        <div class="list-meta">
+                            <span class="tag">{{ post.tag }}</span>
+                            <span class="post-date">{{ post.date }}</span>
+                        </div>
+                        <h3 class="post-title">{{ post.title }}</h3>
+                        <p class="post-excerpt">{{ post.excerpt }}</p>
+                    </div>
                 </div>
             </div>
         </div>
