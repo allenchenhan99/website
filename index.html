@@ -30,6 +30,21 @@
             <!-- Chipi Animation -->
             <div class="chipi-animation" id="chipi-animation"></div>
 
+            <!-- Recent Posts -->
+            <section class="recent-posts" v-if="recentPosts.length > 0">
+                <h2 class="section-title">Recent</h2>
+                <div class="recent-list">
+                    <a :href="post.link" class="recent-item" v-for="post in recentPosts" :key="post.id">
+                        <div class="recent-source">
+                            <span class="recent-tag" :class="post.source">{{ post.source }}</span>
+                            <span class="recent-date">{{ post.date }}</span>
+                        </div>
+                        <h3 class="recent-title">{{ post.title }}</h3>
+                        <p class="recent-excerpt">{{ post.excerpt }}</p>
+                    </a>
+                </div>
+            </section>
+
             <!-- Categories Section -->
             <section class="categories">
                 <div class="category-list">

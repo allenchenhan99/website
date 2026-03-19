@@ -2,6 +2,7 @@ const app = Vue.createApp({
     data() {
         return {
             darkMode: true,
+            recentPosts: [],
             asciiArt: '',
             currentCharIndex: 0,
             currentFrame: 0,
@@ -24,6 +25,7 @@ const app = Vue.createApp({
         }
         this.applyTheme();
 
+        this.loadRecentPosts();
         this.loadAsciiArt();
         this.loadChipiContent();
     },
@@ -35,6 +37,37 @@ const app = Vue.createApp({
         },
         applyTheme() {
             document.documentElement.setAttribute('data-theme', this.darkMode ? 'dark' : 'light');
+        },
+        loadRecentPosts() {
+            const musicPromise = fetch('posts/music.json')
+                .then(r => r.json())
+                .then(data => data.map(p => ({
+                    id: 'm' + p.id,
+                    date: p.date,
+                    title: p.title,
+                    excerpt: p.excerpt,
+                    source: 'music',
+                    link: 'music.html'
+                })))
+                .catch(() => []);
+
+            const perfumePromise = fetch('posts/perfume.json')
+                .then(r => r.json())
+                .then(data => data.map(p => ({
+                    id: 'p' + p.id,
+                    date: p.date,
+                    title: p.brand + ' — ' + p.name,
+                    excerpt: p.excerpt,
+                    source: 'perfume',
+                    link: 'perfume.html'
+                })))
+                .catch(() => []);
+
+            Promise.all([musicPromise, perfumePromise]).then(([music, perfume]) => {
+                const all = [...music, ...perfume];
+                all.sort((a, b) => b.date.localeCompare(a.date));
+                this.recentPosts = all.slice(0, 3);
+            });
         },
         loadAsciiArt() {
             fetch('asciiArt.txt')
