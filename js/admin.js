@@ -2,6 +2,7 @@ const REPO_OWNER = 'allenchenhan99';
 const REPO_NAME = 'website';
 const MUSIC_PATH = 'posts/music.json';
 const PERFUME_PATH = 'posts/perfume.json';
+const UPLOAD_DIR = 'assets/images/uploads';
 
 const app = Vue.createApp({
     data() {
@@ -33,6 +34,14 @@ const app = Vue.createApp({
             showPerfumeModal: false,
             editingPerfumeIndex: -1,
             perfumeForm: { brand: '', name: '', scentsInput: '', date: '', cover: '', excerpt: '' },
+
+            // Image upload & crop
+            showCropModal: false,
+            cropImageSrc: '',
+            cropTarget: '',
+            cropper: null,
+            uploading: false,
+            originalFileName: '',
         };
     },
     mounted() {
@@ -100,12 +109,14 @@ const app = Vue.createApp({
             const res = await this.ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`);
             if (!res.ok) return { content: [], sha: '' };
             const data = await res.json();
-            const decoded = JSON.parse(atob(data.content));
+            const bytes = Uint8Array.from(atob(data.content), c => c.charCodeAt(0));
+            const decoded = JSON.parse(new TextDecoder().decode(bytes));
             return { content: decoded, sha: data.sha };
         },
 
         async saveFile(path, content, sha, message) {
-            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 4))));
+            const bytes = new TextEncoder().encode(JSON.stringify(content, null, 4));
+            const encoded = btoa(String.fromCharCode(...bytes));
             const body = {
                 message,
                 content: encoded,
@@ -281,6 +292,126 @@ const app = Vue.createApp({
                 this.showToast('Error deleting: ' + e.message);
             }
             this.saving = false;
+        },
+
+        // ===== Image Upload & Crop =====
+        onFileSelect(event, target) {
+            const file = event.target.files[0];
+            if (!file) return;
+            this.originalFileName = file.name;
+            this.openCropper(file, target);
+            event.target.value = '';
+        },
+
+        onFileDrop(event, target) {
+            const file = event.dataTransfer.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            this.originalFileName = file.name;
+            this.openCropper(file, target);
+        },
+
+        openCropper(file, target) {
+            this.cropTarget = target;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.cropImageSrc = e.target.result;
+                this.showCropModal = true;
+                this.$nextTick(() => {
+                    const img = this.$refs.cropImage;
+                    if (this.cropper) this.cropper.destroy();
+                    this.cropper = new Cropper(img, {
+                        viewMode: 1,
+                        autoCropArea: 0.8,
+                        responsive: true,
+                    });
+                });
+            };
+            reader.readAsDataURL(file);
+        },
+
+        cancelCrop() {
+            if (this.cropper) {
+                this.cropper.destroy();
+                this.cropper = null;
+            }
+            this.showCropModal = false;
+            this.cropImageSrc = '';
+        },
+
+        async confirmCrop() {
+            if (!this.cropper) return;
+            this.uploading = true;
+
+            try {
+                const canvas = this.cropper.getCroppedCanvas({
+                    maxWidth: 1200,
+                    maxHeight: 1200,
+                });
+
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+                const base64 = await this.blobToBase64(blob);
+
+                // Generate filename from original
+                const ext = 'jpg';
+                const baseName = this.originalFileName
+                    .replace(/\.[^.]+$/, '')
+                    .replace(/[^a-zA-Z0-9_-]/g, '_')
+                    .toLowerCase();
+
+                // Check for duplicates and get unique path
+                const finalPath = await this.getUniquePath(`${UPLOAD_DIR}/${baseName}.${ext}`);
+
+                // Upload to GitHub
+                const res = await this.ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${finalPath}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        message: `Upload image: ${finalPath}`,
+                        content: base64,
+                    }),
+                });
+
+                if (!res.ok) throw new Error('Upload failed');
+
+                // Set the cover path
+                if (this.cropTarget === 'music') {
+                    this.musicForm.cover = finalPath;
+                } else {
+                    this.perfumeForm.cover = finalPath;
+                }
+
+                this.showToast('Image uploaded!');
+            } catch (e) {
+                this.showToast('Error uploading: ' + e.message);
+            }
+
+            this.cropper.destroy();
+            this.cropper = null;
+            this.showCropModal = false;
+            this.cropImageSrc = '';
+            this.uploading = false;
+        },
+
+        async getUniquePath(path) {
+            const res = await this.ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`);
+            if (res.status === 404) {
+                return path; // File doesn't exist, safe to use
+            }
+            // File exists, add timestamp suffix
+            const dot = path.lastIndexOf('.');
+            const base = path.substring(0, dot);
+            const ext = path.substring(dot);
+            return `${base}_${Date.now()}${ext}`;
+        },
+
+        blobToBase64(blob) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    // Remove data:...;base64, prefix
+                    resolve(reader.result.split(',')[1]);
+                };
+                reader.readAsDataURL(blob);
+            });
         },
 
         // ===== Utils =====

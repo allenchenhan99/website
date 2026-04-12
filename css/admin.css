@@ -474,6 +474,83 @@ body {
 .btn-save:hover { opacity: 0.85; }
 .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ===== Upload Area ===== */
+.upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-area:hover {
+    border-color: var(--accent-border);
+    background: var(--accent-dim);
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.upload-hint {
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.upload-preview {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 6px;
+    object-fit: contain;
+}
+
+.btn-remove-img {
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: none;
+    border: 1px solid var(--danger);
+    border-radius: 6px;
+    color: var(--danger);
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-remove-img:hover {
+    background: var(--danger-dim);
+}
+
+/* ===== Crop Modal ===== */
+.crop-modal {
+    max-width: 700px;
+}
+
+.crop-body {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    border-radius: 0;
+}
+
+.crop-image {
+    display: block;
+    max-width: 100%;
+    max-height: 60vh;
+}
+
 /* ===== Toast ===== */
 .toast {
     position: fixed;

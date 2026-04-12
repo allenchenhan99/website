@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css">
 </head>
 <body>
     <div id="app">
@@ -113,8 +114,16 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Cover Image URL (optional)</label>
-                            <input class="form-input" v-model="musicForm.cover" placeholder="assets/images/cover.jpg">
+                            <label class="form-label">Cover Image</label>
+                            <div class="upload-area" @click="$refs.musicFileInput.click()" @dragover.prevent @drop.prevent="onFileDrop($event, 'music')">
+                                <img v-if="musicForm.cover" :src="musicForm.cover" class="upload-preview">
+                                <div v-else class="upload-placeholder">
+                                    <span>Click or drag to upload</span>
+                                    <span class="upload-hint">JPG, PNG — will be cropped before upload</span>
+                                </div>
+                            </div>
+                            <input type="file" ref="musicFileInput" accept="image/*" style="display:none" @change="onFileSelect($event, 'music')">
+                            <button v-if="musicForm.cover" class="btn-remove-img" @click="musicForm.cover = ''">Remove image</button>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Content</label>
@@ -157,8 +166,16 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Cover Image URL (optional)</label>
-                            <input class="form-input" v-model="perfumeForm.cover" placeholder="assets/images/perfume.jpg">
+                            <label class="form-label">Cover Image</label>
+                            <div class="upload-area" @click="$refs.perfumeFileInput.click()" @dragover.prevent @drop.prevent="onFileDrop($event, 'perfume')">
+                                <img v-if="perfumeForm.cover" :src="perfumeForm.cover" class="upload-preview">
+                                <div v-else class="upload-placeholder">
+                                    <span>Click or drag to upload</span>
+                                    <span class="upload-hint">JPG, PNG — will be cropped before upload</span>
+                                </div>
+                            </div>
+                            <input type="file" ref="perfumeFileInput" accept="image/*" style="display:none" @change="onFileSelect($event, 'perfume')">
+                            <button v-if="perfumeForm.cover" class="btn-remove-img" @click="perfumeForm.cover = ''">Remove image</button>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Review</label>
@@ -172,11 +189,29 @@
                 </div>
             </div>
 
+            <!-- Crop Modal -->
+            <div class="modal-overlay" v-if="showCropModal">
+                <div class="modal crop-modal">
+                    <div class="modal-header">
+                        <h3>Crop Image</h3>
+                        <button class="modal-close" @click="cancelCrop">&times;</button>
+                    </div>
+                    <div class="modal-body crop-body">
+                        <img ref="cropImage" :src="cropImageSrc" class="crop-image">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-cancel" @click="cancelCrop">Cancel</button>
+                        <button class="btn-save" @click="confirmCrop" :disabled="uploading">{{ uploading ? 'Uploading...' : 'Crop & Upload' }}</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Toast -->
             <div class="toast" v-if="toastMsg">{{ toastMsg }}</div>
         </div>
     </div>
 
+    <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
     <script src="https://unpkg.com/vue@3"></script>
     <script src="js/admin.js"></script>
 </body>
