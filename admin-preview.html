@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel Preview</title>
+    <style>
+        :root {
+            --bg: #171717;
+            --text: #fbfbfb;
+            --text-secondary: #888;
+            --border: #333;
+            --card-bg: #1e1e1e;
+            --hover: #222;
+            --accent: #4a9eff;
+            --accent-dim: rgba(74, 158, 255, 0.1);
+            --accent-border: rgba(74, 158, 255, 0.3);
+            --danger: #ef4444;
+            --danger-dim: rgba(239, 68, 68, 0.1);
+            --success: #22c55e;
+            --success-dim: rgba(34, 197, 94, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ===== Login Screen ===== */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .login-box h1 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .login-box p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .login-input:focus {
+            border-color: var(--accent);
+        }
+        .login-input::placeholder {
+            color: var(--text-secondary);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .login-btn:hover { opacity: 0.85; }
+        .login-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+            line-height: 1.5;
+        }
+        .login-hint a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* ===== Admin Dashboard ===== */
+        .admin-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 100;
+        }
+        .admin-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .admin-logo {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3px;
+        }
+        .admin-tab {
+            padding: 6px 16px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .admin-tab.active {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+        .admin-tab:hover { color: var(--text); }
+        .admin-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .admin-status {
+            font-size: 12px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .admin-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+        .logout-btn {
+            padding: 6px 14px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* ===== Content Area ===== */
+        .admin-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .admin-header h2 {
+            font-size: 18px;
+        }
+        .add-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .add-btn:hover { opacity: 0.85; }
+
+        /* ===== Post List ===== */
+        .post-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .post-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+        .post-row:hover {
+            border-color: var(--accent-border);
+        }
+        .post-row-body {
+            flex: 1;
+        }
+        .post-row-title {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .post-row-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .post-row-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .post-row-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+        }
+        .post-row-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn.edit {
+            color: var(--accent);
+        }
+        .action-btn.edit:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent-border);
+        }
+        .action-btn.delete {
+            color: var(--danger);
+        }
+        .action-btn.delete:hover {
+            background: var(--danger-dim);
+            border-color: var(--danger);
+        }
+
+        /* ===== Edit Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-header h3 { font-size: 16px; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .modal-close:hover { color: var(--text); }
+        .modal-body {
+            padding: 24px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus,
+        .form-textarea:focus {
+            border-color: var(--accent);
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+        .btn-cancel {
+            padding: 8px 20px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-cancel:hover { color: var(--text); border-color: var(--text-secondary); }
+        .btn-save {
+            padding: 8px 24px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-save:hover { opacity: 0.85; }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            background: var(--success-dim);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            color: var(--success);
+            font-size: 13px;
+            z-index: 300;
+        }
+
+        /* ===== Responsive ===== */
+        @media screen and (max-width: 768px) {
+            .admin-nav { padding: 12px 16px; flex-wrap: wrap; gap: 12px; }
+            .admin-tabs { flex-wrap: wrap; }
+            .post-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .post-row-actions { align-self: flex-end; }
+            .form-row { grid-template-columns: 1fr; }
+            .modal { max-height: 90vh; }
+        }
+
+        /* Page separator */
+        .page-sep {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin: 60px 0 30px;
+            padding: 20px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== PAGE 1: Login ==================== -->
+<div class="login-screen" id="login-section">
+    <div class="login-box">
+        <h1>Admin Panel</h1>
+        <p>Enter your GitHub Personal Access Token to manage your website content.</p>
+        <input type="password" class="login-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" id="token-input">
+        <button class="login-btn" onclick="document.getElementById('login-section').style.display='none'; document.getElementById('dashboard-section').style.display='block';">
+            Connect
+        </button>
+        <p class="login-hint">
+            Generate a token at <a href="#">GitHub Settings → Developer Settings → Personal Access Tokens</a><br>
+            Only needs <code>repo</code> scope for this repository.
+        </p>
+    </div>
+</div>
+
+<!-- ==================== PAGE 2: Dashboard ==================== -->
+<div id="dashboard-section" style="display:none;">
+
+    <!-- Admin Nav -->
+    <nav class="admin-nav">
+        <div class="admin-nav-left">
+            <span class="admin-logo">Admin</span>
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="showTab(this, 'music-tab')">Music</button>
+                <button class="admin-tab" onclick="showTab(this, 'perfume-tab')">Perfume</button>
+                <button class="admin-tab" onclick="showTab(this, 'cv-tab')">CV</button>
+            </div>
+        </div>
+        <div class="admin-nav-right">
+            <span class="admin-status">Connected</span>
+            <button class="logout-btn" onclick="document.getElementById('login-section').style.display='flex'; document.getElementById('dashboard-section').style.display='none';">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Music Tab -->
+    <div class="admin-content" id="music-tab">
+        <div class="admin-header">
+            <h2>Music Posts</h2>
+            <button class="add-btn" onclick="document.getElementById('modal-music').style.display='flex';">+ New Post</button>
+        </div>
+        <div class="post-list">
+            <div class="post-row">
+                <div class="post-row-body">
+                    <div class="post-row-title">Nujabes — Metaphorical Music</div>
+                    <div class="post-row-meta">
+                        <span class="post-row-date">2026/03/15</span>
+                        <span class="post-row-tag">Jazz Hip-Hop</span>
+                    </div>
+                </div>
+                <div class="post-row-actions">
+                    <button class="action-btn edit" onclick="document.getElementById('modal-music').style.display='flex';">Edit</button>
+                    <button class="action-btn delete">Delete</button>
+                </div>
+            </div>
+            <div class="post-row">
+                <div class="post-row-body">
+                    <div class="post-row-title">Tycho — Dive</div>
+                    <div class="post-row-meta">
+                        <span class="post-row-date">2026/03/10</span>
+                        <span class="post-row-tag">Electronic</span>
+                    </div>
+                </div>
+                <div class="post-row-actions">
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn delete">Delete</button>
+                </div>
+            </div>
+            <div class="post-row">
+                <div class="post-row-body">
+                    <div class="post-row-title">DJ Okawari — Luv Letter</div>
+                    <div class="post-row-meta">
+                        <span class="post-row-date">2026/03/01</span>
+                        <span class="post-row-tag">Lo-Fi</span>
+                    </div>
+                </div>
+                <div class="post-row-actions">
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn delete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Perfume Tab -->
+    <div class="admin-content" id="perfume-tab" style="display:none;">
+        <div class="admin-header">
+            <h2>Perfume Collection</h2>
+            <button class="add-btn" onclick="document.getElementById('modal-perfume').style.display='flex';">+ New Entry</button>
+        </div>
+        <div class="post-list">
+            <div class="post-row">
+                <div class="post-row-body">
+                    <div class="post-row-title">Maison Margiela — Jazz Club</div>
+                    <div class="post-row-meta">
+                        <span class="post-row-date">2026/03/18</span>
+                        <span class="post-row-tag" style="color:#d4a574; border-color:rgba(212,165,116,0.3); background:rgba(212,165,116,0.1);">Woody</span>
+                        <span class="post-row-tag" style="color:#d4a574; border-color:rgba(212,165,116,0.3); background:rgba(212,165,116,0.1);">Tobacco</span>
+                    </div>
+                </div>
+                <div class="post-row-actions">
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn delete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CV Tab -->
+    <div class="admin-content" id="cv-tab" style="display:none;">
+        <div class="admin-header">
+            <h2>CV Sections</h2>
+        </div>
+        <div class="post-list">
+            <div class="post-row">
+                <div class="post-row-body">
+                    <div class="post-row-title">Education</div>
+                    <div class="post-row-meta">
+                        <span class="post-row-date">2 entries</span>
+                    </div>
+                </div>
+                <div class="post-row-actions">
+                    <button class="action-btn edit">Edit</button>
+                </div>
+            </div>
+            <div class="post-row">
+                <div class="post-row-body">
+                    <div class="post-row-title">Competitions</div>
+                    <div class="post-row-meta">
+                        <span class="post-row-date">6 entries</span>
+                    </div>
+                </div>
+                <div class="post-row-actions">
+                    <button class="action-btn edit">Edit</button>
+                </div>
+            </div>
+            <div class="post-row">
+                <div class="post-row-body">
+                    <div class="post-row-title">Projects</div>
+                    <div class="post-row-meta">
+                        <span class="post-row-date">4 entries</span>
+                    </div>
+                </div>
+                <div class="post-row-actions">
+                    <button class="action-btn edit">Edit</button>
+                </div>
+            </div>
+            <div class="post-row">
+                <div class="post-row-body">
+                    <div class="post-row-title">Skills</div>
+                    <div class="post-row-meta">
+                        <span class="post-row-date">3 groups</span>
+                    </div>
+                </div>
+                <div class="post-row-actions">
+                    <button class="action-btn edit">Edit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Music Edit Modal -->
+    <div class="modal-overlay" id="modal-music" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Music Post</h3>
+                <button class="modal-close" onclick="document.getElementById('modal-music').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input class="form-input" value="Nujabes — Metaphorical Music">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Tag</label>
+                        <input class="form-input" value="Jazz Hip-Hop">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input class="form-input" type="date" value="2026-03-15">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cover Image URL</label>
+                    <input class="form-input" placeholder="assets/images/cover.jpg (optional)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea class="form-textarea">這張專輯是我接觸 jazz hip-hop 的起點。每一首歌都像是一段旅程...</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="document.getElementById('modal-music').style.display='none'">Cancel</button>
+                <button class="btn-save" onclick="document.getElementById('modal-music').style.display='none'; document.getElementById('toast').style.display='block'; setTimeout(()=>document.getElementById('toast').style.display='none', 2000);">Save & Deploy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Perfume Edit Modal -->
+    <div class="modal-overlay" id="modal-perfume" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>New Perfume Entry</h3>
+                <button class="modal-close" onclick="document.getElementById('modal-perfume').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <input class="form-input" placeholder="e.g. Le Labo">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <input class="form-input" placeholder="e.g. Santal 33">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Scent Tags (comma separated)</label>
+                        <input class="form-input" placeholder="Woody, Sandalwood, Leather">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input class="form-input" type="date">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cover Image URL</label>
+                    <input class="form-input" placeholder="assets/images/perfume.jpg (optional)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Review</label>
+                    <textarea class="form-textarea" placeholder="Write your thoughts about this fragrance..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="document.getElementById('modal-perfume').style.display='none'">Cancel</button>
+                <button class="btn-save" onclick="document.getElementById('modal-perfume').style.display='none'; document.getElementById('toast').style.display='block'; setTimeout(()=>document.getElementById('toast').style.display='none', 2000);">Save & Deploy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" style="display:none;">
+        Saved and deployed successfully!
+    </div>
+</div>
+
+<script>
+function showTab(btn, tabId) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.admin-content').forEach(c => c.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+}
+</script>
+
+</body>
+</html>

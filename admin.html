@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div class="login-screen" v-if="!authenticated">
+            <div class="login-box">
+                <h1>Admin Panel</h1>
+                <p>Enter your GitHub Personal Access Token to manage your website content.</p>
+                <input type="password" class="login-input" v-model="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" @keyup.enter="connect">
+                <div class="login-error" v-if="loginError">{{ loginError }}</div>
+                <button class="login-btn" @click="connect" :disabled="connecting">
+                    {{ connecting ? 'Connecting...' : 'Connect' }}
+                </button>
+                <p class="login-hint">
+                    Generate a token at GitHub Settings → Developer Settings → Personal Access Tokens<br>
+                    Only needs <code>repo</code> scope for this repository.
+                </p>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div v-if="authenticated">
+            <!-- Admin Nav -->
+            <nav class="admin-nav">
+                <div class="admin-nav-left">
+                    <span class="admin-logo">Admin</span>
+                    <div class="admin-tabs">
+                        <button class="admin-tab" :class="{ active: activeTab === 'music' }" @click="activeTab = 'music'">Music</button>
+                        <button class="admin-tab" :class="{ active: activeTab === 'perfume' }" @click="activeTab = 'perfume'">Perfume</button>
+                    </div>
+                </div>
+                <div class="admin-nav-right">
+                    <span class="admin-status">Connected</span>
+                    <button class="logout-btn" @click="logout">Logout</button>
+                </div>
+            </nav>
+
+            <!-- Music Tab -->
+            <div class="admin-content" v-if="activeTab === 'music'">
+                <div class="admin-header">
+                    <h2>Music Posts</h2>
+                    <button class="add-btn" @click="openMusicModal()">+ New Post</button>
+                </div>
+                <div class="post-list">
+                    <div class="post-row" v-for="(post, index) in musicPosts" :key="post.id">
+                        <div class="post-row-body">
+                            <div class="post-row-title">{{ post.title }}</div>
+                            <div class="post-row-meta">
+                                <span class="post-row-date">{{ post.date }}</span>
+                                <span class="post-row-tag music">{{ post.tag }}</span>
+                            </div>
+                        </div>
+                        <div class="post-row-actions">
+                            <button class="action-btn edit" @click="openMusicModal(index)">Edit</button>
+                            <button class="action-btn delete" @click="deleteMusic(index)">Delete</button>
+                        </div>
+                    </div>
+                    <div class="empty-state" v-if="musicPosts.length === 0">No music posts yet. Click "+ New Post" to add one.</div>
+                </div>
+            </div>
+
+            <!-- Perfume Tab -->
+            <div class="admin-content" v-if="activeTab === 'perfume'">
+                <div class="admin-header">
+                    <h2>Perfume Collection</h2>
+                    <button class="add-btn" @click="openPerfumeModal()">+ New Entry</button>
+                </div>
+                <div class="post-list">
+                    <div class="post-row" v-for="(item, index) in perfumePosts" :key="item.id">
+                        <div class="post-row-body">
+                            <div class="post-row-title">{{ item.brand }} — {{ item.name }}</div>
+                            <div class="post-row-meta">
+                                <span class="post-row-date">{{ item.date }}</span>
+                                <span class="post-row-tag perfume" v-for="s in item.scents" :key="s">{{ s }}</span>
+                            </div>
+                        </div>
+                        <div class="post-row-actions">
+                            <button class="action-btn edit" @click="openPerfumeModal(index)">Edit</button>
+                            <button class="action-btn delete" @click="deletePerfume(index)">Delete</button>
+                        </div>
+                    </div>
+                    <div class="empty-state" v-if="perfumePosts.length === 0">No perfume entries yet. Click "+ New Entry" to add one.</div>
+                </div>
+            </div>
+
+            <!-- Music Modal -->
+            <div class="modal-overlay" v-if="showMusicModal" @click.self="showMusicModal = false">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>{{ editingMusicIndex === -1 ? 'New Music Post' : 'Edit Music Post' }}</h3>
+                        <button class="modal-close" @click="showMusicModal = false">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="form-label">Title</label>
+                            <input class="form-input" v-model="musicForm.title" placeholder="e.g. Nujabes — Metaphorical Music">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Tag</label>
+                                <input class="form-input" v-model="musicForm.tag" placeholder="e.g. Jazz Hip-Hop">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date</label>
+                                <input class="form-input" v-model="musicForm.date" placeholder="YYYY/MM/DD">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cover Image URL (optional)</label>
+                            <input class="form-input" v-model="musicForm.cover" placeholder="assets/images/cover.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Content</label>
+                            <textarea class="form-textarea" v-model="musicForm.excerpt" placeholder="Write your thoughts..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-cancel" @click="showMusicModal = false">Cancel</button>
+                        <button class="btn-save" @click="saveMusic" :disabled="saving">{{ saving ? 'Saving...' : 'Save & Deploy' }}</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Perfume Modal -->
+            <div class="modal-overlay" v-if="showPerfumeModal" @click.self="showPerfumeModal = false">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>{{ editingPerfumeIndex === -1 ? 'New Perfume Entry' : 'Edit Perfume Entry' }}</h3>
+                        <button class="modal-close" @click="showPerfumeModal = false">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Brand</label>
+                                <input class="form-input" v-model="perfumeForm.brand" placeholder="e.g. Le Labo">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input class="form-input" v-model="perfumeForm.name" placeholder="e.g. Santal 33">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Scent Tags (comma separated)</label>
+                                <input class="form-input" v-model="perfumeForm.scentsInput" placeholder="Woody, Sandalwood, Leather">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date</label>
+                                <input class="form-input" v-model="perfumeForm.date" placeholder="YYYY/MM/DD">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cover Image URL (optional)</label>
+                            <input class="form-input" v-model="perfumeForm.cover" placeholder="assets/images/perfume.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Review</label>
+                            <textarea class="form-textarea" v-model="perfumeForm.excerpt" placeholder="Write your thoughts about this fragrance..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-cancel" @click="showPerfumeModal = false">Cancel</button>
+                        <button class="btn-save" @click="savePerfume" :disabled="saving">{{ saving ? 'Saving...' : 'Save & Deploy' }}</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast -->
+            <div class="toast" v-if="toastMsg">{{ toastMsg }}</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
