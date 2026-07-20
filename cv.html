@@ -27,12 +27,13 @@
             <!-- CV Header -->
             <div class="cv-header">
                 <h1>{{ lang === 'en' ? 'Chen-Han Lin' : '林辰翰' }}</h1>
-                <p class="cv-subtitle">{{ lang === 'en' ? "Master's Student in Data Science and Engineering" : '數據科學與工程 碩士生' }}</p>
+                <p class="cv-subtitle">{{ lang === 'en' ? 'M.S. in Data Science and Engineering' : '數據科學與工程碩士' }}</p>
                 <div class="cv-contact">
                     <span>allenchenhan99@gmail.com</span>
-                    <span>(+886) 978-261-955</span>
+                    <span>+886 978 261 955</span>
+                    <a href="https://allenchenhan99.github.io/website/" target="_blank">Portfolio</a>
                     <a href="https://github.com/allenchenhan99" target="_blank">GitHub</a>
-                    <a href="https://www.linkedin.com/in/allen-lin-488492344" target="_blank">LinkedIn</a>
+                    <a href="https://www.linkedin.com/in/chen-han-lin-488492344/" target="_blank">LinkedIn</a>
                 </div>
                 <div class="cv-actions">
                     <button class="lang-toggle" @click="toggleLang">
@@ -50,120 +51,58 @@
                 <div class="timeline">
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
-                        <div class="timeline-date">2023/09 – {{ lang === 'en' ? 'Present' : '現在' }}</div>
+                        <div class="timeline-date">2023/09 – 2026/07</div>
                         <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? "Master's in Data Science and Engineering" : '數據科學與工程研究所' }}</h3>
-                            <div class="org">{{ lang === 'en' ? 'National Yang Ming Chiao Tung University' : '國立陽明交通大學' }}</div>
-                            <p>{{ lang === 'en' ? 'Machine Learning, Deep Learning, Data Science Project, Biostatistics' : '機器學習、深度學習、資料科學專題、生物統計' }}</p>
+                            <h3>{{ lang === 'en' ? 'M.S. in Data Science and Engineering' : '數據科學與工程碩士' }}</h3>
+                            <div class="org">{{ lang === 'en' ? 'National Yang Ming Chiao Tung University, College of Computer Science' : '國立陽明交通大學資訊學院' }}</div>
+                            <p>{{ lang === 'en' ? 'Coursework: Machine Learning, Deep Learning, Data Science Project, Biostatistics' : '課程：機器學習、深度學習、資料科學專題、生物統計' }}</p>
                         </div>
                     </div>
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-date">2018/09 – 2022/06</div>
                         <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? "Bachelor's in Mathematics" : '數學系' }}</h3>
-                            <div class="org">{{ lang === 'en' ? 'National Cheng Kung University' : '國立成功大學' }}</div>
-                            <p>{{ lang === 'en' ? 'Probability and Statistics, Fourier Analysis, Data Structures and Algorithms' : '機率與統計、傅立葉分析、資料結構與演算法' }}</p>
+                            <h3>{{ lang === 'en' ? 'B.S. in Mathematics' : '數學學士' }}</h3>
+                            <div class="org">{{ lang === 'en' ? 'National Cheng Kung University, College of Science' : '國立成功大學理學院' }}</div>
+                            <p>{{ lang === 'en' ? 'Coursework: Probability and Statistics, Fourier Analysis, Data Structures and Algorithms' : '課程：機率與統計、傅立葉分析、資料結構與演算法' }}</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Research -->
+            <!-- Master's Thesis -->
             <section class="cv-section">
-                <h2 class="section-title">{{ lang === 'en' ? 'Research' : '研究主題' }}</h2>
+                <h2 class="section-title">{{ lang === 'en' ? "Master's Thesis" : '碩士論文' }}</h2>
                 <div class="timeline">
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
-                        <div class="timeline-date">{{ lang === 'en' ? 'Completed Dec 2025' : '2025/12 完成' }}</div>
                         <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'Human Pose Estimation Based on Mamba State Space Architecture' : '基於 Mamba 狀態空間架構之人體姿態估計' }}</h3>
+                            <h3>{{ lang === 'en' ? 'Model Enhancement and Implementation of Human Pose Estimation Based on the Mamba State Space Architecture' : '基於 Mamba 狀態空間架構之人體姿態估計模型強化與實作' }}</h3>
                             <div class="org">{{ lang === 'en' ? 'Advisor: Prof. Chin-Tien Wu' : '指導教授：吳金典' }}</div>
-                            <p>{{ lang === 'en' ? 'Enhanced Video Pose Transformer (VPT) by integrating Mamba-based sequence blocks for GPU-accelerated 2D-to-3D human pose estimation. Reduced inference latency and training cost through CUDA-level optimization, parallelized data flow, and modular system integration.' : '強化現有之 VPT 模組，整合 Mamba 序列區塊以提升 GPU 加速的 2D 至 3D 人體姿態估計效率。透過 CUDA 層級優化、平行化資料流及模組化系統整合，降低推論延遲與訓練成本。' }}</p>
+                            <p>{{ lang === 'en' ? 'Integrated Mamba sequence blocks into a Video Pose Transformer for GPU-accelerated monocular 2D-to-3D pose estimation; reduced inference latency and training time through CUDA optimization, parallel data pipelines, and modular integration.' : '將 Mamba 序列區塊整合至 Video Pose Transformer，用於 GPU 加速的單眼 2D 至 3D 姿態估計；透過 CUDA 優化、平行資料管線與模組化整合，降低推論延遲與訓練時間。' }}</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Work Experience -->
+            <!-- Internship Experience -->
             <section class="cv-section">
-                <h2 class="section-title">{{ lang === 'en' ? 'Experience' : '工作經驗' }}</h2>
+                <h2 class="section-title">{{ lang === 'en' ? 'Internship Experience' : '實習經歷' }}</h2>
                 <div class="timeline">
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
-                        <div class="timeline-date">2025/01 – {{ lang === 'en' ? 'Present' : '現在' }}</div>
+                        <div class="timeline-date">2026/03 – {{ lang === 'en' ? 'Present' : '現在' }}</div>
                         <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'Research Assistant' : '研究助理' }}</h3>
-                            <div class="org">{{ lang === 'en' ? 'National Chung-Shan Institute of Science and Technology' : '國家中山科學研究院' }}</div>
-                            <p>{{ lang === 'en' ? 'Data conversion and algorithm development for data collection systems.' : '協助院方數據收集裝置進行資料轉換與演算法開發。' }}</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-date">2024/09 – {{ lang === 'en' ? 'Present' : '現在' }}</div>
-                        <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'High School Math Tutor' : '高中數學家教' }}</h3>
-                            <p>{{ lang === 'en' ? 'Tailored teaching with real-life examples, maintaining progress tracking with students and parents.' : '依學生程度與吸收狀況，結合生活實例協助理解課程，並與學生和家長保持互動，共同掌握進度與設定目標。' }}</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Competitions -->
-            <section class="cv-section">
-                <h2 class="section-title">{{ lang === 'en' ? 'Competitions' : '比賽經歷' }}</h2>
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-date">2026/02</div>
-                        <div class="timeline-content">
-                            <h3>TSMC IT CareerHack 2026</h3>
-                            <span class="badge">{{ lang === 'en' ? '1st Place' : '第一名' }}</span>
-                            <p>{{ lang === 'en' ? 'Designed and implemented an AI-powered agent system for automated code refactoring. Built multi-step reasoning pipelines that analyze code structure, detect anti-patterns and code smells, and apply targeted transformations to improve maintainability, readability, and performance while preserving functional correctness through automated test validation.' : '設計並實作 AI 驅動的代理系統進行自動化代碼重構。建構多步驟推理管線，分析程式碼結構、偵測反模式與程式碼異味，並應用針對性轉換以提升可維護性、可讀性與效能，同時透過自動化測試驗證確保功能正確性。' }}</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-date">2024/01</div>
-                        <div class="timeline-content">
-                            <h3>TSMC IT CareerHack 2024</h3>
-                            <span class="badge">{{ lang === 'en' ? '4th Place' : '第四名' }}</span>
-                            <p>{{ lang === 'en' ? 'Fine-tuned Llava model with LoRA, applied data augmentation and image filtering. Researched Flamingo and Honeybee as alternatives.' : '利用 LoRA 微調 Llava 基礎模型，應用資料增強技術提升模型泛化能力。' }}</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-date">2025/03 – 2025/04</div>
-                        <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'AI GO Skyrocketed Stocks Forecasting' : '永豐 AI GO 競賽股神對決' }}</h3>
-                            <p>{{ lang === 'en' ? 'Trained ensemble models (XGBoost, Random Forest) and TabNet for stock prediction with correlation-based feature selection.' : '以 AI 技術預測台灣股市中的指數增長型股票，訓練 XGBoost、Random Forest 及 TabNet 模型。' }}</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-date">2025/03</div>
-                        <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'TSMC Intelligent Manufacturing Workshop' : 'TSMC 智慧製造工作坊' }}</h3>
-                            <span class="badge">{{ lang === 'en' ? 'Top-performing Team' : '最佳團隊' }}</span>
-                            <p>{{ lang === 'en' ? 'Formulated graph-based job-shop optimization using Integer Linear Programming (ILP) for optimal scheduling. Explored Greedy, DP, RL, and Genetic Algorithm approaches.' : '自動化系統 Scheduling 和 AI Agent 創意提案，運用整數線性規劃求解最佳排程。' }}</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-date">2024/05 – 2024/06</div>
-                        <div class="timeline-content">
-                            <h3>AI CUP 2024 — {{ lang === 'en' ? 'UAV Image Generation' : '無人機影像資料生成' }}</h3>
-                            <span class="badge">{{ lang === 'en' ? 'Honorable Award' : '佳作' }}</span>
-                            <p>{{ lang === 'en' ? 'Processed and augmented training data with image normalization and mask-conditioned augmentation. Evaluated with FID.' : '以生成式 AI 建構無人機於自然環境偵察時所需之導航資訊，影像資料生成競賽。' }}</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-date">2023/09 – 2023/11</div>
-                        <div class="timeline-content">
-                            <h3>TBrain AI GO — {{ lang === 'en' ? 'Housing Price Prediction' : '永豐房地產價格預測' }}</h3>
-                            <span class="badge">Top 4%</span>
-                            <p>{{ lang === 'en' ? 'Ensembled LightGBM and XGBoost for regression. Cleaned and merged multi-source datasets with hyperparameter tuning.' : '清理並合併多來源資料集，融合 LightGBM 和 XGBoost 提升迴歸準確度。' }}</p>
+                            <h3>{{ lang === 'en' ? 'Data Scientist Intern' : '資料科學實習生' }}</h3>
+                            <div class="org">Whale Force Holdings Ltd.</div>
+                            <p>
+                                <strong>{{ lang === 'en' ? 'Systematic Strategy Research:' : '系統化策略研究：' }}</strong>
+                                {{ lang === 'en' ? 'Built a backtesting engine for investment hypotheses, evaluating benchmark-relative hit rates, Sharpe ratios, and Monte Carlo robustness.' : '建構投資假設回測引擎，評估相對基準命中率、夏普比率與蒙地卡羅穩健性。' }}<br>
+                                <strong>{{ lang === 'en' ? 'Financial Data Infrastructure:' : '金融資料基礎建設：' }}</strong>
+                                {{ lang === 'en' ? 'Integrated automated financial-statement segmentation and parsing into downstream research pipelines.' : '將自動化財務報表切分與解析整合至下游研究管線。' }}<br>
+                                <strong>{{ lang === 'en' ? 'Institutional Portfolio Research:' : '機構投資組合研究：' }}</strong>
+                                {{ lang === 'en' ? 'Developed a 13F-based clustering framework to identify investor segments with superior forward benchmark-relative performance.' : '開發以 13F 為基礎的分群框架，辨識未來相對基準績效較佳的投資人群體。' }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -176,29 +115,82 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'Low-Rank Adaptation & Parameter-Efficient Tuning for Large Models' : '整合大型語言模型之低秩適應與多維參數高效微調' }}</h3>
-                            <p>{{ lang === 'en' ? 'LoRA + Adapter achieved +3.6% accuracy on vision tasks (0.8775 → 0.9134) with only 1.6% trainable parameters. LoRA + BitFit improved NLP accuracy on RoBERTa-base (0.931 → 0.945 on SST-2).' : '結合 LoRA 與 Adapter 在視覺任務上提升 3.6% 準確度，僅使用 1.6% 可訓練參數。LoRA + BitFit 在 RoBERTa-base 上提升 NLP 準確度。' }}</p>
+                            <h3>{{ lang === 'en' ? 'Low-Rank Adaptation and Combined Parameter-Efficient Tuning for Large Models' : '大型模型之低秩適應與組合式參數高效微調' }}</h3>
+                            <p>{{ lang === 'en' ? 'Investigated LoRA, BitFit, Adapter, and Prefix-tuning across vision and NLP tasks. LoRA + Adapter improved vision classification accuracy by +3.6% (0.8775 to 0.9134) with only 1.6% trainable parameters, while LoRA + BitFit improved RoBERTa-base accuracy from 0.931 to 0.945 on SST-2.' : '研究 LoRA、BitFit、Adapter 與 Prefix-tuning 在視覺及 NLP 任務中的整合。LoRA + Adapter 僅使用 1.6% 可訓練參數，即將視覺分類準確度提升 +3.6%（0.8775 至 0.9134）；LoRA + BitFit 則將 RoBERTa-base 在 SST-2 的準確度由 0.931 提升至 0.945。' }}</p>
                         </div>
                     </div>
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'Pima Indian Diabetes Dataset — Data Science Project' : '以皮馬印地安人族群為基礎的第二型糖尿病風險預測' }}</h3>
-                            <p>{{ lang === 'en' ? 'Built classification pipelines with stratified k-fold CV and grid-search tuning. Achieved Accuracy 83.6%, ROC-AUC 91.2%, F1 86.3%.' : '建立分類管線，使用分層 k-fold 交叉驗證與網格搜尋調參，達到準確度 83.6%、ROC-AUC 91.2%。' }}</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'Simulating Oceanic Environments with OpenGL' : 'OpenGL 高擬真海洋環境之渲染與物理模擬' }}</h3>
-                            <p>{{ lang === 'en' ? 'Built real-time ocean scene in C++/OpenGL with dynamic wave animation, DuDv refraction, cubemap skybox, and Fresnel reflectance.' : '以 C++/OpenGL 建構即時海洋場景，包含動態波浪動畫、DuDv 折射、天空盒與菲涅耳反射。' }}</p>
+                            <h3>{{ lang === 'en' ? 'Data Science Project: Pima Indian Diabetes Dataset' : '資料科學專案：皮馬印地安人糖尿病資料集' }}</h3>
+                            <p>{{ lang === 'en' ? 'Built classification pipelines across logistic regression, decision trees, random forests, and XGBoost with preprocessing, domain-specific feature engineering, stratified cross-validation, and grid search. Achieved Accuracy = 83.6%, ROC-AUC = 91.2%, Precision = 84.5%, Recall = 88.2%, and F1 = 86.3%.' : '建立涵蓋邏輯斯迴歸、決策樹、隨機森林與 XGBoost 的分類管線，整合資料前處理、領域特定特徵工程、分層交叉驗證與網格搜尋。達到 Accuracy = 83.6%、ROC-AUC = 91.2%、Precision = 84.5%、Recall = 88.2%、F1 = 86.3%。' }}</p>
                         </div>
                     </div>
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
                             <h3>{{ lang === 'en' ? 'Game Theory Applied to Darts Strategies' : '賽局理論於飛鏢策略優化之應用' }}</h3>
-                            <p>{{ lang === 'en' ? 'Analyzed professional match data and framed checkout/target selection as a game-theoretic decision process.' : '分析職業比賽數據，將結帳/目標選擇建構為賽局理論決策過程。' }}</p>
+                            <p>{{ lang === 'en' ? 'Modeled checkout and target-selection decisions using professional match data, quantifying state-dependent risk-reward trade-offs to derive optimal decision rules across match scenarios.' : '運用職業賽事資料建模結鏢與目標選擇決策，量化不同狀態下的風險報酬取捨，推導各種比賽情境的最佳決策規則。' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Selected Honors & Competitions -->
+            <section class="cv-section">
+                <h2 class="section-title">{{ lang === 'en' ? 'Selected Honors & Competitions' : '重要榮譽與競賽' }}</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2026/02</div>
+                        <div class="timeline-content">
+                            <h3>TSMC IT CareerHack</h3>
+                            <span class="badge">{{ lang === 'en' ? '1st Place' : '第一名' }}</span>
+                            <p>{{ lang === 'en' ? 'Built a Docker-isolated refactoring platform with LangChain Deep Agents, FastAPI, React, and MongoDB, automating iterative analysis, refactoring, testing, and quality evaluation across three legacy repositories.' : '以 LangChain Deep Agents、FastAPI、React 與 MongoDB 建構 Docker 隔離的重構平台，自動化三個舊有程式庫的迭代分析、重構、測試與品質評估。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2026/03 – 2026/06</div>
+                        <div class="timeline-content">
+                            <h3>WorldQuant International Quant Championship</h3>
+                            <span class="badge">{{ lang === 'en' ? '4th Place in Taiwan' : '台灣第四名' }}</span>
+                            <p>{{ lang === 'en' ? 'Built a closed-loop alpha research engine that encoded backtest results as graph constraints, pruned redundant hypotheses, and re-ranked signals by marginal portfolio contribution. Evaluated 5,164 alpha expressions, with 1,023 passing all seven platform checks, and helped construct a 52-alpha portfolio that finished 4th in Taiwan.' : '建構閉環 Alpha 研究引擎，將回測結果編碼為圖約束、刪減冗餘假設，並依投資組合邊際貢獻重新排序訊號。共評估 5,164 個 Alpha 表達式，其中 1,023 個通過平台全部七項檢查，並協助建立由 52 個 Alpha 組成、最終獲得台灣第四名的投資組合。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2024/01</div>
+                        <div class="timeline-content">
+                            <h3>TSMC IT CareerHack</h3>
+                            <span class="badge">{{ lang === 'en' ? '4th Place' : '第四名' }}</span>
+                            <p>{{ lang === 'en' ? 'Fine-tuned LLaVA with LoRA for task-specific visual question answering, supported by targeted data augmentation and noise filtering.' : '使用 LoRA 微調 LLaVA，以完成特定任務的視覺問答，並搭配針對性的資料增強與雜訊過濾。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2025/03</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'TSMC Intelligent Manufacturing Workshop' : 'TSMC 智慧製造工作坊' }}</h3>
+                            <span class="badge">{{ lang === 'en' ? 'Top-Performing Team, Scheduling Optimization' : '最佳團隊，排程最佳化' }}</span>
+                            <p>{{ lang === 'en' ? 'Formulated the problem as a graph-based job-shop optimization, converting locations to nodes and distances to weighted edges, and applied Integer Linear Programming (ILP) to obtain the optimal schedule.' : '將問題建模為圖結構的工作車間排程最佳化，把地點轉為節點、距離轉為加權邊，並使用整數線性規劃（ILP）求得最佳排程。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2024/05 – 2024/06</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'AI CUP 2024 Image Data Generation for UAVs' : 'AI CUP 2024 無人機影像資料生成' }}</h3>
+                            <span class="badge">{{ lang === 'en' ? 'Honorable Award' : '佳作' }}</span>
+                            <p>{{ lang === 'en' ? 'Built a mask-conditioned image-generation pipeline with targeted augmentation and hyperparameter tuning, evaluated using Fréchet Inception Distance (FID).' : '建構以遮罩為條件的影像生成管線，搭配針對性資料增強與超參數調整，並以 Fréchet Inception Distance（FID）進行評估。' }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2025/03 – 2025/04</div>
+                        <div class="timeline-content">
+                            <h3>{{ lang === 'en' ? 'AI GO Skyrocketed Stocks Forecasting' : 'AI GO 飆股預測' }}</h3>
+                            <p>{{ lang === 'en' ? 'Built and tuned XGBoost, Random Forest, and TabNet models for stock-movement prediction using feature selection and tabular feature interactions.' : '運用特徵選擇與表格特徵交互作用，建構並調整 XGBoost、Random Forest 與 TabNet 模型以預測股票走勢。' }}</p>
                         </div>
                     </div>
                 </div>
@@ -206,56 +198,71 @@
 
             <!-- Skills -->
             <section class="cv-section">
-                <h2 class="section-title">{{ lang === 'en' ? 'Skills' : '技能' }}</h2>
+                <h2 class="section-title">{{ lang === 'en' ? 'Technical Skills' : '技術能力' }}</h2>
                 <div class="skills-group">
-                    <h3>{{ lang === 'en' ? 'Programming Languages' : '程式語言' }}</h3>
+                    <h3>{{ lang === 'en' ? 'Programming, Data & Machine Learning' : '程式設計、資料與機器學習' }}</h3>
                     <div class="skills-tags">
                         <span class="skill-tag">Python</span>
-                        <span class="skill-tag">C++</span>
                         <span class="skill-tag">C</span>
+                        <span class="skill-tag">C++</span>
                         <span class="skill-tag">SQL</span>
                         <span class="skill-tag">Bash</span>
-                        <span class="skill-tag">Java</span>
-                        <span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">NumPy</span>
+                        <span class="skill-tag">pandas</span>
+                        <span class="skill-tag">scikit-learn</span>
+                        <span class="skill-tag">PyTorch</span>
+                        <span class="skill-tag">Transformers</span>
+                        <span class="skill-tag">TabNet</span>
+                        <span class="skill-tag">Mamba</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Data Preprocessing' : '資料前處理' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Feature Engineering' : '特徵工程' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'ETL Pipelines' : 'ETL 管線' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Reproducible Experimentation' : '可重現實驗' }}</span>
                     </div>
                 </div>
                 <div class="skills-group">
-                    <h3>{{ lang === 'en' ? 'Tools & Platforms' : '工具與平台' }}</h3>
+                    <h3>{{ lang === 'en' ? 'Quantitative Research' : '量化研究' }}</h3>
                     <div class="skills-tags">
+                        <span class="skill-tag">{{ lang === 'en' ? 'Alpha Research' : 'Alpha 研究' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Backtesting' : '回測' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Monte Carlo Simulation' : '蒙地卡羅模擬' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Portfolio & Benchmark Analysis' : '投資組合與基準分析' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Risk-Adjusted Performance' : '風險調整後績效' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Statistical Modeling' : '統計建模' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Integer Linear Programming' : '整數線性規劃' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Graph-Based Optimization' : '圖結構最佳化' }}</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h3>{{ lang === 'en' ? 'AI Engineering & Agentic Workflows' : 'AI 工程與代理工作流程' }}</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">{{ lang === 'en' ? 'Coding Agents' : '程式代理' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Agent Skills & Harnesses' : '代理技能與執行框架' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Tool Use' : '工具使用' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Repository-Level Code Generation' : '程式庫層級程式生成' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Refactoring' : '重構' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Debugging' : '除錯' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Automated Test Generation' : '自動化測試生成' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Context Engineering' : '上下文工程' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Task Decomposition' : '任務拆解' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Workflow Orchestration' : '工作流程編排' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Agent Evaluation' : '代理評估' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Human-in-the-Loop Validation' : '人機協作驗證' }}</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h3>{{ lang === 'en' ? 'Software Engineering & Infrastructure' : '軟體工程與基礎設施' }}</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Linux</span>
                         <span class="skill-tag">Git</span>
                         <span class="skill-tag">Docker</span>
-                        <span class="skill-tag">Linux</span>
-                        <span class="skill-tag">GCP</span>
+                        <span class="skill-tag">Google Cloud Platform (GCP)</span>
+                        <span class="skill-tag">Amazon Web Services (AWS)</span>
                         <span class="skill-tag">MATLAB</span>
-                        <span class="skill-tag">VirtualBox</span>
-                        <span class="skill-tag">MongoDB</span>
-                    </div>
-                </div>
-                <div class="skills-group">
-                    <h3>{{ lang === 'en' ? 'Machine Learning & Optimization' : '機器學習與優化' }}</h3>
-                    <div class="skills-tags">
-                        <span class="skill-tag">PyTorch</span>
-                        <span class="skill-tag">Transformer</span>
-                        <span class="skill-tag">Mamba</span>
-                        <span class="skill-tag">TabNet</span>
-                        <span class="skill-tag">CUDA</span>
-                        <span class="skill-tag">LoRA</span>
-                        <span class="skill-tag">XGBoost</span>
-                        <span class="skill-tag">LightGBM</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Extracurricular -->
-            <section class="cv-section">
-                <h2 class="section-title">{{ lang === 'en' ? 'Extracurricular' : '課外活動' }}</h2>
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <h3>{{ lang === 'en' ? 'Darts Club — Founding Member' : '飛鏢社創社幹部' }}</h3>
-                            <p>{{ lang === 'en' ? '2020 National Collegiate Darts Championship · 9th Asian International Darts Open — Doubles B Division 5th Place' : '2020 全國大專飛鏢錦標賽 · 第九屆亞洲國際飛鏢公開賽 雙人組 B 級第五名' }}</p>
-                        </div>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Modular System Design' : '模組化系統設計' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Version Control' : '版本控制' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Performance Profiling' : '效能分析' }}</span>
+                        <span class="skill-tag">{{ lang === 'en' ? 'Linux-Based Data Pipelines' : 'Linux 資料管線' }}</span>
                     </div>
                 </div>
             </section>
