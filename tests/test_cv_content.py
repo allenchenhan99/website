@@ -65,8 +65,9 @@ class CvContentTest(unittest.TestCase):
             "https://www.linkedin.com/in/chen-han-lin-488492344/",
             self.content,
         )
-        self.assertEqual(self.content.count("./cv_pdf/English_CV.pdf"), 2)
-        self.assertEqual(self.content.count("./cv_pdf/Chinese_CV.pdf"), 2)
+        self.assertEqual(self.content.count("./cv_pdf/English_CV.pdf"), 1)
+        self.assertEqual(self.content.count("./cv_pdf/Chinese_CV.pdf"), 1)
+        self.assertNotIn("'Download PDF'", self.content)
 
 
 if __name__ == "__main__":

@@ -215,3 +215,71 @@ git commit -m "Sync CV page with updated resume"
 ```
 
 Expected: a commit containing only the implementation plan, CV page, and regression test; `.DS_Store` remains unstaged.
+
+### Task 4: Remove the duplicate bottom PDF section
+
+**Files:**
+- Modify: `tests/test_cv_content.py`
+- Modify: `cv.html`
+- Modify: `docs/superpowers/plans/2026-07-20-cv-content-sync.md`
+
+**Interfaces:**
+- Consumes: the language-aware PDF button in `.cv-actions`.
+- Produces: a single PDF entry point per language and no bottom download cards.
+
+- [x] **Step 1: Update the link regression test**
+
+Replace the two PDF count assertions and add a heading assertion:
+
+```python
+self.assertEqual(self.content.count("./cv_pdf/English_CV.pdf"), 1)
+self.assertEqual(self.content.count("./cv_pdf/Chinese_CV.pdf"), 1)
+self.assertNotIn("'Download PDF'", self.content)
+```
+
+- [x] **Step 2: Run the test to verify it fails**
+
+Run: `python3 tests/test_cv_content.py -v`
+
+Expected: `test_keeps_cv_links_current` fails because each PDF path occurs twice and the bottom Download PDF heading remains.
+
+- [x] **Step 3: Remove the duplicate production markup**
+
+Delete this complete block from `cv.html`:
+
+```html
+<!-- PDF Download -->
+<section class="cv-section pdf-section">
+    <h2 class="section-title">{{ lang === 'en' ? 'Download PDF' : '下載 PDF' }}</h2>
+    <div class="pdf-links">
+        <a href="./cv_pdf/English_CV.pdf" target="_blank" class="pdf-card">
+            <span class="pdf-icon">📄</span>
+            <span>English CV</span>
+        </a>
+        <a href="./cv_pdf/Chinese_CV.pdf" target="_blank" class="pdf-card">
+            <span class="pdf-icon">📄</span>
+            <span>中文履歷</span>
+        </a>
+    </div>
+</section>
+```
+
+- [x] **Step 4: Run verification**
+
+```bash
+python3 tests/test_cv_content.py -v
+node --check js/cv.js
+git diff --check
+```
+
+Expected: four passing tests and no syntax or whitespace errors.
+
+- [x] **Step 5: Commit and push**
+
+```bash
+git add cv.html tests/test_cv_content.py docs/superpowers/plans/2026-07-20-cv-content-sync.md
+git commit -m "Remove duplicate CV download section"
+git push origin main
+```
+
+Expected: `origin/main` points to the new commit while `.DS_Store` remains unstaged.
