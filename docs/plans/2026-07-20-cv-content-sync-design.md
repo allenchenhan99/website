@@ -40,3 +40,7 @@ The header subtitle will describe the completed M.S. degree instead of calling t
 - Validate JavaScript syntax and HTML/Vue binding structure.
 - Render the page locally at desktop and mobile widths and inspect both languages.
 - Verify both PDF links still point to the existing stable filenames.
+
+## Follow-up: Remove Duplicate Download Section
+
+The header already provides a language-aware PDF action, so the separate Download PDF section at the bottom duplicates the same navigation. Remove the bottom section entirely and retain the header action as the single CV download/view entry point. This follow-up does not change CV content, styling, or either PDF file.
