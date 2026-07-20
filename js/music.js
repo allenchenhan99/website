@@ -3,7 +3,8 @@ const app = Vue.createApp({
         return {
             darkMode: true,
             viewMode: 'grid',
-            posts: []
+            posts: [],
+            detailPost: null
         };
     },
     methods: {
@@ -14,6 +15,9 @@ const app = Vue.createApp({
         },
         applyTheme() {
             document.documentElement.setAttribute('data-theme', this.darkMode ? 'dark' : 'light');
+        },
+        openDetail(post) {
+            this.detailPost = post;
         },
         loadPosts() {
             fetch('posts/music.json')

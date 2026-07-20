@@ -4,7 +4,8 @@ const app = Vue.createApp({
             darkMode: true,
             filterMode: 'scent',
             activeFilter: 'All',
-            posts: []
+            posts: [],
+            detailPost: null
         };
     },
     computed: {
@@ -38,6 +39,9 @@ const app = Vue.createApp({
         },
         applyTheme() {
             document.documentElement.setAttribute('data-theme', this.darkMode ? 'dark' : 'light');
+        },
+        openDetail(post) {
+            this.detailPost = post;
         },
         loadPosts() {
             fetch('posts/perfume.json')

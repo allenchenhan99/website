@@ -3,6 +3,7 @@ const app = Vue.createApp({
         return {
             darkMode: true,
             recentPosts: [],
+            detailPost: null,
             asciiArt: '',
             currentCharIndex: 0,
             currentFrame: 0,
@@ -37,6 +38,9 @@ const app = Vue.createApp({
         },
         applyTheme() {
             document.documentElement.setAttribute('data-theme', this.darkMode ? 'dark' : 'light');
+        },
+        openDetail(post) {
+            this.detailPost = post;
         },
         loadRecentPosts() {
             const musicPromise = fetch('posts/music.json')
