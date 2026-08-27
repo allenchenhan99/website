@@ -1,0 +1,222 @@
+/* Shared responsive overrides for all public pages. */
+:root {
+    --page-gutter: clamp(16px, 4vw, 40px);
+    --section-space: clamp(24px, 5vw, 48px);
+}
+
+html,
+body,
+#app {
+    width: 100%;
+    max-width: 100%;
+}
+
+html,
+body {
+    overflow-x: hidden;
+    overflow-x: clip;
+}
+
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+}
+
+/* Keep the complete navigation visible and let labels form a second row. */
+.navbar {
+    gap: 12px 20px;
+    padding-inline: var(--page-gutter);
+}
+
+.nav-links {
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 8px clamp(12px, 2.4vw, 24px);
+}
+
+.nav-link {
+    line-height: 1.5;
+    padding-block: 5px;
+}
+
+.theme-toggle {
+    flex: 0 0 auto;
+}
+
+/* Scale preformatted artwork continuously instead of scrolling it. */
+.ascii-art,
+.chipi-animation {
+    align-self: stretch;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-x: clip;
+    white-space: pre;
+}
+
+.ascii-art {
+    font-size: min(9.5px, calc(1.25vw - 0.45px));
+}
+
+.chipi-animation {
+    font-size: min(9.5px, calc(1.25vw - 0.45px));
+}
+
+/* Allow flexible children to shrink inside their grid or flex track. */
+.detail-modal,
+.recent-item,
+.category-item,
+.playlist-card,
+.grid-card,
+.featured,
+.text-container,
+.pdf-card,
+.timeline-content,
+.list-body,
+.featured-body,
+.grid-body {
+    min-width: 0;
+}
+
+.detail-text,
+.recent-excerpt,
+.category-desc,
+.timeline-content,
+.post-title,
+.post-excerpt,
+.featured-body,
+.grid-body,
+.text-container,
+.cv-contact {
+    overflow-wrap: anywhere;
+}
+
+/* Fluid page-specific elements retain their original maximum sizes. */
+.cv-header h1,
+.hero h1,
+.text-container h1 {
+    font-size: clamp(20px, 4vw, 32px);
+}
+
+.record-player {
+    width: clamp(80px, 14vw, 200px);
+    height: clamp(80px, 14vw, 200px);
+}
+
+.image-container::before {
+    width: clamp(150px, 32vw, 300px);
+    height: clamp(150px, 32vw, 300px);
+}
+
+.image-container::after {
+    width: clamp(140px, calc(32vw - 10px), 290px);
+    height: clamp(140px, calc(32vw - 10px), 290px);
+}
+
+.detail-modal {
+    max-width: min(640px, 100%);
+}
+
+@media screen and (max-width: 768px) {
+    .navbar {
+        align-items: flex-start;
+        padding: 14px var(--page-gutter);
+    }
+
+    .nav-links {
+        flex: 1 1 240px;
+    }
+
+    .content,
+    .cv-wrapper,
+    .main,
+    .playlists-section,
+    .posts-section {
+        padding-inline: var(--page-gutter);
+    }
+
+    .content {
+        gap: var(--section-space);
+    }
+
+    .profile-photo,
+    .record-player {
+        max-width: 35vw;
+        max-height: 35vw;
+    }
+
+    .detail-overlay {
+        padding: 12px;
+    }
+
+    .detail-body,
+    .detail-footer {
+        padding-inline: clamp(16px, 5vw, 28px);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .navbar {
+        gap: 8px 12px;
+    }
+
+    .nav-links {
+        column-gap: 14px;
+    }
+
+    .nav-link {
+        font-size: 12px;
+    }
+
+    .theme-toggle {
+        padding: 5px 8px;
+    }
+
+    .cv-contact,
+    .cv-actions,
+    .filter-bar,
+    .filter-bar-left,
+    .posts-header,
+    .detail-footer {
+        flex-wrap: wrap;
+    }
+
+    .cv-actions {
+        align-items: stretch;
+    }
+
+    .lang-toggle,
+    .pdf-btn {
+        text-align: center;
+    }
+
+    .timeline {
+        padding-left: 12px;
+    }
+
+    .timeline-item {
+        padding-left: 18px;
+    }
+
+    .timeline-dot {
+        left: -13px;
+    }
+
+    .featured-body,
+    .grid-body,
+    .playlist-card,
+    .text-container {
+        padding: clamp(14px, 4vw, 20px);
+    }
+
+    .detail-modal {
+        max-height: calc(100dvh - 24px);
+    }
+
+    .detail-footer {
+        gap: 8px;
+    }
+}
