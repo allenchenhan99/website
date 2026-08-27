@@ -39,6 +39,10 @@ class ResponsiveLayoutTest(unittest.TestCase):
             with self.subTest(rule=rule):
                 self.assertIn(rule, content)
 
+    def test_ascii_scale_includes_breakpoint_safety_margin(self):
+        content = RESPONSIVE_CSS.read_text(encoding="utf-8")
+        self.assertIn("calc(1.25vw - 0.55px)", content)
+
 
 if __name__ == "__main__":
     unittest.main()

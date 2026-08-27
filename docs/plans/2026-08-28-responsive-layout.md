@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
 **Step 2: Run the test to verify it fails**
 
-Run: `python3 -m unittest tests.test_responsive_layout -v`
+Run: `python3 -m unittest discover -s tests -p 'test_responsive_layout.py' -v`
 
 Expected: FAIL because the pages do not yet load `css/responsive.css` and the file does not exist.
 
@@ -266,7 +266,7 @@ Refine page-specific selectors only where browser inspection shows overflow. Do 
 
 **Step 3: Run the responsive contract test**
 
-Run: `python3 -m unittest tests.test_responsive_layout -v`
+Run: `python3 -m unittest discover -s tests -p 'test_responsive_layout.py' -v`
 
 Expected: PASS.
 

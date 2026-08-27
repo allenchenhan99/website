@@ -58,11 +58,11 @@ canvas {
 }
 
 .ascii-art {
-    font-size: min(9.5px, calc(1.25vw - 0.45px));
+    font-size: min(9.5px, calc(1.25vw - 0.55px));
 }
 
 .chipi-animation {
-    font-size: min(9.5px, calc(1.25vw - 0.45px));
+    font-size: min(9.5px, calc(1.25vw - 0.55px));
 }
 
 /* Allow flexible children to shrink inside their grid or flex track. */
