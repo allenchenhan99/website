@@ -46,62 +46,121 @@ export function splitChipiFrames(lines: readonly string[], rowsPerFrame: number)
   return frames;
 }
 
-function initializeAsciiAnimation() {
-  const target = document.querySelector<HTMLElement>('[data-ascii-animation]');
-  const sourceTemplate = document.querySelector<HTMLTemplateElement>('[data-ascii-source]');
-  const source = sourceTemplate?.content.textContent ?? '';
-  if (!target || !source) return;
+type TimeoutCallback = () => void;
+type FrameCallback = (timestamp: number) => void;
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    target.textContent = source.trimEnd();
+export function startAsciiAnimation(options: {
+  source: string;
+  reducedMotion: boolean;
+  render: (frame: string) => void;
+  scheduleTimeout: (callback: TimeoutCallback, delay: number) => unknown;
+}) {
+  const { source, reducedMotion, render, scheduleTimeout } = options;
+  if (reducedMotion) {
+    render(source.trimEnd());
     return;
   }
 
   let blockIndex = 0;
   const displayNextBlock = () => {
-    target.textContent = buildAsciiFrame(source, blockIndex);
+    render(buildAsciiFrame(source, blockIndex));
     blockIndex += 1;
     if (blockIndex < ASCII_BLOCK_WIDTHS.length) {
-      window.setTimeout(displayNextBlock, ASCII_INTERVAL_MS);
+      scheduleTimeout(displayNextBlock, ASCII_INTERVAL_MS);
     }
   };
 
   displayNextBlock();
 }
 
-function animateChipi(target: HTMLElement, frames: readonly string[]) {
+function initializeAsciiAnimation() {
+  const target = document.querySelector<HTMLElement>('[data-ascii-animation]');
+  const sourceTemplate = document.querySelector<HTMLTemplateElement>('[data-ascii-source]');
+  const source = sourceTemplate?.content.textContent ?? '';
+  if (!target || !source) return;
+
+  startAsciiAnimation({
+    source,
+    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    render: (frame) => {
+      target.textContent = frame;
+    },
+    scheduleTimeout: (callback, delay) => window.setTimeout(callback, delay),
+  });
+}
+
+export function startChipiFrameAnimation(options: {
+  frames: readonly string[];
+  render: (frame: string) => void;
+  requestFrame: (callback: FrameCallback) => unknown;
+  isHidden: () => boolean;
+}) {
+  const { frames, render, requestFrame, isHidden } = options;
   if (frames.length < 2) return;
 
   let frameIndex = 1;
   let previousFrameTime = 0;
 
-  const displayNextFrame: FrameRequestCallback = (timestamp) => {
-    if (document.hidden) {
+  const displayNextFrame: FrameCallback = (timestamp) => {
+    if (isHidden()) {
       previousFrameTime = timestamp;
     } else if (timestamp - previousFrameTime >= CHIPI_FRAME_INTERVAL_MS) {
-      target.textContent = frames[frameIndex] ?? frames[0] ?? '';
+      render(frames[frameIndex] ?? frames[0] ?? '');
       frameIndex = (frameIndex + 1) % frames.length;
       previousFrameTime +=
         Math.floor((timestamp - previousFrameTime) / CHIPI_FRAME_INTERVAL_MS) *
         CHIPI_FRAME_INTERVAL_MS;
     }
 
-    window.requestAnimationFrame(displayNextFrame);
+    requestFrame(displayNextFrame);
   };
 
-  window.requestAnimationFrame(displayNextFrame);
+  requestFrame(displayNextFrame);
 }
 
-async function loadChipiAnimation(target: HTMLElement, sourceUrl: string) {
+export async function loadChipiAnimation(options: {
+  sourceUrl: string;
+  fetchText: (sourceUrl: string) => Promise<string>;
+  render: (frame: string) => void;
+  requestFrame: (callback: FrameCallback) => unknown;
+  isHidden: () => boolean;
+  reportError: (error: unknown) => void;
+}): Promise<boolean> {
+  const { sourceUrl, fetchText, reportError, ...animation } = options;
   try {
-    const response = await fetch(sourceUrl, { priority: 'low' } as RequestInit);
-    if (!response.ok) throw new Error(`Chipi asset returned ${response.status}`);
-
-    const source = (await response.text()).trimEnd();
-    animateChipi(target, splitChipiFrames(source.split(/\r?\n/), CHIPI_ROWS_PER_FRAME));
+    const source = (await fetchText(sourceUrl)).trimEnd();
+    startChipiFrameAnimation({
+      ...animation,
+      frames: splitChipiFrames(source.split(/\r?\n/), CHIPI_ROWS_PER_FRAME),
+    });
+    return true;
   } catch (error) {
-    console.error('Unable to load the Chipi animation:', error);
+    reportError(error);
+    return false;
   }
+}
+
+export function scheduleIdleLoad(
+  load: TimeoutCallback,
+  options: {
+    requestIdleCallback?: (
+      callback: TimeoutCallback,
+      options: { timeout: number },
+    ) => unknown;
+    scheduleTimeout: (callback: TimeoutCallback, delay: number) => unknown;
+  },
+) {
+  if (options.requestIdleCallback) {
+    options.requestIdleCallback(load, { timeout: CHIPI_IDLE_TIMEOUT_MS });
+  } else {
+    options.scheduleTimeout(load, CHIPI_IDLE_TIMEOUT_MS);
+  }
+}
+
+async function fetchChipiText(sourceUrl: string): Promise<string> {
+  const response = await fetch(sourceUrl, { priority: 'low' } as RequestInit);
+  if (!response.ok) throw new Error(`Chipi asset returned ${response.status}`);
+  return response.text();
 }
 
 function initializeChipiAnimation() {
@@ -109,16 +168,27 @@ function initializeChipiAnimation() {
   const sourceUrl = target?.dataset.chipiSrc;
   if (!target || !sourceUrl) return;
 
-  const load = () => void loadChipiAnimation(target, sourceUrl);
+  const load = () => void loadChipiAnimation({
+    sourceUrl,
+    fetchText: fetchChipiText,
+    render: (frame) => {
+      target.textContent = frame;
+    },
+    requestFrame: (callback) => window.requestAnimationFrame(callback),
+    isHidden: () => document.hidden,
+    reportError: (error) => console.error('Unable to load the Chipi animation:', error),
+  });
   const idleWindow = window as Window & {
-    requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+    requestIdleCallback?: (
+      callback: TimeoutCallback,
+      options?: { timeout: number },
+    ) => number;
   };
 
-  if (idleWindow.requestIdleCallback) {
-    idleWindow.requestIdleCallback(load, { timeout: CHIPI_IDLE_TIMEOUT_MS });
-  } else {
-    window.setTimeout(load, CHIPI_IDLE_TIMEOUT_MS);
-  }
+  scheduleIdleLoad(load, {
+    requestIdleCallback: idleWindow.requestIdleCallback?.bind(idleWindow),
+    scheduleTimeout: (callback, delay) => window.setTimeout(callback, delay),
+  });
 }
 
 function initializeDetailDialog() {
