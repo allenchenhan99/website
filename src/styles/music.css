@@ -107,10 +107,14 @@ body {
     position: relative;
 }
 
-.image-container > img {
+.image-container > picture,
+.image-container > picture > img {
     width: 100%;
     height: auto;
     display: block;
+}
+
+.image-container > picture > img {
     object-fit: cover;
     object-position: center;
     transform: scaleX(-1);
@@ -220,6 +224,40 @@ body {
     color: var(--text);
 }
 
+.spotify-embed {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--bg);
+}
+
+.spotify-embed iframe {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 12px;
+}
+
+.spotify-status,
+.spotify-fallback {
+    position: relative;
+    z-index: 1;
+    padding: 16px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.spotify-fallback {
+    color: var(--accent);
+}
+
 @media screen and (max-width: 768px) {
     .playlists-grid {
         grid-template-columns: 1fr;
@@ -325,6 +363,23 @@ body {
     transition: border-color 0.2s, transform 0.2s;
 }
 
+.post-open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.post-open:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
 .grid-card:hover {
     border-color: var(--accent-border);
     transform: translateY(-2px);
@@ -343,7 +398,15 @@ body {
     font-size: 12px;
 }
 
+.post-cover-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .grid-body {
+    display: block;
     padding: 16px;
 }
 
@@ -352,6 +415,11 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 6px;
+}
+
+.grid-body .post-title,
+.grid-body .post-excerpt {
+    display: block;
 }
 
 .grid-body .post-title {
@@ -373,11 +441,14 @@ body {
 }
 
 .list-post {
-    display: flex;
-    gap: 20px;
     padding: 24px 0;
     border-bottom: 1px solid var(--border);
     transition: background-color 0.2s;
+}
+
+.list-open {
+    display: flex;
+    gap: 20px;
 }
 
 .list-post:first-child {
@@ -404,6 +475,7 @@ body {
 }
 
 .list-body {
+    display: block;
     flex: 1;
 }
 
@@ -412,6 +484,11 @@ body {
     gap: 10px;
     align-items: center;
     margin-bottom: 4px;
+}
+
+.list-body .post-title,
+.list-body .post-excerpt {
+    display: block;
 }
 
 .list-body .post-title {
@@ -429,6 +506,21 @@ body {
     z-index: 200;
     padding: 20px;
     animation: fadeIn 0.2s;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border: 0;
+    color: inherit;
+}
+
+.detail-overlay:not([open]),
+[hidden] {
+    display: none !important;
+}
+
+.detail-overlay::backdrop {
+    background: rgba(0, 0, 0, 0.4);
 }
 
 @keyframes fadeIn {
@@ -459,6 +551,7 @@ body {
     background-size: cover;
     background-position: center;
     border-radius: 12px 12px 0 0;
+    object-fit: cover;
 }
 
 .detail-cover-empty {
@@ -562,6 +655,10 @@ body {
     }
 
     .list-post {
+        padding-block: 16px;
+    }
+
+    .list-open {
         flex-direction: column;
         gap: 12px;
     }
@@ -569,6 +666,12 @@ body {
     .list-cover {
         width: 100%;
         height: 200px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .record-player {
+        animation: none;
     }
 }
 
