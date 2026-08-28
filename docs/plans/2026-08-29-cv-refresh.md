@@ -212,4 +212,3 @@ git log --oneline main..HEAD
 ```
 
 Expected: no whitespace errors; only the design, plan, tests, page, and English PDF are changed; worktree is clean after commits.
-
