@@ -1,30 +1,44 @@
 from pathlib import Path
 import re
+import subprocess
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PUBLIC_PAGES = (
-    "index.html",
-    "profile.html",
-    "cv.html",
-    "music.html",
-    "perfume.html",
-)
+DIST = ROOT / "dist"
+PUBLIC_PAGES = ("index", "profile", "cv", "music", "perfume")
 RESPONSIVE_CSS = ROOT / "src" / "styles" / "responsive.css"
 PROFILE_PAGE = ROOT / "src" / "pages" / "profile.astro"
 PROFILE_CSS = ROOT / "src" / "styles" / "profile.css"
 
 
 class ResponsiveLayoutTest(unittest.TestCase):
-    def test_public_pages_load_shared_responsive_styles_last(self):
+    @classmethod
+    def setUpClass(cls):
+        subprocess.run(
+            ["npm", "run", "build"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    def test_astro_pages_import_shared_responsive_styles_last(self):
         for page in PUBLIC_PAGES:
-            content = (ROOT / page).read_text(encoding="utf-8")
-            stylesheets = re.findall(
-                r'<link rel="stylesheet" href="([^"]+)">', content
+            content = (ROOT / "src" / "pages" / f"{page}.astro").read_text(
+                encoding="utf-8"
             )
+            style_imports = re.findall(r'import "../styles/([^"]+\.css)";', content)
             with self.subTest(page=page):
-                self.assertEqual(stylesheets[-1], "css/responsive.css")
+                self.assertEqual(style_imports[-1], "responsive.css")
+
+    def test_fresh_public_build_contains_styles_with_base_aware_asset_links(self):
+        for page in PUBLIC_PAGES:
+            content = (DIST / f"{page}.html").read_text(encoding="utf-8")
+            stylesheets = re.findall(r'<link rel="stylesheet" href="([^"]+)">', content)
+            with self.subTest(page=page):
+                self.assertTrue(stylesheets or "<style>" in content)
+                self.assertTrue(all(href.startswith("/website/") for href in stylesheets))
 
     def test_shared_styles_define_viewport_containment(self):
         self.assertTrue(RESPONSIVE_CSS.exists())
