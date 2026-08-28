@@ -1,9 +1,243 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { withBase } from "../config/site";
 import "../styles/cv.css";
 import "../styles/responsive.css";
 ---
 
 <BaseLayout pageTitle="CV" activePage="cv">
-  <h1>Curriculum Vitae</h1>
+  <div class="cv-wrapper">
+    <header class="cv-header">
+      <h1><span data-lang="en">Chen-Han Lin</span><span data-lang="zh" hidden>林辰翰</span></h1>
+      <p class="cv-subtitle">
+        <span data-lang="en">M.S. in Data Science and Engineering</span>
+        <span data-lang="zh" hidden>數據科學與工程碩士</span>
+      </p>
+      <div class="cv-contact">
+        <span>allenchenhan99@gmail.com</span>
+        <span>+886 978 261 955</span>
+        <a href="https://allenchenhan99.github.io/website/" target="_blank" rel="noreferrer">Portfolio</a>
+        <a href="https://github.com/allenchenhan99" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://www.linkedin.com/in/chen-han-lin-488492344/" target="_blank" rel="noreferrer">LinkedIn</a>
+      </div>
+      <div class="cv-actions">
+        <button class="lang-toggle" type="button" data-language-toggle>
+          <span data-lang="en">中文</span><span data-lang="zh" hidden>English</span>
+        </button>
+        <a href={withBase("cv_pdf/English_CV.pdf")} target="_blank" rel="noreferrer" class="pdf-btn" data-lang="en">📄 View PDF</a>
+        <a href={withBase("cv_pdf/Chinese_CV.pdf")} target="_blank" rel="noreferrer" class="pdf-btn" data-lang="zh" hidden>📄 查看 PDF</a>
+      </div>
+    </header>
+
+    <section class="cv-section">
+      <h2 class="section-title"><span data-lang="en">Education</span><span data-lang="zh" hidden>學歷</span></h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2023/09 – 2026/07</div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">M.S. in Data Science and Engineering</span><span data-lang="zh" hidden>數據科學與工程碩士</span></h3>
+            <div class="org"><span data-lang="en">National Yang Ming Chiao Tung University, College of Computer Science</span><span data-lang="zh" hidden>國立陽明交通大學資訊學院</span></div>
+            <p data-lang="en">Coursework: Machine Learning, Deep Learning, Data Science Project, Biostatistics</p>
+            <p data-lang="zh" hidden>課程：機器學習、深度學習、資料科學專題、生物統計</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2018/09 – 2022/06</div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">B.S. in Mathematics</span><span data-lang="zh" hidden>數學學士</span></h3>
+            <div class="org"><span data-lang="en">National Cheng Kung University, College of Science</span><span data-lang="zh" hidden>國立成功大學理學院</span></div>
+            <p data-lang="en">Coursework: Probability and Statistics, Fourier Analysis, Data Structures and Algorithms</p>
+            <p data-lang="zh" hidden>課程：機率與統計、傅立葉分析、資料結構與演算法</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cv-section">
+      <h2 class="section-title"><span data-lang="en">Master's Thesis</span><span data-lang="zh" hidden>碩士論文</span></h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">Model Enhancement and Implementation of Human Pose Estimation Based on the Mamba State Space Architecture</span><span data-lang="zh" hidden>基於 Mamba 狀態空間架構之人體姿態估計模型強化與實作</span></h3>
+            <div class="org"><span data-lang="en">Advisor: Prof. Chin-Tien Wu</span><span data-lang="zh" hidden>指導教授：吳金典</span></div>
+            <p data-lang="en">Integrated Mamba sequence blocks into a Video Pose Transformer for GPU-accelerated monocular 2D-to-3D pose estimation; reduced inference latency and training time through CUDA optimization, parallel data pipelines, and modular integration.</p>
+            <p data-lang="zh" hidden>將 Mamba 序列區塊整合至 Video Pose Transformer，用於 GPU 加速的單眼 2D 至 3D 姿態估計；透過 CUDA 優化、平行資料管線與模組化整合，降低推論延遲與訓練時間。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cv-section">
+      <h2 class="section-title"><span data-lang="en">Internship Experience</span><span data-lang="zh" hidden>實習經歷</span></h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2026/03 – <span data-lang="en">Present</span><span data-lang="zh" hidden>現在</span></div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">Data Scientist Intern</span><span data-lang="zh" hidden>資料科學實習生</span></h3>
+            <div class="org">Whale Force Holdings Ltd.</div>
+            <p data-lang="en"><strong>Systematic Strategy Research:</strong> Built a backtesting engine for investment hypotheses, evaluating benchmark-relative hit rates, Sharpe ratios, and Monte Carlo robustness.<br /><strong>Financial Data Infrastructure:</strong> Integrated automated financial-statement segmentation and parsing into downstream research pipelines.<br /><strong>Institutional Portfolio Research:</strong> Developed a 13F-based clustering framework to identify investor segments with superior forward benchmark-relative performance.</p>
+            <p data-lang="zh" hidden><strong>系統化策略研究：</strong>建構投資假設回測引擎，評估相對基準命中率、夏普比率與蒙地卡羅穩健性。<br /><strong>金融資料基礎建設：</strong>將自動化財務報表切分與解析整合至下游研究管線。<br /><strong>機構投資組合研究：</strong>開發以 13F 為基礎的分群框架，辨識未來相對基準績效較佳的投資人群體。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cv-section">
+      <h2 class="section-title"><span data-lang="en">Projects</span><span data-lang="zh" hidden>專案</span></h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">Low-Rank Adaptation and Combined Parameter-Efficient Tuning for Large Models</span><span data-lang="zh" hidden>大型模型之低秩適應與組合式參數高效微調</span></h3>
+            <p data-lang="en">Investigated LoRA, BitFit, Adapter, and Prefix-tuning across vision and NLP tasks. LoRA + Adapter improved vision classification accuracy by +3.6% (0.8775 to 0.9134) with only 1.6% trainable parameters, while LoRA + BitFit improved RoBERTa-base accuracy from 0.931 to 0.945 on SST-2.</p>
+            <p data-lang="zh" hidden>研究 LoRA、BitFit、Adapter 與 Prefix-tuning 在視覺及 NLP 任務中的整合。LoRA + Adapter 僅使用 1.6% 可訓練參數，即將視覺分類準確度提升 +3.6%（0.8775 至 0.9134）；LoRA + BitFit 則將 RoBERTa-base 在 SST-2 的準確度由 0.931 提升至 0.945。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">Data Science Project: Pima Indian Diabetes Dataset</span><span data-lang="zh" hidden>資料科學專案：皮馬印地安人糖尿病資料集</span></h3>
+            <p data-lang="en">Built classification pipelines across logistic regression, decision trees, random forests, and XGBoost with preprocessing, domain-specific feature engineering, stratified cross-validation, and grid search. Achieved Accuracy = 83.6%, ROC-AUC = 91.2%, Precision = 84.5%, Recall = 88.2%, and F1 = 86.3%.</p>
+            <p data-lang="zh" hidden>建立涵蓋邏輯斯迴歸、決策樹、隨機森林與 XGBoost 的分類管線，整合資料前處理、領域特定特徵工程、分層交叉驗證與網格搜尋。達到 Accuracy = 83.6%、ROC-AUC = 91.2%、Precision = 84.5%、Recall = 88.2%、F1 = 86.3%。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">Game Theory Applied to Darts Strategies</span><span data-lang="zh" hidden>賽局理論於飛鏢策略優化之應用</span></h3>
+            <p data-lang="en">Modeled checkout and target-selection decisions using professional match data, quantifying state-dependent risk-reward trade-offs to derive optimal decision rules across match scenarios.</p>
+            <p data-lang="zh" hidden>運用職業賽事資料建模結鏢與目標選擇決策，量化不同狀態下的風險報酬取捨，推導各種比賽情境的最佳決策規則。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cv-section">
+      <h2 class="section-title"><span data-lang="en">Selected Honors &amp; Competitions</span><span data-lang="zh" hidden>重要榮譽與競賽</span></h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2026/02</div>
+          <div class="timeline-content">
+            <h3>TSMC IT CareerHack</h3>
+            <span class="badge"><span data-lang="en">1st Place</span><span data-lang="zh" hidden>第一名</span></span>
+            <p data-lang="en">Built a Docker-isolated refactoring platform with LangChain Deep Agents, FastAPI, React, and MongoDB, automating iterative analysis, refactoring, testing, and quality evaluation across three legacy repositories.</p>
+            <p data-lang="zh" hidden>以 LangChain Deep Agents、FastAPI、React 與 MongoDB 建構 Docker 隔離的重構平台，自動化三個舊有程式庫的迭代分析、重構、測試與品質評估。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2026/03 – 2026/06</div>
+          <div class="timeline-content">
+            <h3>WorldQuant International Quant Championship</h3>
+            <span class="badge"><span data-lang="en">4th Place in Taiwan</span><span data-lang="zh" hidden>台灣第四名</span></span>
+            <p data-lang="en">Built a closed-loop alpha research engine that encoded backtest results as graph constraints, pruned redundant hypotheses, and re-ranked signals by marginal portfolio contribution. Evaluated 5,164 alpha expressions, with 1,023 passing all seven platform checks, and helped construct a 52-alpha portfolio that finished 4th in Taiwan.</p>
+            <p data-lang="zh" hidden>建構閉環 Alpha 研究引擎，將回測結果編碼為圖約束、刪減冗餘假設，並依投資組合邊際貢獻重新排序訊號。共評估 5,164 個 Alpha 表達式，其中 1,023 個通過平台全部七項檢查，並協助建立由 52 個 Alpha 組成、最終獲得台灣第四名的投資組合。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2024/01</div>
+          <div class="timeline-content">
+            <h3>TSMC IT CareerHack</h3>
+            <span class="badge"><span data-lang="en">4th Place</span><span data-lang="zh" hidden>第四名</span></span>
+            <p data-lang="en">Fine-tuned LLaVA with LoRA for task-specific visual question answering, supported by targeted data augmentation and noise filtering.</p>
+            <p data-lang="zh" hidden>使用 LoRA 微調 LLaVA，以完成特定任務的視覺問答，並搭配針對性的資料增強與雜訊過濾。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2025/03</div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">TSMC Intelligent Manufacturing Workshop</span><span data-lang="zh" hidden>TSMC 智慧製造工作坊</span></h3>
+            <span class="badge"><span data-lang="en">Top-Performing Team, Scheduling Optimization</span><span data-lang="zh" hidden>最佳團隊，排程最佳化</span></span>
+            <p data-lang="en">Formulated the problem as a graph-based job-shop optimization, converting locations to nodes and distances to weighted edges, and applied Integer Linear Programming (ILP) to obtain the optimal schedule.</p>
+            <p data-lang="zh" hidden>將問題建模為圖結構的工作車間排程最佳化，把地點轉為節點、距離轉為加權邊，並使用整數線性規劃（ILP）求得最佳排程。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2024/05 – 2024/06</div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">AI CUP 2024 Image Data Generation for UAVs</span><span data-lang="zh" hidden>AI CUP 2024 無人機影像資料生成</span></h3>
+            <span class="badge"><span data-lang="en">Honorable Award</span><span data-lang="zh" hidden>佳作</span></span>
+            <p data-lang="en">Built a mask-conditioned image-generation pipeline with targeted augmentation and hyperparameter tuning, evaluated using Fréchet Inception Distance (FID).</p>
+            <p data-lang="zh" hidden>建構以遮罩為條件的影像生成管線，搭配針對性資料增強與超參數調整，並以 Fréchet Inception Distance（FID）進行評估。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2025/03 – 2025/04</div>
+          <div class="timeline-content">
+            <h3><span data-lang="en">AI GO Skyrocketed Stocks Forecasting</span><span data-lang="zh" hidden>AI GO 飆股預測</span></h3>
+            <p data-lang="en">Built and tuned XGBoost, Random Forest, and TabNet models for stock-movement prediction using feature selection and tabular feature interactions.</p>
+            <p data-lang="zh" hidden>運用特徵選擇與表格特徵交互作用，建構並調整 XGBoost、Random Forest 與 TabNet 模型以預測股票走勢。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cv-section">
+      <h2 class="section-title"><span data-lang="en">Technical Skills</span><span data-lang="zh" hidden>技術能力</span></h2>
+      <div class="skills-group">
+        <h3><span data-lang="en">Programming, Data &amp; Machine Learning</span><span data-lang="zh" hidden>程式設計、資料與機器學習</span></h3>
+        <div class="skills-tags">
+          <span class="skill-tag">Python</span><span class="skill-tag">C</span><span class="skill-tag">C++</span><span class="skill-tag">SQL</span><span class="skill-tag">Bash</span><span class="skill-tag">NumPy</span><span class="skill-tag">pandas</span><span class="skill-tag">scikit-learn</span><span class="skill-tag">PyTorch</span><span class="skill-tag">Transformers</span><span class="skill-tag">TabNet</span><span class="skill-tag">Mamba</span>
+          <span class="skill-tag" data-lang="en">Data Preprocessing</span><span class="skill-tag" data-lang="zh" hidden>資料前處理</span>
+          <span class="skill-tag" data-lang="en">Feature Engineering</span><span class="skill-tag" data-lang="zh" hidden>特徵工程</span>
+          <span class="skill-tag" data-lang="en">ETL Pipelines</span><span class="skill-tag" data-lang="zh" hidden>ETL 管線</span>
+          <span class="skill-tag" data-lang="en">Reproducible Experimentation</span><span class="skill-tag" data-lang="zh" hidden>可重現實驗</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <h3><span data-lang="en">Quantitative Research</span><span data-lang="zh" hidden>量化研究</span></h3>
+        <div class="skills-tags">
+          <span class="skill-tag" data-lang="en">Alpha Research</span><span class="skill-tag" data-lang="zh" hidden>Alpha 研究</span>
+          <span class="skill-tag" data-lang="en">Backtesting</span><span class="skill-tag" data-lang="zh" hidden>回測</span>
+          <span class="skill-tag" data-lang="en">Monte Carlo Simulation</span><span class="skill-tag" data-lang="zh" hidden>蒙地卡羅模擬</span>
+          <span class="skill-tag" data-lang="en">Portfolio &amp; Benchmark Analysis</span><span class="skill-tag" data-lang="zh" hidden>投資組合與基準分析</span>
+          <span class="skill-tag" data-lang="en">Risk-Adjusted Performance</span><span class="skill-tag" data-lang="zh" hidden>風險調整後績效</span>
+          <span class="skill-tag" data-lang="en">Statistical Modeling</span><span class="skill-tag" data-lang="zh" hidden>統計建模</span>
+          <span class="skill-tag" data-lang="en">Integer Linear Programming</span><span class="skill-tag" data-lang="zh" hidden>整數線性規劃</span>
+          <span class="skill-tag" data-lang="en">Graph-Based Optimization</span><span class="skill-tag" data-lang="zh" hidden>圖結構最佳化</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <h3><span data-lang="en">AI Engineering & Agentic Workflows</span><span data-lang="zh" hidden>AI 工程與代理工作流程</span></h3>
+        <div class="skills-tags">
+          <span class="skill-tag" data-lang="en">Coding Agents</span><span class="skill-tag" data-lang="zh" hidden>程式代理</span>
+          <span class="skill-tag" data-lang="en">Agent Skills &amp; Harnesses</span><span class="skill-tag" data-lang="zh" hidden>代理技能與執行框架</span>
+          <span class="skill-tag" data-lang="en">Tool Use</span><span class="skill-tag" data-lang="zh" hidden>工具使用</span>
+          <span class="skill-tag" data-lang="en">Repository-Level Code Generation</span><span class="skill-tag" data-lang="zh" hidden>程式庫層級程式生成</span>
+          <span class="skill-tag" data-lang="en">Refactoring</span><span class="skill-tag" data-lang="zh" hidden>重構</span>
+          <span class="skill-tag" data-lang="en">Debugging</span><span class="skill-tag" data-lang="zh" hidden>除錯</span>
+          <span class="skill-tag" data-lang="en">Automated Test Generation</span><span class="skill-tag" data-lang="zh" hidden>自動化測試生成</span>
+          <span class="skill-tag" data-lang="en">Context Engineering</span><span class="skill-tag" data-lang="zh" hidden>上下文工程</span>
+          <span class="skill-tag" data-lang="en">Task Decomposition</span><span class="skill-tag" data-lang="zh" hidden>任務拆解</span>
+          <span class="skill-tag" data-lang="en">Workflow Orchestration</span><span class="skill-tag" data-lang="zh" hidden>工作流程編排</span>
+          <span class="skill-tag" data-lang="en">Agent Evaluation</span><span class="skill-tag" data-lang="zh" hidden>代理評估</span>
+          <span class="skill-tag" data-lang="en">Human-in-the-Loop Validation</span><span class="skill-tag" data-lang="zh" hidden>人機協作驗證</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <h3><span data-lang="en">Software Engineering & Infrastructure</span><span data-lang="zh" hidden>軟體工程與基礎設施</span></h3>
+        <div class="skills-tags">
+          <span class="skill-tag">Linux</span><span class="skill-tag">Git</span><span class="skill-tag">Docker</span><span class="skill-tag">Google Cloud Platform (GCP)</span><span class="skill-tag">Amazon Web Services (AWS)</span><span class="skill-tag">MATLAB</span>
+          <span class="skill-tag" data-lang="en">Modular System Design</span><span class="skill-tag" data-lang="zh" hidden>模組化系統設計</span>
+          <span class="skill-tag" data-lang="en">Version Control</span><span class="skill-tag" data-lang="zh" hidden>版本控制</span>
+          <span class="skill-tag" data-lang="en">Performance Profiling</span><span class="skill-tag" data-lang="zh" hidden>效能分析</span>
+          <span class="skill-tag" data-lang="en">Linux-Based Data Pipelines</span><span class="skill-tag" data-lang="zh" hidden>Linux 資料管線</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    import { initializeCvLanguage } from "../scripts/cv-language";
+    initializeCvLanguage();
+  </script>
 </BaseLayout>

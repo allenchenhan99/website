@@ -99,6 +99,10 @@ body {
 }
 
 /* ===== CV Wrapper ===== */
+[data-lang][hidden] {
+    display: none !important;
+}
+
 .cv-wrapper {
     max-width: 750px;
     margin: 0 auto;
