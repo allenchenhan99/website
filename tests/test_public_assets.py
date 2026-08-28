@@ -7,7 +7,9 @@ PUBLIC = ROOT / "public"
 ADMIN_HTML = PUBLIC / "admin.html"
 ADMIN_JS = PUBLIC / "js" / "admin.js"
 ICON_SVG = PUBLIC / "assets" / "brand" / "allenlin-icon.svg"
-REMOVED_FULL_CANVAS_PATH = "M0 0 C0.67885254 0.4851709"
+REMOVED_FULL_CANVAS_PATH = "M0 0 C211.2 0 422.4"
+FOREGROUND_SIGNATURE = "M0 0 C0.67885254 0.4851709"
+APPROVED_PATH_COUNT = 140
 
 
 class PublicAssetsTest(unittest.TestCase):
@@ -24,6 +26,8 @@ class PublicAssetsTest(unittest.TestCase):
         content = ICON_SVG.read_text(encoding="utf-8")
         self.assertNotIn("#FEA4FC", content)
         self.assertNotIn(REMOVED_FULL_CANVAS_PATH, content)
+        self.assertIn(FOREGROUND_SIGNATURE, content)
+        self.assertEqual(content.count("<path "), APPROVED_PATH_COUNT)
 
     def test_admin_uses_shared_allenlin_favicon(self):
         content = ADMIN_HTML.read_text(encoding="utf-8")

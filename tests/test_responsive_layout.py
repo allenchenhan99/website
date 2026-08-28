@@ -11,7 +11,7 @@ PUBLIC_PAGES = (
     "music.html",
     "perfume.html",
 )
-RESPONSIVE_CSS = ROOT / "css" / "responsive.css"
+RESPONSIVE_CSS = ROOT / "src" / "styles" / "responsive.css"
 
 
 class ResponsiveLayoutTest(unittest.TestCase):
