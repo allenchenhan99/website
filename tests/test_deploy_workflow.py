@@ -177,6 +177,11 @@ class DeployWorkflowContract(unittest.TestCase):
             "Manual runs deploy only when dispatched from `main`; other selected refs run validation without uploading or deploying.",
             readme,
         )
+        self.assertIn(
+            "Pull request validation is isolated from release runs. Running releases are not canceled, and deployment jobs serialize through a shared production group; GitHub Actions may replace an older pending run when a newer run enters the same concurrency group.",
+            readme,
+        )
+        self.assertNotIn("one release cannot cancel or race another", readme.lower())
 
 
 if __name__ == "__main__":

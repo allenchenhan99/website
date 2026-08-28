@@ -8,11 +8,16 @@ const routes = [
   ['perfume.html', 'Perfume | AllenLin'],
 ] as const;
 
-function collectRuntimeErrors(page: Page) {
+function collectRuntimeErrors(
+  page: Page,
+  expectedConsoleErrorUrls: ReadonlySet<string> = new Set(),
+) {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+    if (message.type() !== 'error') return;
+    if (expectedConsoleErrorUrls.has(message.location().url)) return;
+    errors.push(message.text());
   });
   return errors;
 }
@@ -106,15 +111,20 @@ test('opens and closes a Home Recent detail dialog', async ({ page }) => {
 // @complexity: high
 // ROI: 10
 test('keeps a direct Spotify link through a failed deferred embed and persists Music list view', async ({ page }) => {
-  const errors = collectRuntimeErrors(page);
+  const expectedSpotifyFailureUrls = new Set<string>();
+  const errors = collectRuntimeErrors(page, expectedSpotifyFailureUrls);
   await page.setViewportSize({ width: 390, height: 600 });
-  await page.route('https://open.spotify.com/**', (route) => route.fulfill({
-    status: 500,
-    contentType: 'text/html',
-    body: '<!doctype html><title>Spotify failure test double</title>',
-  }));
+  await page.route('https://open.spotify.com/**', (route) => {
+    expectedSpotifyFailureUrls.add(route.request().url());
+    return route.fulfill({
+      status: 500,
+      contentType: 'text/html',
+      body: '<!doctype html><title>Spotify failure test double</title>',
+    });
+  });
   await page.goto('music.html');
   const firstEmbed = page.locator('[data-spotify-embed]').first();
+  const frameSlot = firstEmbed.locator('[data-spotify-frame]');
   const directLink = firstEmbed.locator('[data-spotify-fallback]');
   await expect(directLink).toBeVisible();
   await expect(directLink).toHaveAttribute('href', /^https:\/\/open\.spotify\.com\/playlist\//);
@@ -150,6 +160,27 @@ test('keeps a direct Spotify link through a failed deferred embed and persists M
   await expect(page.locator('[data-spotify-embed] iframe')).toHaveCount(1);
   await expect(directLink).toBeVisible();
   await expect(directLink).toBeEnabled();
+  const failedEmbedGeometry = await firstEmbed.evaluate((embed) => {
+    const slot = embed.querySelector<HTMLElement>('[data-spotify-frame]');
+    const iframe = embed.querySelector('iframe');
+    const link = embed.querySelector<HTMLElement>('[data-spotify-fallback]');
+    if (!slot || !iframe || !link) throw new Error('Spotify frame, iframe, or link is missing');
+    const slotRect = slot.getBoundingClientRect();
+    const iframeRect = iframe.getBoundingClientRect();
+    const linkRect = link.getBoundingClientRect();
+    return {
+      slotHeight: slotRect.height,
+      iframeHeight: iframeRect.height,
+      slotBottom: slotRect.bottom,
+      iframeBottom: iframeRect.bottom,
+      linkTop: linkRect.top,
+    };
+  });
+  expect(Math.abs(failedEmbedGeometry.slotHeight - 352)).toBeLessThanOrEqual(1);
+  expect(Math.abs(failedEmbedGeometry.iframeHeight - 352)).toBeLessThanOrEqual(1);
+  expect(failedEmbedGeometry.slotBottom).toBeLessThanOrEqual(failedEmbedGeometry.linkTop);
+  expect(failedEmbedGeometry.iframeBottom).toBeLessThanOrEqual(failedEmbedGeometry.linkTop);
+  await expect(frameSlot).toBeVisible();
 
   await page.getByRole('button', { name: 'List view' }).click();
   await expect(musicView).toHaveAttribute('data-view', 'list');
@@ -160,10 +191,48 @@ test('keeps a direct Spotify link through a failed deferred embed and persists M
   await expect(gridPanel).toBeHidden();
   await expect(listPanel).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('music-view'))).toBe('list');
-  const unexpectedErrors = errors.filter((message) => (
-    !message.includes('server responded with a status of 500')
-  ));
-  expect(unexpectedErrors).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test('keeps the direct Spotify link below a successfully loaded iframe', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 390, height: 600 });
+  await page.route('https://open.spotify.com/**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'text/html',
+    body: '<!doctype html><title>Spotify success test double</title>',
+  }));
+  await page.goto('music.html');
+
+  const firstEmbed = page.locator('[data-spotify-embed]').first();
+  const frameSlot = firstEmbed.locator('[data-spotify-frame]');
+  const directLink = firstEmbed.locator('[data-spotify-fallback]');
+  await frameSlot.scrollIntoViewIfNeeded();
+  await expect(firstEmbed.locator('iframe')).toHaveCount(1);
+  await expect(firstEmbed.locator('[data-spotify-status]')).toBeHidden();
+  await expect(directLink).toBeVisible();
+
+  const loadedGeometry = await firstEmbed.evaluate((embed) => {
+    const slot = embed.querySelector<HTMLElement>('[data-spotify-frame]');
+    const iframe = embed.querySelector('iframe');
+    const link = embed.querySelector<HTMLElement>('[data-spotify-fallback]');
+    if (!slot || !iframe || !link) throw new Error('Spotify frame, iframe, or link is missing');
+    const slotRect = slot.getBoundingClientRect();
+    const iframeRect = iframe.getBoundingClientRect();
+    const linkRect = link.getBoundingClientRect();
+    return {
+      slotHeight: slotRect.height,
+      iframeHeight: iframeRect.height,
+      slotBottom: slotRect.bottom,
+      iframeBottom: iframeRect.bottom,
+      linkTop: linkRect.top,
+    };
+  });
+  expect(Math.abs(loadedGeometry.slotHeight - 352)).toBeLessThanOrEqual(1);
+  expect(Math.abs(loadedGeometry.iframeHeight - 352)).toBeLessThanOrEqual(1);
+  expect(loadedGeometry.slotBottom).toBeLessThanOrEqual(loadedGeometry.linkTop);
+  expect(loadedGeometry.iframeBottom).toBeLessThanOrEqual(loadedGeometry.linkTop);
+  expect(errors).toEqual([]);
 });
 
 // AC: Perfume zero state and filter controls work without page errors.

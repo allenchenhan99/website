@@ -24,6 +24,16 @@ class FakeIframe {
   }
 }
 
+class FakeFrameSlot {
+  hidden = false;
+  children: FakeIframe[] = [];
+
+  appendChild(child: FakeIframe) {
+    this.children.push(child);
+    return child;
+  }
+}
+
 class FakeEmbed {
   dataset: { src?: string; loaded?: string };
   children: Array<{
@@ -32,12 +42,14 @@ class FakeEmbed {
   }> = [];
   status = { hidden: false };
   fallback = { hidden: false };
+  frameSlot = new FakeFrameSlot();
 
   constructor(sourceUrl: string) {
     this.dataset = { src: sourceUrl };
   }
 
   querySelector(selector: string) {
+    if (selector === '[data-spotify-frame]') return this.frameSlot;
     if (selector === '[data-spotify-status]') return this.status;
     if (selector === '[data-spotify-fallback]') return this.fallback;
     return null;
@@ -103,7 +115,8 @@ describe('deferred Spotify embeds', () => {
       createIframe: () => new FakeIframe(),
     })).toBe(false);
 
-    expect(embed.children).toEqual([iframe]);
+    expect(embed.frameSlot.children).toEqual([iframe]);
+    expect(embed.children).toEqual([]);
     expect(iframe.attributes.get('src')).toBe(embed.dataset.src);
     expect(iframe.attributes.get('allow')).toBe(
       'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture',
@@ -153,8 +166,10 @@ describe('deferred Spotify embeds', () => {
       { isIntersecting: false, target: first },
       { isIntersecting: true, target: second },
     ]);
+    expect(first.frameSlot.children).toHaveLength(0);
+    expect(second.frameSlot.children).toHaveLength(1);
     expect(first.children).toHaveLength(0);
-    expect(second.children).toHaveLength(1);
+    expect(second.children).toHaveLength(0);
     expect(unobserve).toHaveBeenCalledWith(second);
     expect(createIframe).toHaveBeenCalledOnce();
   });

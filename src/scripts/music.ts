@@ -12,11 +12,13 @@ type SpotifyFrame = {
   setAttribute: (name: string, value: string) => void;
   addEventListener: (name: string, listener: FrameListener, options?: { once: boolean }) => void;
 };
+type SpotifyElement = HideableElement & {
+  appendChild?: (frame: SpotifyFrame) => unknown;
+};
 
 export type SpotifyContainer = {
   dataset: { src?: string; loaded?: string };
-  querySelector: (selector: string) => HideableElement | null;
-  appendChild: (frame: SpotifyFrame) => unknown;
+  querySelector: (selector: string) => SpotifyElement | null;
 };
 
 type SpotifyDependencies = {
@@ -67,6 +69,9 @@ export function loadSpotifyEmbed(
   const sourceUrl = embed.dataset.src;
   if (!sourceUrl || embed.dataset.loaded === 'true') return false;
 
+  const frameSlot = embed.querySelector('[data-spotify-frame]');
+  if (!frameSlot?.appendChild) return false;
+
   embed.dataset.loaded = 'true';
   const status = embed.querySelector('[data-spotify-status]');
   const iframe = dependencies.createIframe();
@@ -85,7 +90,7 @@ export function loadSpotifyEmbed(
   iframe.addEventListener('load', () => {
     if (status) status.hidden = true;
   }, { once: true });
-  embed.appendChild(iframe);
+  frameSlot.appendChild(iframe);
   return true;
 }
 

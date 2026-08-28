@@ -8,6 +8,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
+E2E_SPEC = ROOT / "tests" / "e2e" / "public-pages.spec.ts"
 
 
 class MusicOutputParser(HTMLParser):
@@ -16,6 +17,8 @@ class MusicOutputParser(HTMLParser):
         self.cards = []
         self.spotify_sources = []
         self.spotify_links = []
+        self.spotify_frames = []
+        self.spotify_footers = []
         self.iframes = []
         self.images = []
         self.picture_types = []
@@ -33,6 +36,10 @@ class MusicOutputParser(HTMLParser):
             self.spotify_sources.append(attributes.get("data-src"))
         if tag == "a" and "spotify-fallback" in classes:
             self.spotify_links.append(attributes)
+        if "data-spotify-frame" in attributes:
+            self.spotify_frames.append(attributes)
+        if "spotify-footer" in classes:
+            self.spotify_footers.append(attributes)
         if tag == "iframe":
             self.iframes.append(attributes)
         if tag == "img":
@@ -68,7 +75,8 @@ class MusicOutputTest(unittest.TestCase):
         self.assertEqual(self.parser.iframes, [])
         self.assertEqual(len(self.parser.spotify_sources), 2)
         self.assertTrue(all(url.startswith("https://open.spotify.com/embed/") for url in self.parser.spotify_sources))
-        self.assertIn("min-height:352px", self.html.replace(" ", ""))
+        self.assertEqual(len(self.parser.spotify_frames), 2)
+        self.assertTrue(all("min-height:352px" in frame.get("style", "").replace(" ", "") for frame in self.parser.spotify_frames))
 
     def test_keeps_direct_spotify_links_visible_and_separate_from_embed_urls(self):
         self.assertEqual(len(self.parser.spotify_links), 2)
@@ -81,10 +89,20 @@ class MusicOutputTest(unittest.TestCase):
 
         css = (ROOT / "src" / "styles" / "music.css").read_text(encoding="utf-8")
         fallback_rule = re.search(r"\.spotify-fallback\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        frame_rule = re.search(r"\.spotify-frame-slot\s*\{(?P<body>.*?)\}", css, re.DOTALL)
         self.assertIsNotNone(fallback_rule)
-        self.assertRegex(fallback_rule.group("body"), r"position:\s*absolute")
-        self.assertRegex(fallback_rule.group("body"), r"bottom:\s*\d")
-        self.assertRegex(fallback_rule.group("body"), r"right:\s*\d")
+        self.assertIsNotNone(frame_rule)
+        self.assertEqual(len(self.parser.spotify_footers), 2)
+        self.assertNotRegex(fallback_rule.group("body"), r"position:\s*(?:absolute|fixed)")
+        self.assertRegex(frame_rule.group("body"), r"position:\s*relative")
+        self.assertRegex(frame_rule.group("body"), r"overflow:\s*hidden")
+        self.assertIn(".spotify-frame-slot iframe", css)
+
+    def test_spotify_failure_console_filter_is_url_scoped(self):
+        e2e = E2E_SPEC.read_text(encoding="utf-8")
+        self.assertNotIn("server responded with a status of 500", e2e)
+        self.assertIn("expectedSpotifyFailureUrls", e2e)
+        self.assertIn("message.location().url", e2e)
 
     def test_uses_optimized_fixed_images_and_real_lazy_cover_images(self):
         self.assertIn("image/avif", self.parser.picture_types)
