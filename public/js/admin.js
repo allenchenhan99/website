@@ -2,7 +2,8 @@ const REPO_OWNER = 'allenchenhan99';
 const REPO_NAME = 'website';
 const MUSIC_PATH = 'posts/music.json';
 const PERFUME_PATH = 'posts/perfume.json';
-const UPLOAD_DIR = 'assets/images/uploads';
+const UPLOAD_REPO_DIR = 'public/assets/images/uploads';
+const UPLOAD_PUBLIC_DIR = 'assets/images/uploads';
 
 const app = Vue.createApp({
     data() {
@@ -359,7 +360,7 @@ const app = Vue.createApp({
                     .toLowerCase();
 
                 // Check for duplicates and get unique path
-                const finalPath = await this.getUniquePath(`${UPLOAD_DIR}/${baseName}.${ext}`);
+                const finalPath = await this.getUniquePath(`${UPLOAD_REPO_DIR}/${baseName}.${ext}`);
 
                 // Upload to GitHub
                 const res = await this.ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${finalPath}`, {
@@ -372,11 +373,12 @@ const app = Vue.createApp({
 
                 if (!res.ok) throw new Error('Upload failed');
 
-                // Set the cover path
+                // Store a public URL while GitHub receives the repository path.
+                const publicPath = finalPath.replace(`${UPLOAD_REPO_DIR}/`, `${UPLOAD_PUBLIC_DIR}/`);
                 if (this.cropTarget === 'music') {
-                    this.musicForm.cover = finalPath;
+                    this.musicForm.cover = publicPath;
                 } else {
-                    this.perfumeForm.cover = finalPath;
+                    this.perfumeForm.cover = publicPath;
                 }
 
                 this.showToast('Image uploaded!');
