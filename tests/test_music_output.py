@@ -1,6 +1,7 @@
 from html.parser import HTMLParser
 import json
 from pathlib import Path
+import re
 import subprocess
 import unittest
 
@@ -80,6 +81,16 @@ class MusicOutputTest(unittest.TestCase):
     def test_public_output_does_not_load_vue(self):
         self.assertNotIn("unpkg.com/vue", self.html)
         self.assertNotIn("Vue.createApp", self.html)
+
+    def test_native_dialog_uses_only_the_backdrop_as_the_dark_overlay(self):
+        css = (ROOT / "src" / "styles" / "music.css").read_text(encoding="utf-8")
+        dialog_rule = re.search(r"\.detail-overlay\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        backdrop_rule = re.search(r"\.detail-overlay::backdrop\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+
+        self.assertIsNotNone(dialog_rule)
+        self.assertIsNotNone(backdrop_rule)
+        self.assertIn("background: transparent", dialog_rule.group("body"))
+        self.assertRegex(backdrop_rule.group("body"), r"background:\s*rgba\(0,\s*0,\s*0,\s*0\.4\)")
 
 
 if __name__ == "__main__":

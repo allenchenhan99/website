@@ -4,6 +4,7 @@ export type MusicView = 'grid' | 'list';
 
 type StorageReader = Pick<Storage, 'getItem'>;
 type StorageWriter = Pick<Storage, 'setItem'>;
+type MusicStorage = StorageReader & StorageWriter;
 type TimeoutCallback = () => void;
 
 type HideableElement = { hidden: boolean };
@@ -40,16 +41,18 @@ const spotifyDefaults: SpotifyDependencies = {
   clearTimeout: (handle) => window.clearTimeout(handle as number),
 };
 
-export function readMusicView(storage: StorageReader): MusicView {
+export function readMusicView(storage: StorageReader | null): MusicView {
   try {
+    if (!storage) return 'grid';
     return storage.getItem('music-view') === 'list' ? 'list' : 'grid';
   } catch {
     return 'grid';
   }
 }
 
-export function writeMusicView(view: MusicView, storage: StorageWriter): boolean {
+export function writeMusicView(view: MusicView, storage: StorageWriter | null): boolean {
   try {
+    if (!storage) return false;
     storage.setItem('music-view', view);
     return true;
   } catch {
@@ -91,6 +94,7 @@ export function loadSpotifyEmbed(
   iframe.addEventListener('load', () => {
     dependencies.clearTimeout(fallbackTimer);
     if (status) status.hidden = true;
+    if (fallback) fallback.hidden = true;
   }, { once: true });
   embed.appendChild(iframe);
   return true;
@@ -118,7 +122,7 @@ export function initializeSpotifyEmbeds(
   targets.forEach((target) => observer.observe(target));
 }
 
-function initializeViewController() {
+function initializeViewController(initialView: MusicView, storage: MusicStorage | null) {
   const root = document.querySelector<HTMLElement>('[data-music-view]');
   if (!root) return;
   const controls = [...root.querySelectorAll<HTMLButtonElement>('[data-view-mode]')];
@@ -134,10 +138,10 @@ function initializeViewController() {
     panels.forEach((panel) => {
       panel.hidden = panel.dataset.viewPanel !== view;
     });
-    if (persist) writeMusicView(view, localStorage);
+    if (persist) writeMusicView(view, storage);
   };
 
-  setView(readMusicView(localStorage), false);
+  setView(initialView, false);
   controls.forEach((control) => {
     control.addEventListener('click', () => {
       setView(control.dataset.viewMode === 'list' ? 'list' : 'grid');
@@ -188,9 +192,7 @@ function initializeDetailDialog() {
   });
 }
 
-export function initializeMusic() {
-  initializeViewController();
-  initializeDetailDialog();
+function initializeSpotifyController() {
   const embeds = document.querySelectorAll<HTMLElement>('[data-spotify-embed]');
   const createObserver: ObserverFactory | undefined = 'IntersectionObserver' in window
     ? (callback, options) => {
@@ -211,5 +213,32 @@ export function initializeMusic() {
   initializeSpotifyEmbeds(embeds as unknown as Iterable<SpotifyContainer>, {
     ...spotifyDefaults,
     createObserver,
+  });
+}
+
+export function initializeMusicControllers(dependencies: {
+  getStorage: () => MusicStorage;
+  initializeView: (initialView: MusicView, storage: MusicStorage | null) => void;
+  initializeDetails: () => void;
+  initializeSpotify: () => void;
+}) {
+  let storage: MusicStorage | null = null;
+  try {
+    storage = dependencies.getStorage();
+  } catch {
+    storage = null;
+  }
+
+  dependencies.initializeView(readMusicView(storage), storage);
+  dependencies.initializeDetails();
+  dependencies.initializeSpotify();
+}
+
+export function initializeMusic() {
+  initializeMusicControllers({
+    getStorage: () => window.localStorage,
+    initializeView: initializeViewController,
+    initializeDetails: initializeDetailDialog,
+    initializeSpotify: initializeSpotifyController,
   });
 }

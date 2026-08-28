@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import {
+  initializeMusicControllers,
   initializeSpotifyEmbeds,
   loadSpotifyEmbed,
   readMusicView,
@@ -64,6 +65,25 @@ describe('music view preference', () => {
     expect(setItem).toHaveBeenCalledWith('music-view', 'list');
     expect(writeMusicView('grid', { setItem: () => { throw new Error('blocked'); } })).toBe(false);
   });
+
+  test('continues every controller when accessing the storage property throws', () => {
+    const initializeView = vi.fn();
+    const initializeDetails = vi.fn();
+    const initializeSpotify = vi.fn();
+
+    initializeMusicControllers({
+      getStorage() {
+        throw new DOMException('Access denied', 'SecurityError');
+      },
+      initializeView,
+      initializeDetails,
+      initializeSpotify,
+    });
+
+    expect(initializeView).toHaveBeenCalledWith('grid', null);
+    expect(initializeDetails).toHaveBeenCalledOnce();
+    expect(initializeSpotify).toHaveBeenCalledOnce();
+  });
 });
 
 describe('music cover paths', () => {
@@ -122,6 +142,27 @@ describe('deferred Spotify embeds', () => {
     expect(embed.fallback.hidden).toBe(true);
     timeoutCallback?.();
     expect(embed.fallback.hidden).toBe(false);
+  });
+
+  test('hides a timed-out fallback if the iframe finishes loading later', () => {
+    const embed = new FakeEmbed('https://open.spotify.com/embed/playlist/example');
+    const iframe = new FakeIframe();
+    let timeoutCallback: Listener | undefined;
+
+    loadSpotifyEmbed(embed, {
+      createIframe: () => iframe,
+      scheduleTimeout(callback) {
+        timeoutCallback = callback;
+        return 10;
+      },
+      clearTimeout: vi.fn(),
+    });
+
+    timeoutCallback?.();
+    expect(embed.fallback.hidden).toBe(false);
+    iframe.listeners.get('load')?.();
+    expect(embed.fallback.hidden).toBe(true);
+    expect(embed.status.hidden).toBe(true);
   });
 
   test('observes at 300px and loads only intersecting cards', () => {
