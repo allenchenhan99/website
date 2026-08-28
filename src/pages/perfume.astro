@@ -1,0 +1,145 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { withBase } from "../config/site";
+import { perfumePosts } from "../lib/content";
+import { getPerfumeCoverLoading, getPerfumeFilterOptions } from "../scripts/perfume";
+import "../styles/perfume.css";
+import "../styles/responsive.css";
+
+const scentOptions = getPerfumeFilterOptions(perfumePosts, "scent");
+const coverUrl = (cover: string) => cover ? withBase(cover) : "";
+---
+
+<BaseLayout pageTitle="Perfume" activePage="perfume">
+  <section class="hero">
+    <h1>Perfume</h1>
+    <p>Scents that define moments — a curated journal of fragrances I've explored, worn, and loved.</p>
+  </section>
+
+  <div class="main">
+    <div class="filter-bar">
+      <div class="filter-bar-left">
+        <span class="filter-label">Collection</span>
+        <div class="filter-mode" aria-label="Filter perfume collection">
+          <button class="active" type="button" data-filter-mode="scent" aria-pressed="true">By Scent</button>
+          <button type="button" data-filter-mode="brand" aria-pressed="false">By Brand</button>
+        </div>
+      </div>
+      <span class="count-label" data-perfume-count>{perfumePosts.length} fragrances</span>
+    </div>
+
+    <div class="filter-tags" data-filter-tags>
+      {scentOptions.map((option) => (
+        <button
+          class:list={["filter-tag", { active: option === "All" }]}
+          type="button"
+          data-filter-value={option}
+          aria-pressed={option === "All" ? "true" : "false"}
+        >{option}</button>
+      ))}
+    </div>
+
+    {perfumePosts.map((post, index) => (
+      <button
+        class="featured"
+        type="button"
+        data-perfume-card="true"
+        data-card-role="featured"
+        data-post-id={String(post.id)}
+        data-brand={post.brand}
+        data-scents={post.scents.join("|")}
+        data-perfume-open
+        aria-label={`Open ${post.name}`}
+        hidden={index !== 0}
+      >
+        <span class="featured-img">
+          {post.cover ? (
+            <img class="perfume-cover-image" src={coverUrl(post.cover)} alt="" loading={getPerfumeCoverLoading("featured", index)} width="720" height="960" />
+          ) : <span class="bottle-icon" aria-hidden="true">🧴</span>}
+        </span>
+        <span class="featured-body">
+          <span class="brand-label">{post.brand}</span>
+          <span class="featured-title">{post.name}</span>
+          <span class="notes">
+            {post.scents.map((scent) => <span class="tag">{scent}</span>)}
+          </span>
+          <span class="featured-excerpt">{post.excerpt}</span>
+          <span class="post-date">{post.date}</span>
+        </span>
+      </button>
+    ))}
+
+    <div class="section-label" data-more-label hidden={perfumePosts.length <= 1}>More from collection</div>
+    <div class="grid" data-perfume-grid hidden={perfumePosts.length <= 1}>
+      {perfumePosts.map((post, index) => (
+        <article
+          class="grid-card"
+          data-perfume-card="true"
+          data-card-role="grid"
+          data-post-id={String(post.id)}
+          data-brand={post.brand}
+          data-scents={post.scents.join("|")}
+          hidden={index === 0}
+        >
+          <button class="card-open" type="button" data-perfume-open data-post-id={String(post.id)} aria-label={`Open ${post.name}`}>
+            <span class="grid-img">
+              {post.cover ? (
+                <img class="perfume-cover-image" src={coverUrl(post.cover)} alt="" loading={getPerfumeCoverLoading("grid", index)} width="480" height="640" />
+              ) : <span class="bottle-icon" aria-hidden="true">🧴</span>}
+            </span>
+            <span class="grid-body">
+              <span class="brand-label">{post.brand}</span>
+              <span class="grid-title">{post.name}</span>
+              <span class="notes">
+                {post.scents.map((scent) => <span class="tag">{scent}</span>)}
+              </span>
+              <span class="excerpt">{post.excerpt}</span>
+            </span>
+          </button>
+        </article>
+      ))}
+    </div>
+
+    <div class="empty-state" data-perfume-empty hidden={perfumePosts.length > 0}>
+      <p>No fragrances found for this filter.</p>
+    </div>
+  </div>
+
+  <div hidden data-perfume-details>
+    {perfumePosts.map((post) => (
+      <article data-perfume-detail data-post-id={String(post.id)} data-cover-path={post.cover}>
+        <span data-source-brand>{post.brand}</span>
+        <span data-source-date>{post.date}</span>
+        <span data-source-name>{post.name}</span>
+        <span data-source-excerpt>{post.excerpt}</span>
+        {post.scents.map((scent) => <span data-source-scent>{scent}</span>)}
+      </article>
+    ))}
+  </div>
+
+  <dialog class="detail-overlay" data-perfume-dialog="true" aria-labelledby="perfume-detail-title">
+    <div class="detail-modal">
+      <img class="detail-cover" data-dialog-cover alt="" hidden />
+      <div class="detail-cover detail-cover-empty" data-dialog-cover-empty>
+        <span class="bottle-icon" aria-hidden="true">🧴</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-meta">
+          <span class="brand-label" data-dialog-brand></span>
+          <span class="post-date" data-dialog-date></span>
+        </div>
+        <h2 class="detail-title" id="perfume-detail-title" data-dialog-name></h2>
+        <div class="detail-tags" data-dialog-scents></div>
+        <p class="detail-text" data-dialog-excerpt></p>
+      </div>
+      <div class="detail-footer">
+        <button class="detail-close" type="button" data-dialog-close>Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    import { initializePerfume } from "../scripts/perfume";
+    initializePerfume();
+  </script>
+</BaseLayout>

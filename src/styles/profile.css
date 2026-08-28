@@ -1,0 +1,255 @@
+/* ===== CSS Variables / Theme ===== */
+:root {
+    --bg: #171717;
+    --text: #fbfbfb;
+    --text-secondary: #888;
+    --border: #333;
+    --nav-bg: #171717;
+    --hover: #222;
+    --link: #ccc;
+    --link-hover: #fff;
+    --card-bg: #1e1e1e;
+    --card-shadow: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+    --bg: #f8f8f8;
+    --text: #111;
+    --text-secondary: #666;
+    --border: #ddd;
+    --nav-bg: #f8f8f8;
+    --hover: #eee;
+    --link: #444;
+    --link-hover: #000;
+    --card-bg: #fff;
+    --card-shadow: rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Reset & Base ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* ===== Navigation ===== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    position: sticky;
+    top: 0;
+    background-color: var(--nav-bg);
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-links {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+    padding: 4px 0;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text);
+}
+
+.nav-link.active {
+    border-bottom: 1.5px solid var(--text);
+}
+
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    line-height: 1;
+}
+
+.theme-toggle:hover {
+    background-color: var(--hover);
+}
+
+/* ===== Content styles ===== */
+.content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Image container ===== */
+.image-container {
+    width: 100%;
+    height: 50vh;
+    margin: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Circle mask */
+.image-container::before {
+    content: '';
+    position: absolute;
+    top: 42%;
+    left: 51%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    background-color: var(--bg);
+    border-radius: 50%;
+    z-index: 1;
+    transition: background-color 0.3s;
+}
+
+/* Avatar */
+.profile-photo {
+    position: absolute;
+    top: 42%;
+    left: 51%;
+    transform: translate(-50%, -50%);
+    width: 290px;
+    height: 290px;
+    border-radius: 50%;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.profile-photo picture,
+.profile-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.profile-photo img {
+    object-fit: cover;
+    object-position: 25% 58%;
+    transform-origin: 25% 58%;
+    transform: scale(1.25);
+}
+
+/* ===== Text container ===== */
+.text-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px var(--card-shadow);
+    border: 1px solid var(--border);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.text-container h1 {
+    margin-bottom: 10px;
+    font-size: 24px;
+    color: var(--text);
+}
+
+.text-container p {
+    line-height: 1.8;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* ===== Responsive ===== */
+@media screen and (max-width: 768px) {
+    .navbar {
+        padding: 16px 20px;
+    }
+
+    .nav-links {
+        gap: 16px;
+    }
+
+    .nav-link {
+        font-size: 13px;
+    }
+
+    .image-container::before {
+        width: 200px;
+        height: 200px;
+        top: 45%;
+    }
+
+    .profile-photo {
+        width: 190px;
+        height: 190px;
+        top: 45%;
+    }
+
+    .text-container {
+        margin: 10px;
+        padding: 20px;
+    }
+
+    .text-container h1 {
+        font-size: 20px;
+    }
+
+    .text-container p {
+        font-size: 13px;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .image-container::before {
+        width: 150px;
+        height: 150px;
+    }
+
+    .profile-photo {
+        width: 140px;
+        height: 140px;
+    }
+
+    .nav-links {
+        gap: 12px;
+    }
+
+    .nav-link {
+        font-size: 12px;
+    }
+
+    .text-container {
+        margin: 8px;
+        padding: 15px;
+    }
+
+    .text-container h1 {
+        font-size: 18px;
+    }
+
+    .text-container p {
+        font-size: 12px;
+    }
+}

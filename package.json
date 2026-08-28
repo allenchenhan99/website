@@ -1,0 +1,30 @@
+{
+  "name": "allenlin-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@11.11.0",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "astro dev",
+    "icons": "node scripts/generate-icons.mjs",
+    "prebuild": "npm run icons",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "npm run test:unit && npm run test:contracts",
+    "test:unit": "vitest run src",
+    "test:contracts": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "test:e2e": "playwright test",
+    "verify": "npm run check && npm test && npm run build && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.4.0",
+    "astro": "^7.2.9",
+    "sharp": "^0.35.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
+  }
+}

@@ -1,0 +1,41 @@
+---
+import { Picture } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import backgroundImage from "../assets/images/IMG_1049.JPG";
+import profileImage from "../assets/images/selfie.JPG";
+import "../styles/profile.css";
+import "../styles/responsive.css";
+---
+
+<BaseLayout pageTitle="Profile" activePage="profile">
+  <div class="content">
+    <div class="image-container">
+      <Picture
+        src={backgroundImage}
+        formats={['avif', 'webp']}
+        widths={[640, 960, 1280]}
+        sizes="100vw"
+        alt="Background Photo"
+        priority
+      />
+      <div class="profile-photo" data-profile-avatar>
+        <Picture
+          src={profileImage}
+          formats={['avif', 'webp']}
+          widths={[140, 190, 290, 580]}
+          sizes="(max-width: 375px) 140px, (max-width: 768px) 190px, 290px"
+          alt="Profile Photo"
+        />
+      </div>
+    </div>
+
+    <div class="text-container">
+      <h1>Welcome to my Profile</h1>
+      <p>
+        Hi there! I'm someone with a deep curiosity and passion for just about everything, especially technology, music, and more. This space is my little corner to document and share my journey, personal and spiritual growth, and thoughts.
+        The reason I created this website is that, compared to mainstream social media, those platforms often feel like they're all about following trends or being told how to express yourself. I wanted a space where I could freely share my ideas and experiences without those limitations.
+        Feel free to explore and learn more about who I am and what I do!
+      </p>
+    </div>
+  </div>
+</BaseLayout>

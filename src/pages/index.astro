@@ -1,0 +1,102 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { recentPosts } from "../lib/content";
+import asciiArt from "../../asciiArt.txt?raw";
+import chipi from "../../chipi.txt?raw";
+import chipiUrl from "../../chipi.txt?url";
+import "../styles/style.css";
+import "../styles/responsive.css";
+
+const initialChipiFrame = chipi.trimEnd().split("\n").slice(0, 42).join("\n");
+---
+
+<BaseLayout activePage="index">
+  <div class="content">
+    <pre class="ascii-art" id="ascii-art" data-ascii-animation aria-label="Welcome to my personal blog"></pre>
+    <template data-ascii-source>{asciiArt}</template>
+
+    <pre
+      class="chipi-animation"
+      id="chipi-animation"
+      data-chipi-src={chipiUrl}
+      aria-label="Chipi ASCII animation"
+    >{initialChipiFrame}</pre>
+
+    {recentPosts.length > 0 && (
+      <section class="recent-posts" aria-labelledby="recent-heading">
+        <h2 class="section-title" id="recent-heading">Recent</h2>
+        <div class="recent-list">
+          {recentPosts.map((post) => {
+            const title = post.category === "music" ? post.title : `${post.brand} — ${post.name}`;
+            const href = `${post.category}.html`;
+
+            return (
+              <button
+                class="recent-item"
+                type="button"
+                data-recent-open
+                data-detail-href={href}
+                aria-haspopup="dialog"
+              >
+                <span class="recent-source">
+                  <span class:list={["recent-tag", post.category]}>{post.category}</span>
+                  <span class="recent-date">{post.date}</span>
+                </span>
+                <span class="recent-title">{title}</span>
+                <span class="recent-excerpt">{post.excerpt}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    <section class="categories" aria-label="Categories">
+      <div class="category-list">
+        <a href="profile.html" class="category-item">
+          <span class="category-title">Profile</span>
+          <span class="category-desc">About me and my journey</span>
+        </a>
+        <a href="cv.html" class="category-item">
+          <span class="category-title">CV</span>
+          <span class="category-desc">Curriculum Vitae</span>
+        </a>
+        <a href="music.html" class="category-item">
+          <span class="category-title">Music</span>
+          <span class="category-desc">Albums, songs &amp; reflections</span>
+        </a>
+        <a href="perfume.html" class="category-item">
+          <span class="category-title">Perfume</span>
+          <span class="category-desc">Fragrance journey &amp; reviews</span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <dialog
+    class="detail-overlay"
+    data-detail-dialog
+    aria-labelledby="detail-title"
+  >
+    <div class="detail-modal">
+      <div class="detail-body">
+        <div class="detail-meta">
+          <span class="recent-tag" data-detail-category></span>
+          <span class="recent-date" data-detail-date></span>
+        </div>
+        <h2 class="detail-title" id="detail-title" data-detail-title></h2>
+        <p class="detail-text" data-detail-excerpt></p>
+      </div>
+      <div class="detail-footer">
+        <a href="#" class="detail-link" data-detail-link>Go to category page</a>
+        <button class="detail-close" type="button" data-detail-close>Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    import { initializeHome } from "../scripts/home";
+
+    initializeHome();
+  </script>
+</BaseLayout>

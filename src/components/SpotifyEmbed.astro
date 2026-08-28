@@ -1,0 +1,20 @@
+---
+interface Props {
+  title: string;
+  src: string;
+}
+
+const { title, src } = Astro.props;
+const directUrl = src.replace('/embed/', '/');
+---
+
+<section class="spotify-embed" data-spotify-embed data-src={src}>
+  <div class="spotify-frame-slot" data-spotify-frame style="min-height:352px">
+    <p class="spotify-status" data-spotify-status>Spotify playlist loads when this card is nearby.</p>
+  </div>
+  <footer class="spotify-footer">
+    <a class="spotify-fallback" data-spotify-fallback href={directUrl} target="_blank" rel="noreferrer">
+      Open {title} directly on Spotify
+    </a>
+  </footer>
+</section>

@@ -1,0 +1,134 @@
+from html.parser import HTMLParser
+import json
+from pathlib import Path
+import re
+import subprocess
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DIST = ROOT / "dist"
+E2E_SPEC = ROOT / "tests" / "e2e" / "public-pages.spec.ts"
+
+
+class MusicOutputParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.cards = []
+        self.spotify_sources = []
+        self.spotify_links = []
+        self.spotify_frames = []
+        self.spotify_footers = []
+        self.iframes = []
+        self.images = []
+        self.picture_types = []
+
+    @staticmethod
+    def _classes(attributes):
+        return attributes.get("class", "").split()
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        classes = self._classes(attributes)
+        if tag == "article" and "grid-card" in classes:
+            self.cards.append(attributes)
+        if "spotify-embed" in classes:
+            self.spotify_sources.append(attributes.get("data-src"))
+        if tag == "a" and "spotify-fallback" in classes:
+            self.spotify_links.append(attributes)
+        if "data-spotify-frame" in attributes:
+            self.spotify_frames.append(attributes)
+        if "spotify-footer" in classes:
+            self.spotify_footers.append(attributes)
+        if tag == "iframe":
+            self.iframes.append(attributes)
+        if tag == "img":
+            self.images.append(attributes)
+        if tag == "source" and attributes.get("type"):
+            self.picture_types.append(attributes["type"])
+
+
+class MusicOutputTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.build = subprocess.run(
+            ["npm", "run", "build"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        cls.html = (DIST / "music.html").read_text(encoding="utf-8")
+        cls.parser = MusicOutputParser()
+        cls.parser.feed(cls.html)
+
+    def test_prerenders_every_music_post_without_runtime_json_fetch(self):
+        expected = json.loads((ROOT / "posts" / "music.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(len(self.parser.cards), len(expected))
+        for post in expected:
+            self.assertIn(post["title"], self.html)
+            self.assertIn(post["excerpt"], self.html)
+        self.assertNotIn("posts/music.json", self.html)
+
+    def test_defers_spotify_iframes_but_keeps_urls_in_data_attributes(self):
+        self.assertEqual(self.parser.iframes, [])
+        self.assertEqual(len(self.parser.spotify_sources), 2)
+        self.assertTrue(all(url.startswith("https://open.spotify.com/embed/") for url in self.parser.spotify_sources))
+        self.assertEqual(len(self.parser.spotify_frames), 2)
+        self.assertTrue(all("min-height:352px" in frame.get("style", "").replace(" ", "") for frame in self.parser.spotify_frames))
+
+    def test_keeps_direct_spotify_links_visible_and_separate_from_embed_urls(self):
+        self.assertEqual(len(self.parser.spotify_links), 2)
+        for link in self.parser.spotify_links:
+            self.assertNotIn("hidden", link)
+            self.assertTrue(link.get("href", "").startswith("https://open.spotify.com/playlist/"))
+            self.assertNotIn("/embed/", link["href"])
+            self.assertEqual(link.get("target"), "_blank")
+            self.assertEqual(link.get("rel"), "noreferrer")
+
+        css = (ROOT / "src" / "styles" / "music.css").read_text(encoding="utf-8")
+        fallback_rule = re.search(r"\.spotify-fallback\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        frame_rule = re.search(r"\.spotify-frame-slot\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        self.assertIsNotNone(fallback_rule)
+        self.assertIsNotNone(frame_rule)
+        self.assertEqual(len(self.parser.spotify_footers), 2)
+        self.assertNotRegex(fallback_rule.group("body"), r"position:\s*(?:absolute|fixed)")
+        self.assertRegex(frame_rule.group("body"), r"position:\s*relative")
+        self.assertRegex(frame_rule.group("body"), r"overflow:\s*hidden")
+        self.assertIn(".spotify-frame-slot iframe", css)
+
+    def test_spotify_failure_console_filter_is_url_scoped(self):
+        e2e = E2E_SPEC.read_text(encoding="utf-8")
+        self.assertNotIn("server responded with a status of 500", e2e)
+        self.assertIn("expectedSpotifyFailureUrls", e2e)
+        self.assertIn("message.location().url", e2e)
+
+    def test_uses_optimized_fixed_images_and_real_lazy_cover_images(self):
+        self.assertIn("image/avif", self.parser.picture_types)
+        self.assertIn("image/webp", self.parser.picture_types)
+        lazy_covers = [image for image in self.parser.images if "post-cover-image" in self._classes(image)]
+        self.assertTrue(lazy_covers)
+        self.assertTrue(all(image.get("loading") == "lazy" for image in lazy_covers))
+
+    @staticmethod
+    def _classes(attributes):
+        return attributes.get("class", "").split()
+
+    def test_public_output_does_not_load_vue(self):
+        self.assertNotIn("unpkg.com/vue", self.html)
+        self.assertNotIn("Vue.createApp", self.html)
+
+    def test_native_dialog_uses_only_the_backdrop_as_the_dark_overlay(self):
+        css = (ROOT / "src" / "styles" / "music.css").read_text(encoding="utf-8")
+        dialog_rule = re.search(r"\.detail-overlay\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        backdrop_rule = re.search(r"\.detail-overlay::backdrop\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+
+        self.assertIsNotNone(dialog_rule)
+        self.assertIsNotNone(backdrop_rule)
+        self.assertIn("background: transparent", dialog_rule.group("body"))
+        self.assertRegex(backdrop_rule.group("body"), r"background:\s*rgba\(0,\s*0,\s*0,\s*0\.4\)")
+
+
+if __name__ == "__main__":
+    unittest.main()

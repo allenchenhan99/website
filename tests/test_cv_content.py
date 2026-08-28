@@ -2,7 +2,10 @@ from pathlib import Path
 import unittest
 
 
-CV_HTML = Path(__file__).resolve().parents[1] / "cv.html"
+ROOT = Path(__file__).resolve().parents[1]
+CV_HTML = ROOT / "src" / "pages" / "cv.astro"
+CV_LANGUAGE = ROOT / "src" / "scripts" / "cv-language.ts"
+BASE_LAYOUT = ROOT / "src" / "layouts" / "BaseLayout.astro"
 
 
 class CvContentTest(unittest.TestCase):
@@ -65,9 +68,36 @@ class CvContentTest(unittest.TestCase):
             "https://www.linkedin.com/in/chen-han-lin-488492344/",
             self.content,
         )
-        self.assertEqual(self.content.count("./cv_pdf/English_CV.pdf"), 1)
-        self.assertEqual(self.content.count("./cv_pdf/Chinese_CV.pdf"), 1)
+        self.assertEqual(self.content.count("cv_pdf/English_CV.pdf"), 1)
+        self.assertEqual(self.content.count("cv_pdf/Chinese_CV.pdf"), 1)
+        self.assertIn('withBase("cv_pdf/English_CV.pdf")', self.content)
+        self.assertIn('withBase("cv_pdf/Chinese_CV.pdf")', self.content)
         self.assertNotIn("'Download PDF'", self.content)
+
+    def test_uses_static_bilingual_markup_without_vue_interpolation(self):
+        self.assertIn('data-lang="en"', self.content)
+        self.assertIn('data-lang="zh"', self.content)
+        self.assertNotIn("{{", self.content)
+        self.assertNotIn("lang ===", self.content)
+
+    def test_declares_english_for_the_initial_cv_fallback(self):
+        layout = BASE_LAYOUT.read_text(encoding="utf-8")
+        self.assertIn("documentLanguage?: string;", layout)
+        self.assertIn('documentLanguage = "zh-Hant"', layout)
+        self.assertIn("<html lang={documentLanguage}>", layout)
+        self.assertIn('documentLanguage="en"', self.content)
+
+    def test_language_controller_is_storage_safe_and_updates_document_language(self):
+        self.assertTrue(CV_LANGUAGE.exists(), "CV language controller must exist")
+        script = CV_LANGUAGE.read_text(encoding="utf-8")
+        self.assertIn("cv-lang", script)
+        self.assertIn("localStorage.getItem", script)
+        self.assertIn("localStorage.setItem", script)
+        self.assertIn('querySelectorAll<HTMLElement>("[data-lang]")', script)
+        self.assertIn("document.documentElement.lang", script)
+        self.assertIn('?? "en"', script)
+        self.assertIn("try {", script)
+        self.assertIn("catch", script)
 
 
 if __name__ == "__main__":
