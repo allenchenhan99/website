@@ -1,3 +1,4 @@
+import hashlib
 from pathlib import Path
 import unittest
 
@@ -6,6 +7,9 @@ ROOT = Path(__file__).resolve().parents[1]
 CV_HTML = ROOT / "src" / "pages" / "cv.astro"
 CV_LANGUAGE = ROOT / "src" / "scripts" / "cv-language.ts"
 BASE_LAYOUT = ROOT / "src" / "layouts" / "BaseLayout.astro"
+ENGLISH_PDF = ROOT / "public" / "cv_pdf" / "English_CV.pdf"
+CHINESE_PDF = ROOT / "public" / "cv_pdf" / "Chinese_CV.pdf"
+NEW_ENGLISH_PDF_SHA256 = "300b9f75f48cf0affc6c8667f59d8bb2cc476267a539efb408d30169123c578c"
 
 
 class CvContentTest(unittest.TestCase):
@@ -19,9 +23,18 @@ class CvContentTest(unittest.TestCase):
             "2023/09 – 2026/07",
             "Whale Force Holdings Ltd.",
             "Data Scientist Intern",
+            "2026/03 – 2026/07",
             "Systematic Strategy Research",
-            "Financial Data Infrastructure",
             "Institutional Portfolio Research",
+            "10,000-path Monte Carlo random-pick null distributions",
+            "rule-based XBRL tree traversal",
+            "official SEC company-facts API",
+            "44 quarters of raw SEC 13F filings",
+            "silhouette, Calinski-Harabasz, and Davies-Bouldin indices",
+            "LoRA and Combined Parameter-Efficient Tuning for Large Models",
+            "2024/06",
+            "2025/03 – 2025/06",
+            "Owned the full pipeline from raw data to conclusions",
             "WorldQuant International Quant Championship",
             "4th Place in Taiwan",
             "5,164 alpha expressions",
@@ -37,9 +50,16 @@ class CvContentTest(unittest.TestCase):
             "數據科學與工程碩士",
             "實習經歷",
             "資料科學實習生",
+            "2026/03 – 2026/07",
             "系統化策略研究",
-            "金融資料基礎建設",
             "機構投資組合研究",
+            "10,000 條路徑",
+            "規則式 XBRL 樹狀結構遍歷",
+            "SEC company-facts API",
+            "44 季",
+            "silhouette、Calinski-Harabasz 與 Davies-Bouldin",
+            "大型模型之 LoRA 與組合式參數高效微調",
+            "從原始資料到研究結論的完整流程",
             "台灣第四名",
             "量化研究",
             "AI 工程與代理工作流程",
@@ -56,6 +76,11 @@ class CvContentTest(unittest.TestCase):
             "Simulating Oceanic Environments with OpenGL",
             "Housing Price Prediction",
             "Darts Club",
+            "Game Theory Applied to Darts Strategies",
+            "賽局理論於飛鏢策略優化之應用",
+            '2026/03 – <span data-lang="en">Present</span>',
+            "Financial Data Infrastructure",
+            "金融資料基礎建設",
         ]
         for text in removed:
             with self.subTest(text=text):
@@ -73,6 +98,14 @@ class CvContentTest(unittest.TestCase):
         self.assertIn('withBase("cv_pdf/English_CV.pdf")', self.content)
         self.assertIn('withBase("cv_pdf/Chinese_CV.pdf")', self.content)
         self.assertNotIn("'Download PDF'", self.content)
+
+    def test_publishes_new_english_pdf_and_preserves_chinese_pdf_link(self):
+        english_pdf_sha256 = hashlib.sha256(ENGLISH_PDF.read_bytes()).hexdigest()
+
+        self.assertEqual(english_pdf_sha256, NEW_ENGLISH_PDF_SHA256)
+        self.assertTrue(CHINESE_PDF.exists())
+        self.assertIn('withBase("cv_pdf/English_CV.pdf")', self.content)
+        self.assertIn('withBase("cv_pdf/Chinese_CV.pdf")', self.content)
 
     def test_uses_static_bilingual_markup_without_vue_interpolation(self):
         self.assertIn('data-lang="en"', self.content)
