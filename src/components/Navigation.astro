@@ -1,0 +1,29 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+
+interface Props {
+  activePage: "index" | "profile" | "cv" | "music" | "perfume";
+}
+
+const { activePage } = Astro.props;
+const items = [
+  { id: "index", label: "Home", href: "index.html" },
+  { id: "profile", label: "Profile", href: "profile.html" },
+  { id: "cv", label: "CV", href: "cv.html" },
+  { id: "music", label: "Music", href: "music.html" },
+  { id: "perfume", label: "Perfume", href: "perfume.html" },
+] as const;
+---
+
+<nav class="navbar" aria-label="Primary navigation">
+  <div class="nav-links">
+    {
+      items.map((item) => (
+        <a href={item.href} class:list={["nav-link", { active: activePage === item.id }]}>
+          {item.label}
+        </a>
+      ))
+    }
+  </div>
+  <ThemeToggle />
+</nav>

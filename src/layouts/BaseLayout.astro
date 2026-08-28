@@ -1,0 +1,40 @@
+---
+import Navigation from "../components/Navigation.astro";
+import { SITE, withBase } from "../config/site";
+
+interface Props {
+  pageTitle?: string;
+  activePage: "index" | "profile" | "cv" | "music" | "perfume";
+}
+
+const { pageTitle, activePage } = Astro.props;
+const title = pageTitle ? `${pageTitle} | ${SITE.name}` : SITE.name;
+---
+
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href={withBase(SITE.faviconSvg)} />
+    <link rel="icon" type="image/png" sizes="32x32" href={withBase(SITE.faviconPng)} />
+    <link rel="apple-touch-icon" href={withBase(SITE.appleTouchIcon)} />
+    <script is:inline>
+      try {
+        const saved = localStorage.getItem('theme');
+        const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      } catch {
+        document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+    </script>
+    <slot name="styles" />
+  </head>
+  <body>
+    <Navigation activePage={activePage} />
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
