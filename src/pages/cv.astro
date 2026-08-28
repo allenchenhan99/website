@@ -75,12 +75,12 @@ import "../styles/responsive.css";
       <div class="timeline">
         <div class="timeline-item">
           <div class="timeline-dot"></div>
-          <div class="timeline-date">2026/03 – <span data-lang="en">Present</span><span data-lang="zh" hidden>現在</span></div>
+          <div class="timeline-date">2026/03 – 2026/07</div>
           <div class="timeline-content">
             <h3><span data-lang="en">Data Scientist Intern</span><span data-lang="zh" hidden>資料科學實習生</span></h3>
             <div class="org">Whale Force Holdings Ltd.</div>
-            <p data-lang="en"><strong>Systematic Strategy Research:</strong> Built a backtesting engine for investment hypotheses, evaluating benchmark-relative hit rates, Sharpe ratios, and Monte Carlo robustness.<br /><strong>Financial Data Infrastructure:</strong> Integrated automated financial-statement segmentation and parsing into downstream research pipelines.<br /><strong>Institutional Portfolio Research:</strong> Developed a 13F-based clustering framework to identify investor segments with superior forward benchmark-relative performance.</p>
-            <p data-lang="zh" hidden><strong>系統化策略研究：</strong>建構投資假設回測引擎，評估相對基準命中率、夏普比率與蒙地卡羅穩健性。<br /><strong>金融資料基礎建設：</strong>將自動化財務報表切分與解析整合至下游研究管線。<br /><strong>機構投資組合研究：</strong>開發以 13F 為基礎的分群框架，辨識未來相對基準績效較佳的投資人群體。</p>
+            <p data-lang="en"><strong>Systematic Strategy Research:</strong> Developed a modular strategy evaluation and statistical validation protocol, testing each rule's excess returns and Sharpe ratio against 10,000-path Monte Carlo random-pick null distributions to separate statistically significant alpha from selection luck.<br /><strong>Financial Statement Parsing:</strong> Built a financial-statement pipeline using rule-based XBRL tree traversal, recovering line items missed by the official SEC company-facts API and validating them against OCR ground truth.<br /><strong>Institutional Portfolio Research:</strong> Clustered institutional investors from 44 quarters of raw SEC 13F filings using engineered portfolio features—concentration, breadth, and turnover—and direct holdings-weight vectorization; validated cluster quality across silhouette, Calinski-Harabasz, and Davies-Bouldin indices to yield interpretable investor-style segments.</p>
+            <p data-lang="zh" hidden><strong>系統化策略研究：</strong>建立模組化策略評估與統計驗證協定，將每條規則的超額報酬與夏普比率，與 10,000 條路徑的 Monte Carlo 隨機選股虛無分布進行比較，以區分具統計顯著性的 Alpha 與選擇運氣。<br /><strong>財務報表解析：</strong>透過規則式 XBRL 樹狀結構遍歷建立財務報表管線，找回官方 SEC company-facts API 遺漏的會計科目，並以 OCR ground truth 驗證。<br /><strong>機構投資組合研究：</strong>使用集中度、廣度與周轉率等工程化投資組合特徵，以及直接持股權重向量化，對 44 季原始 SEC 13F 申報資料中的機構投資人進行分群；以 silhouette、Calinski-Harabasz 與 Davies-Bouldin 指標驗證分群品質，形成可解釋的投資人風格區隔。</p>
           </div>
         </div>
       </div>
@@ -91,26 +91,20 @@ import "../styles/responsive.css";
       <div class="timeline">
         <div class="timeline-item">
           <div class="timeline-dot"></div>
+          <div class="timeline-date">2024/06</div>
           <div class="timeline-content">
-            <h3><span data-lang="en">Low-Rank Adaptation and Combined Parameter-Efficient Tuning for Large Models</span><span data-lang="zh" hidden>大型模型之低秩適應與組合式參數高效微調</span></h3>
+            <h3><span data-lang="en">LoRA and Combined Parameter-Efficient Tuning for Large Models</span><span data-lang="zh" hidden>大型模型之 LoRA 與組合式參數高效微調</span></h3>
             <p data-lang="en">Investigated LoRA, BitFit, Adapter, and Prefix-tuning across vision and NLP tasks. LoRA + Adapter improved vision classification accuracy by +3.6% (0.8775 to 0.9134) with only 1.6% trainable parameters, while LoRA + BitFit improved RoBERTa-base accuracy from 0.931 to 0.945 on SST-2.</p>
             <p data-lang="zh" hidden>研究 LoRA、BitFit、Adapter 與 Prefix-tuning 在視覺及 NLP 任務中的整合。LoRA + Adapter 僅使用 1.6% 可訓練參數，即將視覺分類準確度提升 +3.6%（0.8775 至 0.9134）；LoRA + BitFit 則將 RoBERTa-base 在 SST-2 的準確度由 0.931 提升至 0.945。</p>
           </div>
         </div>
         <div class="timeline-item">
           <div class="timeline-dot"></div>
+          <div class="timeline-date">2025/03 – 2025/06</div>
           <div class="timeline-content">
             <h3><span data-lang="en">Data Science Project: Pima Indian Diabetes Dataset</span><span data-lang="zh" hidden>資料科學專案：皮馬印地安人糖尿病資料集</span></h3>
-            <p data-lang="en">Built classification pipelines across logistic regression, decision trees, random forests, and XGBoost with preprocessing, domain-specific feature engineering, stratified cross-validation, and grid search. Achieved Accuracy = 83.6%, ROC-AUC = 91.2%, Precision = 84.5%, Recall = 88.2%, and F1 = 86.3%.</p>
-            <p data-lang="zh" hidden>建立涵蓋邏輯斯迴歸、決策樹、隨機森林與 XGBoost 的分類管線，整合資料前處理、領域特定特徵工程、分層交叉驗證與網格搜尋。達到 Accuracy = 83.6%、ROC-AUC = 91.2%、Precision = 84.5%、Recall = 88.2%、F1 = 86.3%。</p>
-          </div>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-content">
-            <h3><span data-lang="en">Game Theory Applied to Darts Strategies</span><span data-lang="zh" hidden>賽局理論於飛鏢策略優化之應用</span></h3>
-            <p data-lang="en">Modeled checkout and target-selection decisions using professional match data, quantifying state-dependent risk-reward trade-offs to derive optimal decision rules across match scenarios.</p>
-            <p data-lang="zh" hidden>運用職業賽事資料建模結鏢與目標選擇決策，量化不同狀態下的風險報酬取捨，推導各種比賽情境的最佳決策規則。</p>
+            <p data-lang="en">Owned the full pipeline from raw data to conclusions, building classification pipelines across logistic regression, decision trees, random forests, and XGBoost with preprocessing, domain-specific feature engineering, stratified cross-validation, and grid search. Evaluated the models using Accuracy, ROC-AUC, Precision, Recall, and F1, achieving 83.6%, 91.2%, 84.5%, 88.2%, and 86.3%, respectively.</p>
+            <p data-lang="zh" hidden>負責從原始資料到研究結論的完整流程，建立涵蓋邏輯斯迴歸、決策樹、隨機森林與 XGBoost 的分類管線，整合資料前處理、領域特定特徵工程、分層交叉驗證與網格搜尋。以 Accuracy、ROC-AUC、Precision、Recall 與 F1 評估模型，分別達到 83.6%、91.2%、84.5%、88.2% 與 86.3%。</p>
           </div>
         </div>
       </div>
