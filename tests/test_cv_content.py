@@ -11,6 +11,7 @@ BASE_LAYOUT = ROOT / "src" / "layouts" / "BaseLayout.astro"
 ENGLISH_PDF = ROOT / "public" / "cv_pdf" / "English_CV.pdf"
 CHINESE_PDF = ROOT / "public" / "cv_pdf" / "Chinese_CV.pdf"
 NEW_ENGLISH_PDF_SHA256 = "300b9f75f48cf0affc6c8667f59d8bb2cc476267a539efb408d30169123c578c"
+OLD_CHINESE_PDF_SHA256 = "1e48066f89ab58f85bf092aa4cf331738e5f566f07f35cb7394f7cc6b61b6891"
 
 
 class CvContentTest(unittest.TestCase):
@@ -120,9 +121,11 @@ class CvContentTest(unittest.TestCase):
 
     def test_publishes_new_english_pdf_and_preserves_chinese_pdf_link(self):
         english_pdf_sha256 = hashlib.sha256(ENGLISH_PDF.read_bytes()).hexdigest()
+        chinese_pdf_sha256 = hashlib.sha256(CHINESE_PDF.read_bytes()).hexdigest()
 
-        self.assertEqual(english_pdf_sha256, NEW_ENGLISH_PDF_SHA256)
         self.assertTrue(CHINESE_PDF.exists())
+        self.assertEqual(chinese_pdf_sha256, OLD_CHINESE_PDF_SHA256)
+        self.assertEqual(english_pdf_sha256, NEW_ENGLISH_PDF_SHA256)
         self.assertIn('withBase("cv_pdf/English_CV.pdf")', self.content)
         self.assertIn('withBase("cv_pdf/Chinese_CV.pdf")', self.content)
 
