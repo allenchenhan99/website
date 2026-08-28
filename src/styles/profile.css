@@ -153,6 +153,7 @@ body {
 .profile-photo img {
     object-fit: cover;
     object-position: 25% 58%;
+    transform-origin: 25% 58%;
     transform: scale(1.25);
 }
 

@@ -58,6 +58,10 @@ class ResponsiveLayoutTest(unittest.TestCase):
         self.assertNotIn("background: url('../assets/images/selfie.JPG')", profile_css)
         self.assertIn(".profile-photo", profile_css)
         self.assertIn(".image-container .profile-photo", responsive_css)
+        self.assertRegex(
+            profile_css,
+            r"\.profile-photo img\s*\{[^}]*object-position:\s*25% 58%;[^}]*transform-origin:\s*25% 58%;[^}]*transform:\s*scale\(1\.25\);",
+        )
 
 
 if __name__ == "__main__":
