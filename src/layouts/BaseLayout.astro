@@ -5,14 +5,15 @@ import { SITE, withBase } from "../config/site";
 interface Props {
   pageTitle?: string;
   activePage: "index" | "profile" | "cv" | "music" | "perfume";
+  documentLanguage?: string;
 }
 
-const { pageTitle, activePage } = Astro.props;
+const { pageTitle, activePage, documentLanguage = "zh-Hant" } = Astro.props;
 const title = pageTitle ? `${pageTitle} | ${SITE.name}` : SITE.name;
 ---
 
 <!doctype html>
-<html lang="zh-Hant">
+<html lang={documentLanguage}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

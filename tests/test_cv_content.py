@@ -5,6 +5,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 CV_HTML = ROOT / "src" / "pages" / "cv.astro"
 CV_LANGUAGE = ROOT / "src" / "scripts" / "cv-language.ts"
+BASE_LAYOUT = ROOT / "src" / "layouts" / "BaseLayout.astro"
 
 
 class CvContentTest(unittest.TestCase):
@@ -78,6 +79,13 @@ class CvContentTest(unittest.TestCase):
         self.assertIn('data-lang="zh"', self.content)
         self.assertNotIn("{{", self.content)
         self.assertNotIn("lang ===", self.content)
+
+    def test_declares_english_for_the_initial_cv_fallback(self):
+        layout = BASE_LAYOUT.read_text(encoding="utf-8")
+        self.assertIn("documentLanguage?: string;", layout)
+        self.assertIn('documentLanguage = "zh-Hant"', layout)
+        self.assertIn("<html lang={documentLanguage}>", layout)
+        self.assertIn('documentLanguage="en"', self.content)
 
     def test_language_controller_is_storage_safe_and_updates_document_language(self):
         self.assertTrue(CV_LANGUAGE.exists(), "CV language controller must exist")
