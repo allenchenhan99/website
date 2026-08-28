@@ -2,7 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { withBase } from "../config/site";
 import { perfumePosts } from "../lib/content";
-import { getPerfumeFilterOptions } from "../scripts/perfume";
+import { getPerfumeCoverLoading, getPerfumeFilterOptions } from "../scripts/perfume";
 import "../styles/perfume.css";
 import "../styles/responsive.css";
 
@@ -54,7 +54,7 @@ const coverUrl = (cover: string) => cover ? withBase(cover) : "";
       >
         <span class="featured-img">
           {post.cover ? (
-            <img class="perfume-cover-image" src={coverUrl(post.cover)} alt="" width="720" height="960" />
+            <img class="perfume-cover-image" src={coverUrl(post.cover)} alt="" loading={getPerfumeCoverLoading("featured", index)} width="720" height="960" />
           ) : <span class="bottle-icon" aria-hidden="true">🧴</span>}
         </span>
         <span class="featured-body">
@@ -84,7 +84,7 @@ const coverUrl = (cover: string) => cover ? withBase(cover) : "";
           <button class="card-open" type="button" data-perfume-open data-post-id={String(post.id)} aria-label={`Open ${post.name}`}>
             <span class="grid-img">
               {post.cover ? (
-                <img class="perfume-cover-image" src={coverUrl(post.cover)} alt="" loading="lazy" width="480" height="640" />
+                <img class="perfume-cover-image" src={coverUrl(post.cover)} alt="" loading={getPerfumeCoverLoading("grid", index)} width="480" height="640" />
               ) : <span class="bottle-icon" aria-hidden="true">🧴</span>}
             </span>
             <span class="grid-body">

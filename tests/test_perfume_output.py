@@ -7,6 +7,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
+PERFUME_PAGE = ROOT / "src" / "pages" / "perfume.astro"
 
 
 class PerfumeOutputParser(HTMLParser):
@@ -81,6 +82,15 @@ class PerfumeOutputTest(unittest.TestCase):
     def test_uses_one_labelled_native_detail_dialog(self):
         self.assertEqual(len(self.parser.dialogs), 1)
         self.assertEqual(self.parser.dialogs[0].get("aria-labelledby"), "perfume-detail-title")
+
+    def test_source_binds_featured_and_grid_covers_to_the_loading_policy(self):
+        page = PERFUME_PAGE.read_text(encoding="utf-8")
+        self.assertIn(
+            'import { getPerfumeCoverLoading, getPerfumeFilterOptions } from "../scripts/perfume";',
+            page,
+        )
+        self.assertIn('loading={getPerfumeCoverLoading("featured", index)}', page)
+        self.assertIn('loading={getPerfumeCoverLoading("grid", index)}', page)
 
     def test_uses_the_layout_main_landmark_without_nesting_another(self):
         self.assertEqual(self.parser.main_elements, 1)

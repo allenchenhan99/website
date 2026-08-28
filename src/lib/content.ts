@@ -38,7 +38,7 @@ export type RecentPost =
 type ContentRecord = Record<string, unknown>;
 type AssetExists = (path: string) => boolean;
 
-const datePattern = /^\d{4}\/\d{2}\/\d{2}$/;
+const datePattern = /^(\d{4})\/(\d{2})\/(\d{2})$/;
 
 const publicAssetExists: AssetExists = (path) =>
   existsSync(join(process.cwd(), 'public', path));
@@ -62,8 +62,20 @@ const requirePositiveId = (record: ContentRecord, label: string): number => {
 
 const requireDate = (record: ContentRecord, label: string): string => {
   const { date } = record;
-  if (typeof date !== 'string' || !datePattern.test(date)) {
+  if (typeof date !== 'string') {
     throw new TypeError(`${label} date must use YYYY/MM/DD`);
+  }
+
+  const match = datePattern.exec(date);
+  if (!match) throw new TypeError(`${label} date must use YYYY/MM/DD`);
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > daysInMonth[month - 1]!) {
+    throw new TypeError(`${label} date "${date}" is not a valid calendar date`);
   }
 
   return date;

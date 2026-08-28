@@ -15,6 +15,7 @@ class MusicOutputParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.cards = []
         self.spotify_sources = []
+        self.spotify_links = []
         self.iframes = []
         self.images = []
         self.picture_types = []
@@ -30,6 +31,8 @@ class MusicOutputParser(HTMLParser):
             self.cards.append(attributes)
         if "spotify-embed" in classes:
             self.spotify_sources.append(attributes.get("data-src"))
+        if tag == "a" and "spotify-fallback" in classes:
+            self.spotify_links.append(attributes)
         if tag == "iframe":
             self.iframes.append(attributes)
         if tag == "img":
@@ -66,6 +69,22 @@ class MusicOutputTest(unittest.TestCase):
         self.assertEqual(len(self.parser.spotify_sources), 2)
         self.assertTrue(all(url.startswith("https://open.spotify.com/embed/") for url in self.parser.spotify_sources))
         self.assertIn("min-height:352px", self.html.replace(" ", ""))
+
+    def test_keeps_direct_spotify_links_visible_and_separate_from_embed_urls(self):
+        self.assertEqual(len(self.parser.spotify_links), 2)
+        for link in self.parser.spotify_links:
+            self.assertNotIn("hidden", link)
+            self.assertTrue(link.get("href", "").startswith("https://open.spotify.com/playlist/"))
+            self.assertNotIn("/embed/", link["href"])
+            self.assertEqual(link.get("target"), "_blank")
+            self.assertEqual(link.get("rel"), "noreferrer")
+
+        css = (ROOT / "src" / "styles" / "music.css").read_text(encoding="utf-8")
+        fallback_rule = re.search(r"\.spotify-fallback\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        self.assertIsNotNone(fallback_rule)
+        self.assertRegex(fallback_rule.group("body"), r"position:\s*absolute")
+        self.assertRegex(fallback_rule.group("body"), r"bottom:\s*\d")
+        self.assertRegex(fallback_rule.group("body"), r"right:\s*\d")
 
     def test_uses_optimized_fixed_images_and_real_lazy_cover_images(self):
         self.assertIn("image/avif", self.parser.picture_types)

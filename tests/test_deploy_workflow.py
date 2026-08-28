@@ -5,6 +5,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "deploy.yml"
+README = ROOT / "README.md"
+MAIN_RELEASE_GUARD = (
+    "github.ref == 'refs/heads/main' && github.event_name != 'pull_request'"
+)
 
 
 def lines() -> list[str]:
@@ -90,6 +94,17 @@ class DeployWorkflowContract(unittest.TestCase):
         push = section(self.triggers, "push", indent=2)
         self.assertEqual(scalar(push, "branches"), "[main]")
 
+    def test_validation_concurrency_is_ref_scoped_and_only_prs_are_cancelled(self) -> None:
+        concurrency = section(self.source, "concurrency")
+        self.assertEqual(
+            scalar(concurrency, "group"),
+            "ci-${{ github.workflow }}-${{ github.ref }}",
+        )
+        self.assertEqual(
+            scalar(concurrency, "cancel-in-progress"),
+            "${{ github.event_name == 'pull_request' }}",
+        )
+
     def test_build_has_read_only_permissions_and_pinned_node_setup(self) -> None:
         permissions = section(self.build, "permissions", indent=4)
         self.assertEqual(scalar(permissions, "contents"), "read")
@@ -127,12 +142,16 @@ class DeployWorkflowContract(unittest.TestCase):
         )
         upload = build_steps[upload_index]
         self.assertGreater(upload_index, e2e_index)
-        self.assertEqual(upload.get("if"), "github.event_name != 'pull_request'")
+        self.assertEqual(upload.get("if"), MAIN_RELEASE_GUARD)
         self.assertEqual(upload["with"], {"path": "dist"})
 
     def test_deploy_is_gated_and_has_only_required_release_permissions(self) -> None:
-        self.assertEqual(scalar(self.deploy, "if"), "github.event_name != 'pull_request'")
+        self.assertEqual(scalar(self.deploy, "if"), MAIN_RELEASE_GUARD)
         self.assertEqual(scalar(self.deploy, "needs"), "build")
+
+        concurrency = section(self.deploy, "concurrency", indent=4)
+        self.assertEqual(scalar(concurrency, "group"), "pages-production")
+        self.assertEqual(scalar(concurrency, "cancel-in-progress"), "false")
 
         permissions = section(self.deploy, "permissions", indent=4)
         self.assertEqual(
@@ -151,6 +170,13 @@ class DeployWorkflowContract(unittest.TestCase):
         self.assertEqual(len(deploy_steps), 1)
         self.assertEqual(deploy_steps[0].get("id"), "deployment")
         self.assertEqual(deploy_steps[0].get("uses"), "actions/deploy-pages@v5")
+
+    def test_readme_explains_manual_release_ref_policy(self) -> None:
+        readme = README.read_text(encoding="utf-8")
+        self.assertIn(
+            "Manual runs deploy only when dispatched from `main`; other selected refs run validation without uploading or deploying.",
+            readme,
+        )
 
 
 if __name__ == "__main__":

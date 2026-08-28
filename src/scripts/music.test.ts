@@ -31,7 +31,7 @@ class FakeEmbed {
     addEventListener: (name: string, listener: Listener, options?: { once: boolean }) => void;
   }> = [];
   status = { hidden: false };
-  fallback = { hidden: true };
+  fallback = { hidden: false };
 
   constructor(sourceUrl: string) {
     this.dataset = { src: sourceUrl };
@@ -94,21 +94,13 @@ describe('music cover paths', () => {
 });
 
 describe('deferred Spotify embeds', () => {
-  test('creates one correctly attributed iframe and never creates a duplicate', () => {
+  test('creates one correctly attributed iframe without timeout-based fallback behavior', () => {
     const embed = new FakeEmbed('https://open.spotify.com/embed/playlist/example');
     const iframe = new FakeIframe();
-    const scheduleTimeout = vi.fn(() => 7);
-    const clearTimeout = vi.fn();
 
-    expect(loadSpotifyEmbed(embed, {
-      createIframe: () => iframe,
-      scheduleTimeout,
-      clearTimeout,
-    })).toBe(true);
+    expect(loadSpotifyEmbed(embed, { createIframe: () => iframe })).toBe(true);
     expect(loadSpotifyEmbed(embed, {
       createIframe: () => new FakeIframe(),
-      scheduleTimeout,
-      clearTimeout,
     })).toBe(false);
 
     expect(embed.children).toEqual([iframe]);
@@ -118,50 +110,23 @@ describe('deferred Spotify embeds', () => {
     );
     expect(iframe.attributes.get('allowfullscreen')).toBe('');
     expect(iframe.attributes.get('height')).toBe('352');
-    expect(scheduleTimeout).toHaveBeenCalledWith(expect.any(Function), 12_000);
 
     iframe.listeners.get('load')?.();
-    expect(clearTimeout).toHaveBeenCalledWith(7);
     expect(embed.status.hidden).toBe(true);
-    expect(embed.fallback.hidden).toBe(true);
-  });
-
-  test('reveals the direct fallback after the 12-second timeout', () => {
-    const embed = new FakeEmbed('https://open.spotify.com/embed/playlist/example');
-    let timeoutCallback: Listener | undefined;
-
-    loadSpotifyEmbed(embed, {
-      createIframe: () => new FakeIframe(),
-      scheduleTimeout(callback) {
-        timeoutCallback = callback;
-        return 9;
-      },
-      clearTimeout: vi.fn(),
-    });
-
-    expect(embed.fallback.hidden).toBe(true);
-    timeoutCallback?.();
     expect(embed.fallback.hidden).toBe(false);
   });
 
-  test('hides a timed-out fallback if the iframe finishes loading later', () => {
+  test('keeps the direct link available when iframe load cannot prove HTTP success', () => {
     const embed = new FakeEmbed('https://open.spotify.com/embed/playlist/example');
     const iframe = new FakeIframe();
-    let timeoutCallback: Listener | undefined;
 
     loadSpotifyEmbed(embed, {
       createIframe: () => iframe,
-      scheduleTimeout(callback) {
-        timeoutCallback = callback;
-        return 10;
-      },
-      clearTimeout: vi.fn(),
     });
 
-    timeoutCallback?.();
     expect(embed.fallback.hidden).toBe(false);
     iframe.listeners.get('load')?.();
-    expect(embed.fallback.hidden).toBe(true);
+    expect(embed.fallback.hidden).toBe(false);
     expect(embed.status.hidden).toBe(true);
   });
 
@@ -181,8 +146,6 @@ describe('deferred Spotify embeds', () => {
     initializeSpotifyEmbeds([first, second], {
       createObserver,
       createIframe,
-      scheduleTimeout: vi.fn(() => 1),
-      clearTimeout: vi.fn(),
     });
 
     expect(observe.mock.calls.map(([target]) => target)).toEqual([first, second]);

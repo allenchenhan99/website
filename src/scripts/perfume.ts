@@ -2,6 +2,8 @@ import { withBase } from '../config/site';
 import type { PerfumePost } from '../lib/content';
 
 export type PerfumeFilterMode = 'scent' | 'brand';
+export type PerfumeCoverRole = 'featured' | 'grid';
+export type PerfumeCoverLoading = 'eager' | 'lazy';
 
 export type PerfumeFilterState = {
   mode: PerfumeFilterMode;
@@ -26,6 +28,13 @@ type PerfumeDialogView = {
 };
 
 const ALL_FILTER = 'All';
+
+export function getPerfumeCoverLoading(
+  role: PerfumeCoverRole,
+  index: number,
+): PerfumeCoverLoading {
+  return role === 'featured' && index === 0 ? 'eager' : 'lazy';
+}
 
 export function getPerfumeFilterOptions(
   posts: PerfumePost[],

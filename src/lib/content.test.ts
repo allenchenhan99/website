@@ -35,6 +35,20 @@ describe('content validation', () => {
     expect(() => parseMusicPosts([music(1, { date: '2026-08-28' })])).toThrow(/date/);
   });
 
+  test.each([
+    ['invalid month', '2026/13/01'],
+    ['invalid day', '2026/04/31'],
+    ['non-leap February 29', '2025/02/29'],
+  ])('rejects %s as an impossible calendar date', (_, date) => {
+    expect(() => parseMusicPosts([music(1, { date })])).toThrow(/date/i);
+    expect(() => parsePerfumePosts([perfume(1, { date })])).toThrow(/date/i);
+  });
+
+  test('accepts February 29 in a leap year without changing the date string', () => {
+    expect(parseMusicPosts([music(1, { date: '2024/02/29' })])[0]?.date).toBe('2024/02/29');
+    expect(parsePerfumePosts([perfume(1, { date: '2024/02/29' })])[0]?.date).toBe('2024/02/29');
+  });
+
   test('rejects duplicate IDs within a collection', () => {
     expect(() => parseMusicPosts([music(1), music(1)])).toThrow(/duplicate id/i);
   });

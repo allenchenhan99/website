@@ -35,4 +35,4 @@ npm run preview      # preview dist/ locally
 
 ## CI and GitHub Pages
 
-Pull requests run checks, unit/contracts, a production build, and Playwright E2E tests without deploying. Pushes to `main` and manually dispatched runs execute the same validation, upload `dist`, and deploy it to GitHub Pages at <https://allenchenhan99.github.io/website/>. In repository settings, GitHub Pages must use **GitHub Actions** as its source.
+Pull requests run checks, unit/contracts, a production build, and Playwright E2E tests without deploying. Pushes to `main` execute the same validation, upload `dist`, and deploy it to GitHub Pages at <https://allenchenhan99.github.io/website/>. Manual runs deploy only when dispatched from `main`; other selected refs run validation without uploading or deploying. Production deployments are serialized so one release cannot cancel or race another. In repository settings, GitHub Pages must use **GitHub Actions** as its source.

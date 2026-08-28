@@ -5,12 +5,12 @@ export type MusicView = 'grid' | 'list';
 type StorageReader = Pick<Storage, 'getItem'>;
 type StorageWriter = Pick<Storage, 'setItem'>;
 type MusicStorage = StorageReader & StorageWriter;
-type TimeoutCallback = () => void;
+type FrameListener = () => void;
 
 type HideableElement = { hidden: boolean };
 type SpotifyFrame = {
   setAttribute: (name: string, value: string) => void;
-  addEventListener: (name: string, listener: TimeoutCallback, options?: { once: boolean }) => void;
+  addEventListener: (name: string, listener: FrameListener, options?: { once: boolean }) => void;
 };
 
 export type SpotifyContainer = {
@@ -21,8 +21,6 @@ export type SpotifyContainer = {
 
 type SpotifyDependencies = {
   createIframe: () => SpotifyFrame;
-  scheduleTimeout: (callback: TimeoutCallback, delay: number) => unknown;
-  clearTimeout: (handle: unknown) => void;
 };
 
 type ObserverEntry = { isIntersecting: boolean; target: SpotifyContainer };
@@ -37,8 +35,6 @@ type ObserverFactory = (
 
 const spotifyDefaults: SpotifyDependencies = {
   createIframe: () => document.createElement('iframe'),
-  scheduleTimeout: (callback, delay) => window.setTimeout(callback, delay),
-  clearTimeout: (handle) => window.clearTimeout(handle as number),
 };
 
 export function readMusicView(storage: StorageReader | null): MusicView {
@@ -73,7 +69,6 @@ export function loadSpotifyEmbed(
 
   embed.dataset.loaded = 'true';
   const status = embed.querySelector('[data-spotify-status]');
-  const fallback = embed.querySelector('[data-spotify-fallback]');
   const iframe = dependencies.createIframe();
   iframe.setAttribute('src', sourceUrl);
   iframe.setAttribute('title', 'Spotify playlist');
@@ -87,14 +82,8 @@ export function loadSpotifyEmbed(
   );
   iframe.setAttribute('loading', 'lazy');
 
-  const fallbackTimer = dependencies.scheduleTimeout(() => {
-    if (fallback) fallback.hidden = false;
-  }, 12_000);
-
   iframe.addEventListener('load', () => {
-    dependencies.clearTimeout(fallbackTimer);
     if (status) status.hidden = true;
-    if (fallback) fallback.hidden = true;
   }, { once: true });
   embed.appendChild(iframe);
   return true;

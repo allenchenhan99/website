@@ -5,6 +5,7 @@ import {
   createPerfumeDialogController,
   createPerfumeFilterController,
   filterPerfumePosts,
+  getPerfumeCoverLoading,
   getPerfumeCoverPresentation,
   getPerfumeFilterOptions,
   type PerfumeFilterState,
@@ -41,6 +42,19 @@ const posts: PerfumePost[] = [
 ];
 
 describe('perfume filter helpers', () => {
+  test('makes only the initially featured cover eager for a non-empty collection', () => {
+    expect(posts.map((_, index) => getPerfumeCoverLoading('featured', index))).toEqual([
+      'eager',
+      'lazy',
+      'lazy',
+    ]);
+    expect(posts.map((_, index) => getPerfumeCoverLoading('grid', index))).toEqual([
+      'lazy',
+      'lazy',
+      'lazy',
+    ]);
+  });
+
   test('builds sorted unique scent options after All', () => {
     expect(getPerfumeFilterOptions(posts, 'scent')).toEqual([
       'All',
