@@ -12,6 +12,8 @@ PUBLIC_PAGES = (
     "perfume.html",
 )
 RESPONSIVE_CSS = ROOT / "src" / "styles" / "responsive.css"
+PROFILE_PAGE = ROOT / "src" / "pages" / "profile.astro"
+PROFILE_CSS = ROOT / "src" / "styles" / "profile.css"
 
 
 class ResponsiveLayoutTest(unittest.TestCase):
@@ -42,6 +44,20 @@ class ResponsiveLayoutTest(unittest.TestCase):
     def test_ascii_scale_includes_breakpoint_safety_margin(self):
         content = RESPONSIVE_CSS.read_text(encoding="utf-8")
         self.assertIn("calc(1.25vw - 0.55px)", content)
+
+    def test_profile_uses_optimized_astro_images_without_css_avatar_source(self):
+        page = PROFILE_PAGE.read_text(encoding="utf-8")
+        profile_css = PROFILE_CSS.read_text(encoding="utf-8")
+        responsive_css = RESPONSIVE_CSS.read_text(encoding="utf-8")
+
+        self.assertIn('import { Picture } from "astro:assets";', page)
+        self.assertIn("<Picture", page)
+        self.assertIn("formats={['avif', 'webp']}", page)
+        self.assertIn('alt="Background Photo"', page)
+        self.assertIn('alt="Profile Photo"', page)
+        self.assertNotIn("background: url('../assets/images/selfie.JPG')", profile_css)
+        self.assertIn(".profile-photo", profile_css)
+        self.assertIn(".image-container .profile-photo", responsive_css)
 
 
 if __name__ == "__main__":

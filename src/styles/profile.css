@@ -131,18 +131,29 @@ body {
 }
 
 /* Avatar */
-.image-container::after {
-    content: '';
+.profile-photo {
     position: absolute;
     top: 42%;
     left: 51%;
     transform: translate(-50%, -50%);
     width: 290px;
     height: 290px;
-    background: url('../assets/images/selfie.JPG') 25% 58%;
-    background-size: 125%;
     border-radius: 50%;
     z-index: 2;
+    overflow: hidden;
+}
+
+.profile-photo picture,
+.profile-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.profile-photo img {
+    object-fit: cover;
+    object-position: 25% 58%;
+    transform: scale(1.25);
 }
 
 /* ===== Text container ===== */
@@ -189,7 +200,7 @@ body {
         top: 45%;
     }
 
-    .image-container::after {
+    .profile-photo {
         width: 190px;
         height: 190px;
         top: 45%;
@@ -215,7 +226,7 @@ body {
         height: 150px;
     }
 
-    .image-container::after {
+    .profile-photo {
         width: 140px;
         height: 140px;
     }

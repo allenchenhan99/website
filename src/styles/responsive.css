@@ -111,7 +111,7 @@ canvas {
     height: clamp(150px, 32vw, 300px);
 }
 
-.image-container::after {
+.image-container .profile-photo {
     width: clamp(140px, calc(32vw - 10px), 290px);
     height: clamp(140px, calc(32vw - 10px), 290px);
 }
@@ -142,7 +142,6 @@ canvas {
         gap: var(--section-space);
     }
 
-    .profile-photo,
     .record-player {
         max-width: 35vw;
         max-height: 35vw;
