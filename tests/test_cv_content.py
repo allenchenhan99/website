@@ -36,6 +36,7 @@ class CvContentTest(unittest.TestCase):
             "LoRA and Combined Parameter-Efficient Tuning for Large Models",
             "2025/03 – 2025/06",
             "Owned the full pipeline from raw data to conclusions",
+            "calibration curves",
             "WorldQuant International Quant Championship",
             "4th Place in Taiwan",
             "5,164 alpha expressions",
@@ -45,6 +46,17 @@ class CvContentTest(unittest.TestCase):
         for text in required:
             with self.subTest(text=text):
                 self.assertIn(text, self.content)
+
+        for topic in (
+            "Systematic Strategy Research",
+            "Financial Statement Parsing",
+            "Institutional Portfolio Research",
+        ):
+            with self.subTest(internship_topic=topic):
+                self.assertIn(
+                    f'<p data-lang="en"><strong>{topic}:</strong>',
+                    self.content,
+                )
 
         lora_timeline_item = re.compile(
             r'<div class="timeline-item">\s*'
@@ -71,6 +83,7 @@ class CvContentTest(unittest.TestCase):
             "silhouette、Calinski-Harabasz 與 Davies-Bouldin",
             "大型模型之 LoRA 與組合式參數高效微調",
             "從原始資料到研究結論的完整流程",
+            "校準曲線",
             "台灣第四名",
             "量化研究",
             "AI 工程與代理工作流程",
@@ -79,6 +92,17 @@ class CvContentTest(unittest.TestCase):
         for text in required:
             with self.subTest(text=text):
                 self.assertIn(text, self.content)
+
+        for topic in (
+            "系統化策略研究",
+            "財務報表解析",
+            "機構投資組合研究",
+        ):
+            with self.subTest(internship_topic=topic):
+                self.assertIn(
+                    f'<p data-lang="zh" hidden><strong>{topic}：</strong>',
+                    self.content,
+                )
 
         chinese_xbrl_api_fact = re.compile(
             r'<p data-lang="zh" hidden>'
