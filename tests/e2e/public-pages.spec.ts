@@ -114,19 +114,44 @@ test('lazy-loads one nearby Spotify embed and persists Music list view', async (
     body: '<!doctype html><title>Spotify test double</title>',
   }));
   await page.goto('music.html');
+  const musicView = page.locator('[data-music-view]');
+  const gridPanel = page.locator('[data-view-panel="grid"]');
+  const listPanel = page.locator('[data-view-panel="list"]');
+  await expect(musicView).toHaveAttribute('data-view', 'grid');
+  await expect(gridPanel).toBeVisible();
+  await expect(listPanel).toBeHidden();
+
+  const initialGeometry = await page.locator('[data-spotify-embed]').first().evaluate((element) => ({
+    top: element.getBoundingClientRect().top,
+    viewportHeight: window.innerHeight,
+  }));
+  expect(initialGeometry.top).toBeGreaterThan(initialGeometry.viewportHeight + 300);
+  await expect(page.locator('[data-spotify-embed] iframe')).toHaveCount(0);
+  // Deliberate bounded stability window: the observer must not load while the card stays outside its margin.
+  await page.waitForTimeout(350);
   await expect(page.locator('[data-spotify-embed] iframe')).toHaveCount(0);
 
   await page.locator('[data-spotify-embed]').first().evaluate((element) => {
     const targetTop = element.getBoundingClientRect().top + window.scrollY;
     window.scrollTo(0, targetTop - window.innerHeight - 250);
   });
+  const approachedGeometry = await page.locator('[data-spotify-embed]').evaluateAll((embeds) => ({
+    firstTop: embeds[0]?.getBoundingClientRect().top,
+    secondTop: embeds[1]?.getBoundingClientRect().top,
+    viewportHeight: window.innerHeight,
+  }));
+  expect(approachedGeometry.firstTop).toBeLessThanOrEqual(approachedGeometry.viewportHeight + 300);
+  expect(approachedGeometry.secondTop).toBeGreaterThan(approachedGeometry.viewportHeight + 300);
   await expect(page.locator('[data-spotify-embed] iframe')).toHaveCount(1);
 
   await page.getByRole('button', { name: 'List view' }).click();
-  await expect(page.locator('[data-music-view]')).toHaveAttribute('data-view', 'list');
-  await expect(page.locator('[data-view-panel="list"]')).toBeVisible();
+  await expect(musicView).toHaveAttribute('data-view', 'list');
+  await expect(gridPanel).toBeHidden();
+  await expect(listPanel).toBeVisible();
   await page.reload();
-  await expect(page.locator('[data-music-view]')).toHaveAttribute('data-view', 'list');
+  await expect(musicView).toHaveAttribute('data-view', 'list');
+  await expect(gridPanel).toBeHidden();
+  await expect(listPanel).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('music-view'))).toBe('list');
   expect(errors).toEqual([]);
 });
@@ -142,8 +167,23 @@ test('keeps Perfume empty-state filters interactive', async ({ page }) => {
   await page.goto('perfume.html');
   await expect(page.locator('[data-perfume-empty]')).toBeVisible();
   await expect(page.locator('[data-perfume-count]')).toHaveText('0 fragrances');
-  await page.getByRole('button', { name: 'By Brand' }).click();
-  await expect(page.getByRole('button', { name: 'By Brand' })).toHaveAttribute('aria-pressed', 'true');
+  const scentMode = page.getByRole('button', { name: 'By Scent' });
+  const brandMode = page.getByRole('button', { name: 'By Brand' });
+  await expect(scentMode).toHaveAttribute('aria-pressed', 'true');
+  await expect(brandMode).toHaveAttribute('aria-pressed', 'false');
+
+  await brandMode.click();
+  await expect(brandMode).toHaveAttribute('aria-pressed', 'true');
+  await expect(scentMode).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('[data-perfume-count]')).toHaveText('0 fragrances');
+  await expect(page.locator('[data-filter-value="All"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-perfume-empty]')).toBeVisible();
+
+  await scentMode.click();
+  await expect(scentMode).toHaveAttribute('aria-pressed', 'true');
+  await expect(brandMode).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('[data-perfume-count]')).toHaveText('0 fragrances');
+  await expect(page.locator('[data-filter-value="All"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-filter-value="All"]')).toBeVisible();
   await expect(page.locator('[data-perfume-empty]')).toBeVisible();
   expect(errors).toEqual([]);
@@ -163,9 +203,19 @@ for (const viewport of [
   test(`contains all public routes at ${viewport.width}x${viewport.height}`, async ({ page }) => {
     const errors = collectRuntimeErrors(page);
     await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
 
     for (const [route] of routes) {
       await page.goto(route);
+      if (route === 'index.html') {
+        const asciiState = await page.evaluate(() => ({
+          rendered: document.querySelector('[data-ascii-animation]')?.textContent?.trimEnd(),
+          source: document.querySelector<HTMLTemplateElement>('[data-ascii-source]')
+            ?.content.textContent?.trimEnd(),
+        }));
+        expect(asciiState.source?.length).toBeGreaterThan(0);
+        expect(asciiState.rendered).toBe(asciiState.source);
+      }
       const dimensions = await page.evaluate(() => ({
         scrollWidth: document.documentElement.scrollWidth,
         innerWidth: window.innerWidth,

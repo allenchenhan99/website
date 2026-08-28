@@ -17,6 +17,13 @@ LEGACY_PUBLIC_FILES = (
     "js/music.js",
     "js/perfume.js",
 )
+ADMIN_RUNTIME_FILES = {
+    "admin.html",
+    "admin-preview.html",
+    "post-preview.html",
+    "js/admin.js",
+}
+GENERATED_TEXT_SUFFIXES = {".html", ".js", ".mjs"}
 
 
 class AstroArchitectureTest(unittest.TestCase):
@@ -49,20 +56,41 @@ class AstroArchitectureTest(unittest.TestCase):
             with self.subTest(relative_path=relative_path):
                 self.assertFalse((ROOT / relative_path).exists())
 
-    def test_fresh_public_build_has_all_routes_without_vue_runtime(self):
+    def test_fresh_public_build_has_all_routes(self):
         for route in ROUTES:
             output = DIST / f"{route}.html"
             with self.subTest(route=route):
                 self.assertTrue(output.exists())
-                html = output.read_text(encoding="utf-8")
-                self.assertNotIn("unpkg.com/vue", html)
-                self.assertNotIn("Vue.createApp", html)
+
+    def test_generated_public_runtime_has_no_vue_outside_exact_admin_files(self):
+        generated_files = sorted(
+            path
+            for path in DIST.rglob("*")
+            if path.is_file() and path.suffix in GENERATED_TEXT_SUFFIXES
+        )
+        bundled_javascript = {
+            *DIST.glob("_astro/*.js"),
+            *DIST.glob("_astro/*.mjs"),
+        }
+        self.assertTrue(bundled_javascript.issubset(set(generated_files)))
+
+        violations = []
+        for path in generated_files:
+            relative_path = path.relative_to(DIST).as_posix()
+            if relative_path in ADMIN_RUNTIME_FILES:
+                continue
+            content = path.read_text(encoding="utf-8")
+            for marker in ("unpkg.com/vue", "Vue.createApp"):
+                if marker in content:
+                    violations.append(f"{relative_path}: {marker}")
+
+        self.assertEqual(violations, [])
 
     def test_legacy_admin_runtime_remains_explicitly_isolated(self):
-        self.assertTrue((ROOT / "public" / "admin.html").exists())
-        self.assertTrue((ROOT / "public" / "admin-preview.html").exists())
-        self.assertTrue((ROOT / "public" / "post-preview.html").exists())
-        self.assertTrue((ROOT / "public" / "js" / "admin.js").exists())
+        for relative_path in ADMIN_RUNTIME_FILES:
+            with self.subTest(relative_path=relative_path):
+                self.assertTrue((ROOT / "public" / relative_path).exists())
+                self.assertTrue((DIST / relative_path).exists())
 
 
 if __name__ == "__main__":
