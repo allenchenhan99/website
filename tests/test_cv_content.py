@@ -1,6 +1,7 @@
 import hashlib
-from pathlib import Path
+import re
 import unittest
+from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,7 +33,6 @@ class CvContentTest(unittest.TestCase):
             "44 quarters of raw SEC 13F filings",
             "silhouette, Calinski-Harabasz, and Davies-Bouldin indices",
             "LoRA and Combined Parameter-Efficient Tuning for Large Models",
-            "2024/06",
             "2025/03 – 2025/06",
             "Owned the full pipeline from raw data to conclusions",
             "WorldQuant International Quant Championship",
@@ -45,6 +45,17 @@ class CvContentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertIn(text, self.content)
 
+        lora_timeline_item = re.compile(
+            r'<div class="timeline-item">\s*'
+            r'<div class="timeline-dot"></div>\s*'
+            r'<div class="timeline-date">2024/06</div>\s*'
+            r'<div class="timeline-content">\s*'
+            r'<h3><span data-lang="en">'
+            r'LoRA and Combined Parameter-Efficient Tuning for Large Models'
+            r'</span>',
+        )
+        self.assertRegex(self.content, lora_timeline_item)
+
     def test_contains_chinese_translations(self):
         required = [
             "數據科學與工程碩士",
@@ -55,7 +66,6 @@ class CvContentTest(unittest.TestCase):
             "機構投資組合研究",
             "10,000 條路徑",
             "規則式 XBRL 樹狀結構遍歷",
-            "SEC company-facts API",
             "44 季",
             "silhouette、Calinski-Harabasz 與 Davies-Bouldin",
             "大型模型之 LoRA 與組合式參數高效微調",
@@ -68,6 +78,15 @@ class CvContentTest(unittest.TestCase):
         for text in required:
             with self.subTest(text=text):
                 self.assertIn(text, self.content)
+
+        chinese_xbrl_api_fact = re.compile(
+            r'<p data-lang="zh" hidden>'
+            r'(?:(?!</p>).)*規則式 XBRL 樹狀結構遍歷'
+            r'(?:(?!</p>).)*官方 SEC company-facts API'
+            r'(?:(?!</p>).)*</p>',
+            re.DOTALL,
+        )
+        self.assertRegex(self.content, chinese_xbrl_api_fact)
 
     def test_removes_entries_absent_from_new_pdf(self):
         removed = [
