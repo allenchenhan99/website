@@ -173,22 +173,17 @@ describe('Chipi animation controller', () => {
 
 describe('Home reach signal', () => {
   const liveSnapshot = {
-    periodDays: 30,
     totalReach: 2468,
-    todayReach: 30,
-    dailyReach: Array.from({ length: 30 }, (_, index) => index + 1),
     updatedAt: '2026-09-02T04:30:00.000Z',
   };
 
-  test('accepts a complete live reach snapshot from the public stats endpoint', () => {
+  test('accepts a cumulative-only snapshot from the public counter endpoint', () => {
     expect(home.parseReachSignalSnapshot(liveSnapshot)).toEqual(liveSnapshot);
   });
 
   test.each([
-    { ...liveSnapshot, periodDays: 7 },
     { ...liveSnapshot, totalReach: -1 },
-    { ...liveSnapshot, todayReach: Number.NaN },
-    { ...liveSnapshot, dailyReach: [1, 2, 3] },
+    { ...liveSnapshot, totalReach: 1.5 },
     { ...liveSnapshot, updatedAt: 'not-a-date' },
   ])('rejects malformed live reach data', (snapshot) => {
     expect(home.parseReachSignalSnapshot(snapshot)).toBeNull();
@@ -268,31 +263,28 @@ describe('Home reach signal', () => {
 
     expect(lines).toHaveLength(21);
     expect(lines.every((line) => line.length === 120)).toBe(true);
-    expect(frame).toContain('ALLEN.LIN // PUBLIC REACH SIGNAL');
-    expect(frame).toContain('30D H 0 / L 0 // DENSITY = DAILY REACH');
+    expect(frame).toContain('ALLEN.LIN // CUMULATIVE REACH');
+    expect(frame).toContain('TOTAL REACH 0 // ONE BROWSER = ONE SIGNAL');
+    expect(frame).not.toContain('30D');
+    expect(frame).not.toContain('TODAY');
   });
 
-  test('formats the quiet market line from the shared reach data', () => {
+  test('formats a cumulative-only market line', () => {
     expect(home.buildReachTickerText(home.REACH_SIGNAL_DATA)).toBe(
-      'RCH 0   │   TODAY 0   │   30D H 0 / L 0',
+      'TOTAL REACH 0',
     );
   });
 
-  test('shows the current daily reach without a page-view metric', () => {
+  test('shows the lifetime total without period metrics', () => {
     expect(home.buildReachTickerText({
-      ...home.REACH_SIGNAL_DATA,
       totalReach: 2468,
-      todayReach: 30,
-      dailyReach: Array.from({ length: 30 }, (_, index) => index + 1),
-    })).toBe('RCH 2,468   │   TODAY 30   │   30D H 30 / L 1');
+    })).toBe('TOTAL REACH 2,468');
   });
 
   test('renders a valid flow when the site has not collected its first visit yet', () => {
     const frame = home.buildReachFlowFrame({
       data: {
         totalReach: 0,
-        todayReach: 0,
-        dailyReach: Array.from({ length: 30 }, () => 0),
       },
       columns: 80,
       phase: 0,

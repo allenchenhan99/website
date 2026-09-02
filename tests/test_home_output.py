@@ -199,10 +199,12 @@ class HomeOutputTest(unittest.TestCase):
         self.assertIn('data-reach-flow', self.html)
         self.assertIn('data-reach-ticker', self.html)
         self.assertIn('data-reach-source', self.html)
-        self.assertIn("RCH —", self.html)
+        self.assertIn("TOTAL REACH —", self.html)
         self.assertIn("counter unavailable", self.html)
         self.assertNotIn("RCH 1,284", self.html)
         self.assertNotIn("PVW 3,912", self.html)
+        self.assertNotIn("30D", self.html)
+        self.assertNotIn("TODAY", self.html)
         self.assertNotIn("sample data", self.html)
 
     def test_embeds_exact_ascii_source_but_leaves_target_empty(self):

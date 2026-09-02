@@ -221,11 +221,12 @@ test('integrates the A plus C reach signal into Home', async ({ page }) => {
   const source = signal.locator('[data-reach-source]');
   await expect.poll(async () => source.textContent()).toMatch(/live counter|counter unavailable/);
   if ((await source.textContent())?.includes('live counter')) {
-    await expect(ticker).toContainText(/RCH [\d,]+/);
-    await expect(ticker).toContainText(/TODAY [\d,]+/);
+    await expect(ticker).toHaveText(/TOTAL REACH [\d,]+/);
   } else {
-    await expect(ticker).toContainText('RCH —');
+    await expect(ticker).toContainText('TOTAL REACH —');
   }
+  await expect(ticker).not.toContainText('TODAY');
+  await expect(ticker).not.toContainText('30D');
   await expect(page.locator('.categories')).toHaveCount(0);
 
   const desktop = await signal.evaluate((section) => {

@@ -31,45 +31,40 @@ class MemoryDurableObjectState {
 }
 
 describe('visitor counter state', () => {
-  test('builds an empty 30-day snapshot without fake reach values', () => {
+  test('builds an empty cumulative snapshot without period data', () => {
     expect(buildReachSnapshot(undefined, NOW)).toEqual({
-      periodDays: 30,
       totalReach: 0,
-      todayReach: 0,
-      dailyReach: Array.from({ length: 30 }, () => 0),
       updatedAt: '2026-09-03T04:30:00.000Z',
     });
   });
 
-  test('records only aggregate lifetime and Taipei daily counts', () => {
+  test('records only the aggregate lifetime total', () => {
     const first = recordVisit(undefined, NOW);
     const second = recordVisit(first, NOW + 60_000);
 
     expect(second).toEqual({
       totalReach: 2,
-      daily: { '2026-09-03': 2 },
       updatedAt: '2026-09-03T04:31:00.000Z',
     });
-    expect(buildReachSnapshot(second, NOW + 60_000)).toMatchObject({
+    expect(buildReachSnapshot(second, NOW + 60_000)).toEqual({
       totalReach: 2,
-      todayReach: 2,
-      dailyReach: [...Array.from({ length: 29 }, () => 0), 2],
+      updatedAt: '2026-09-03T04:31:00.000Z',
     });
   });
 
-  test('keeps only the latest 30 aggregate day buckets', () => {
-    const oldState: CounterState = {
+  test('drops legacy daily buckets the next time the counter is written', () => {
+    const oldState = {
       totalReach: 10,
       daily: {
         '2026-07-01': 8,
         '2026-09-02': 2,
       },
       updatedAt: '2026-09-02T04:30:00.000Z',
-    };
+    } as CounterState & { daily: Record<string, number> };
 
-    expect(recordVisit(oldState, NOW).daily).toEqual({
-      '2026-09-02': 2,
-      '2026-09-03': 1,
+    expect(recordVisit(oldState, NOW)).toEqual({
+      totalReach: 11,
+      updatedAt: '2026-09-03T04:30:00.000Z',
     });
   });
 });
@@ -81,21 +76,17 @@ describe('SQLite Durable Object visitor counter', () => {
 
     expect(await (await counter.fetch(new Request('https://counter.internal/'))).json()).toMatchObject({
       totalReach: 0,
-      todayReach: 0,
     });
     expect(await (await counter.fetch(new Request('https://counter.internal/', { method: 'POST' }))).json()).toMatchObject({
       totalReach: 1,
-      todayReach: 1,
     });
     expect(await (await counter.fetch(new Request('https://counter.internal/', { method: 'POST' }))).json()).toMatchObject({
       totalReach: 2,
-      todayReach: 2,
     });
 
     const restarted = new VisitorCounter(state, { now: () => NOW });
     expect(await (await restarted.fetch(new Request('https://counter.internal/'))).json()).toMatchObject({
       totalReach: 2,
-      todayReach: 2,
     });
   });
 });

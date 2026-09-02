@@ -11,19 +11,14 @@ const REACH_FLOW_INTERVAL_MS = 105;
 
 export type ReachSignalData = {
   totalReach: number;
-  todayReach: number;
-  dailyReach: readonly number[];
 };
 
 export type ReachSignalSnapshot = ReachSignalData & {
-  periodDays: 30;
   updatedAt: string;
 };
 
 export const REACH_SIGNAL_DATA: ReachSignalData = {
   totalReach: 0,
-  todayReach: 0,
-  dailyReach: Array.from({ length: 30 }, () => 0),
 };
 
 export function buildAsciiFrame(source: string, blockIndex: number): string {
@@ -72,23 +67,14 @@ function isCount(value: unknown): value is number {
 export function parseReachSignalSnapshot(value: unknown): ReachSignalSnapshot | null {
   if (!isRecord(value)) return null;
 
-  const dailyReach = value.dailyReach;
   if (
-    value.periodDays !== 30
-    || !isCount(value.totalReach)
-    || !isCount(value.todayReach)
-    || !Array.isArray(dailyReach)
-    || dailyReach.length !== 30
-    || !dailyReach.every(isCount)
+    !isCount(value.totalReach)
     || typeof value.updatedAt !== 'string'
     || !Number.isFinite(Date.parse(value.updatedAt))
   ) return null;
 
   return {
-    periodDays: 30,
     totalReach: value.totalReach,
-    todayReach: value.todayReach,
-    dailyReach,
     updatedAt: value.updatedAt,
   };
 }
@@ -129,14 +115,6 @@ function stableNoise(x: number, y: number): number {
   return value - Math.floor(value);
 }
 
-function sampleSeries(series: readonly number[], position: number): number {
-  const scaled = clamp(position, 0, 1) * (series.length - 1);
-  const left = Math.floor(scaled);
-  const right = Math.min(series.length - 1, left + 1);
-  const mix = scaled - left;
-  return (series[left] ?? 0) * (1 - mix) + (series[right] ?? 0) * mix;
-}
-
 function stampText(rows: string[][], row: number, column: number, text: string) {
   if (!rows[row]) return;
   [...text].forEach((character, offset) => {
@@ -154,22 +132,20 @@ export function buildReachFlowFrame(options: {
   const columns = clamp(Math.trunc(options.columns), 48, 200);
   const rowCount = columns < 90 ? 18 : 21;
   const palette = ' .,:;-~=+*#%@';
-  const maximum = Math.max(1, ...data.dailyReach);
+  const signal = clamp(Math.log10(data.totalReach + 1) / 4, 0, 1);
   const rows = Array.from({ length: rowCount }, () => Array<string>(columns).fill(' '));
 
   for (let row = 0; row < rowCount; row += 1) {
     for (let column = 0; column < columns; column += 1) {
-      const progress = column / Math.max(1, columns - 1);
-      const reach = sampleSeries(data.dailyReach, progress) / maximum;
       const center = rowCount * .5
-        + Math.sin(column * .105 + phase) * (1.6 + reach * 1.9)
+        + Math.sin(column * .105 + phase) * (1.6 + signal * 1.9)
         + Math.sin(column * .031 - phase * .7) * 1.8;
-      const width = 1.2 + reach * 3.1;
+      const width = 1.2 + signal * 3.1;
       const distance = Math.abs(row - center);
       const ribbon = Math.exp(-(distance * distance) / (2 * width * width));
       const interference = .68 + Math.sin(column * .37 + row * .81 - phase * 1.4) * .21;
       const noise = stableNoise(column, row);
-      let intensity = ribbon * interference * (.42 + reach * .72);
+      let intensity = ribbon * interference * (.42 + signal * .72);
 
       if (distance > width * 2.2) intensity = noise > .985 ? .18 : 0;
       const paletteIndex = clamp(Math.floor(intensity * palette.length), 0, palette.length - 1);
@@ -177,18 +153,14 @@ export function buildReachFlowFrame(options: {
     }
   }
 
-  const high = Math.max(...data.dailyReach);
-  const low = Math.min(...data.dailyReach);
-  const status = `30D H ${high} / L ${low} // DENSITY = DAILY REACH`;
-  stampText(rows, 1, 2, 'ALLEN.LIN // PUBLIC REACH SIGNAL');
+  const status = `TOTAL REACH ${data.totalReach.toLocaleString('en-US')} // ONE BROWSER = ONE SIGNAL`;
+  stampText(rows, 1, 2, 'ALLEN.LIN // CUMULATIVE REACH');
   stampText(rows, rowCount - 2, Math.max(2, columns - status.length - 2), status);
   return rows.map((row) => row.join('')).join('\n');
 }
 
 export function buildReachTickerText(data: ReachSignalData): string {
-  const high = Math.max(...data.dailyReach);
-  const low = Math.min(...data.dailyReach);
-  return `RCH ${data.totalReach.toLocaleString('en-US')}   │   TODAY ${data.todayReach.toLocaleString('en-US')}   │   30D H ${high} / L ${low}`;
+  return `TOTAL REACH ${data.totalReach.toLocaleString('en-US')}`;
 }
 
 export function startReachFlowAnimation(options: {
@@ -422,7 +394,7 @@ function initializeReachSignal() {
       currentData = snapshot;
       ticker.textContent = buildReachTickerText(snapshot);
       if (source) {
-        source.textContent = `live counter · ${snapshot.periodDays} days`;
+        source.textContent = 'live counter · cumulative';
         source.dataset.reachState = 'live';
       }
       render(currentPhase);

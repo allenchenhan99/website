@@ -1,19 +1,13 @@
-const PERIOD_DAYS = 30;
 const COUNTER_KEY = 'visitor-counter';
 const COUNTER_NAME = 'global';
-const TIMEZONE = 'Asia/Taipei';
 
 export type CounterState = {
   totalReach: number;
-  daily: Record<string, number>;
   updatedAt: string;
 };
 
 export type ReachPayload = {
-  periodDays: 30;
   totalReach: number;
-  todayReach: number;
-  dailyReach: number[];
   updatedAt: string;
 };
 
@@ -48,37 +42,9 @@ type WorkerContext = {
   waitUntil(promise: Promise<unknown>): void;
 };
 
-const dateFormatter = new Intl.DateTimeFormat('en-CA', {
-  timeZone: TIMEZONE,
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-});
-
-function dateKey(timestamp: number): string {
-  return dateFormatter.format(new Date(timestamp));
-}
-
-function recentDateKeys(timestamp: number): string[] {
-  const dayMilliseconds = 24 * 60 * 60 * 1_000;
-  return Array.from(
-    { length: PERIOD_DAYS },
-    (_, index) => dateKey(timestamp - (PERIOD_DAYS - index - 1) * dayMilliseconds),
-  );
-}
-
 export function recordVisit(state: CounterState | undefined, timestamp: number): CounterState {
-  const keys = recentDateKeys(timestamp);
-  const retainedKeys = new Set(keys);
-  const daily = Object.fromEntries(
-    Object.entries(state?.daily ?? {}).filter(([key]) => retainedKeys.has(key)),
-  );
-  const today = keys.at(-1)!;
-  daily[today] = (daily[today] ?? 0) + 1;
-
   return {
     totalReach: (state?.totalReach ?? 0) + 1,
-    daily,
     updatedAt: new Date(timestamp).toISOString(),
   };
 }
@@ -87,13 +53,8 @@ export function buildReachSnapshot(
   state: CounterState | undefined,
   timestamp: number,
 ): ReachPayload {
-  const keys = recentDateKeys(timestamp);
-  const dailyReach = keys.map((key) => state?.daily[key] ?? 0);
   return {
-    periodDays: PERIOD_DAYS,
     totalReach: state?.totalReach ?? 0,
-    todayReach: dailyReach.at(-1) ?? 0,
-    dailyReach,
     updatedAt: state?.updatedAt ?? new Date(timestamp).toISOString(),
   };
 }
