@@ -1,37 +1,45 @@
 const ASCII_BLOCK_WIDTHS = [
-  10, 8, 8, 8, 9, 11, 8, 4, 9, 9,
-  11, 9, 4, 8, 8, 8, 8, 9, 10, 8, 8, 4, 8, 8, 9, 9,
+  8, 8, 8, 8, 10, 4, 8, 4, 10,
 ] as const;
 
 const ASCII_ROWS_PER_LINE = 6;
-const ASCII_SECOND_LINE_START = 9;
 const ASCII_INTERVAL_MS = 100;
 const CHIPI_ROWS_PER_FRAME = 42;
 const CHIPI_FRAME_INTERVAL_MS = 20;
 const CHIPI_IDLE_TIMEOUT_MS = 1_500;
+const REACH_FLOW_INTERVAL_MS = 105;
+
+export type ReachSignalData = {
+  totalReach: number;
+  pageViews: number;
+  periodChange: number;
+  dailyReach: readonly number[];
+};
+
+export type ReachSignalSnapshot = ReachSignalData & {
+  periodDays: 30;
+  updatedAt: string;
+};
+
+export const REACH_SIGNAL_DATA: ReachSignalData = {
+  totalReach: 1284,
+  pageViews: 3912,
+  periodChange: 18,
+  dailyReach: [18, 22, 20, 29, 31, 27, 35, 38, 34, 41, 36, 44, 47, 43, 52, 49, 58, 54, 63, 67, 61, 72, 69, 77, 74, 83, 79, 88, 92, 97],
+};
 
 export function buildAsciiFrame(source: string, blockIndex: number): string {
   if (blockIndex < 0) return '';
 
   const lines = source.replaceAll('\r\n', '\n').split('\n');
   const completedBlocks = Math.min(Math.floor(blockIndex) + 1, ASCII_BLOCK_WIDTHS.length);
-  const topBlockCount = Math.min(completedBlocks, 10);
-  const topWidth = ASCII_BLOCK_WIDTHS
-    .slice(0, topBlockCount)
+  const visibleWidth = ASCII_BLOCK_WIDTHS
+    .slice(0, completedBlocks)
     .reduce((total, width) => total + width, 0);
-  const top = lines
+  const frame = lines
     .slice(0, ASCII_ROWS_PER_LINE)
-    .map((line) => line.slice(0, topWidth));
-
-  if (completedBlocks <= 10) return top.join('\n');
-
-  const bottomWidth = ASCII_BLOCK_WIDTHS
-    .slice(10, completedBlocks)
-    .reduce((total, width) => total + width, 0);
-  const bottom = lines
-    .slice(ASCII_SECOND_LINE_START, ASCII_SECOND_LINE_START + ASCII_ROWS_PER_LINE)
-    .map((line) => line.slice(0, bottomWidth));
-  const frame = [...top, '', '', '', ...bottom].join('\n');
+    .map((line) => line.slice(0, visibleWidth))
+    .join('\n');
 
   return completedBlocks === ASCII_BLOCK_WIDTHS.length ? frame.trimEnd() : frame;
 }
@@ -48,6 +56,153 @@ export function splitChipiFrames(lines: readonly string[], rowsPerFrame: number)
 
 type TimeoutCallback = () => void;
 type FrameCallback = (timestamp: number) => void;
+
+function clamp(value: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isCount(value: unknown): value is number {
+  return typeof value === 'number'
+    && Number.isSafeInteger(value)
+    && value >= 0;
+}
+
+export function parseReachSignalSnapshot(value: unknown): ReachSignalSnapshot | null {
+  if (!isRecord(value)) return null;
+
+  const dailyReach = value.dailyReach;
+  if (
+    value.periodDays !== 30
+    || !isCount(value.totalReach)
+    || !isCount(value.pageViews)
+    || typeof value.periodChange !== 'number'
+    || !Number.isFinite(value.periodChange)
+    || !Array.isArray(dailyReach)
+    || dailyReach.length !== 30
+    || !dailyReach.every(isCount)
+    || typeof value.updatedAt !== 'string'
+    || !Number.isFinite(Date.parse(value.updatedAt))
+  ) return null;
+
+  return {
+    periodDays: 30,
+    totalReach: value.totalReach,
+    pageViews: value.pageViews,
+    periodChange: value.periodChange,
+    dailyReach,
+    updatedAt: value.updatedAt,
+  };
+}
+
+export async function loadReachSignalSnapshot(options: {
+  statsUrl: string;
+  fetchJson: (statsUrl: string) => Promise<unknown>;
+  reportError: (error: unknown) => void;
+}): Promise<ReachSignalSnapshot | null> {
+  const { statsUrl, fetchJson, reportError } = options;
+  try {
+    const snapshot = parseReachSignalSnapshot(await fetchJson(statsUrl));
+    if (!snapshot) throw new Error('Reach endpoint returned an invalid payload');
+    return snapshot;
+  } catch (error) {
+    reportError(error);
+    return null;
+  }
+}
+
+function stableNoise(x: number, y: number): number {
+  const value = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+function sampleSeries(series: readonly number[], position: number): number {
+  const scaled = clamp(position, 0, 1) * (series.length - 1);
+  const left = Math.floor(scaled);
+  const right = Math.min(series.length - 1, left + 1);
+  const mix = scaled - left;
+  return (series[left] ?? 0) * (1 - mix) + (series[right] ?? 0) * mix;
+}
+
+function stampText(rows: string[][], row: number, column: number, text: string) {
+  if (!rows[row]) return;
+  [...text].forEach((character, offset) => {
+    const target = column + offset;
+    if (target >= 0 && target < rows[row]!.length) rows[row]![target] = character;
+  });
+}
+
+export function buildReachFlowFrame(options: {
+  data: ReachSignalData;
+  columns: number;
+  phase: number;
+}): string {
+  const { data, phase } = options;
+  const columns = clamp(Math.trunc(options.columns), 48, 200);
+  const rowCount = columns < 90 ? 18 : 21;
+  const palette = ' .,:;-~=+*#%@';
+  const maximum = Math.max(1, ...data.dailyReach);
+  const rows = Array.from({ length: rowCount }, () => Array<string>(columns).fill(' '));
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      const progress = column / Math.max(1, columns - 1);
+      const reach = sampleSeries(data.dailyReach, progress) / maximum;
+      const center = rowCount * .5
+        + Math.sin(column * .105 + phase) * (1.6 + reach * 1.9)
+        + Math.sin(column * .031 - phase * .7) * 1.8;
+      const width = 1.2 + reach * 3.1;
+      const distance = Math.abs(row - center);
+      const ribbon = Math.exp(-(distance * distance) / (2 * width * width));
+      const interference = .68 + Math.sin(column * .37 + row * .81 - phase * 1.4) * .21;
+      const noise = stableNoise(column, row);
+      let intensity = ribbon * interference * (.42 + reach * .72);
+
+      if (distance > width * 2.2) intensity = noise > .985 ? .18 : 0;
+      const paletteIndex = clamp(Math.floor(intensity * palette.length), 0, palette.length - 1);
+      rows[row]![column] = palette[paletteIndex] ?? ' ';
+    }
+  }
+
+  const high = Math.max(...data.dailyReach);
+  const low = Math.min(...data.dailyReach);
+  const status = `30D H ${high} / L ${low} // DENSITY = DAILY REACH`;
+  stampText(rows, 1, 2, 'ALLEN.LIN // PUBLIC REACH SIGNAL');
+  stampText(rows, rowCount - 2, Math.max(2, columns - status.length - 2), status);
+  return rows.map((row) => row.join('')).join('\n');
+}
+
+export function buildReachTickerText(data: ReachSignalData): string {
+  const high = Math.max(...data.dailyReach);
+  const low = Math.min(...data.dailyReach);
+  const direction = data.periodChange > 0 ? '▲' : data.periodChange < 0 ? '▼' : '—';
+  const change = Math.abs(data.periodChange).toFixed(1);
+  return `RCH ${data.totalReach.toLocaleString('en-US')}  ${direction}${change}%   │   PVW ${data.pageViews.toLocaleString('en-US')}   │   30D H ${high} / L ${low}`;
+}
+
+export function startReachFlowAnimation(options: {
+  reducedMotion: boolean;
+  render: (phase: number) => void;
+  requestFrame: (callback: FrameCallback) => unknown;
+  isHidden: () => boolean;
+}) {
+  const { reducedMotion, render, requestFrame, isHidden } = options;
+  render(0);
+  if (reducedMotion) return;
+
+  let previousPaint = 0;
+  const paint: FrameCallback = (timestamp) => {
+    if (!isHidden() && timestamp - previousPaint >= REACH_FLOW_INTERVAL_MS) {
+      render(timestamp / 1800);
+      previousPaint = timestamp;
+    }
+    requestFrame(paint);
+  };
+  requestFrame(paint);
+}
 
 export function startAsciiAnimation(options: {
   source: string;
@@ -163,6 +318,14 @@ async function fetchChipiText(sourceUrl: string): Promise<string> {
   return response.text();
 }
 
+async function fetchReachJson(statsUrl: string): Promise<unknown> {
+  const response = await fetch(statsUrl, {
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) throw new Error(`Reach endpoint returned ${response.status}`);
+  return response.json() as Promise<unknown>;
+}
+
 function initializeChipiAnimation() {
   const target = document.querySelector<HTMLElement>('[data-chipi-src]');
   const sourceUrl = target?.dataset.chipiSrc;
@@ -189,6 +352,59 @@ function initializeChipiAnimation() {
     requestIdleCallback: idleWindow.requestIdleCallback?.bind(idleWindow),
     scheduleTimeout: (callback, delay) => window.setTimeout(callback, delay),
   });
+}
+
+function initializeReachSignal() {
+  const target = document.querySelector<HTMLElement>('[data-reach-flow]');
+  const ticker = document.querySelector<HTMLElement>('[data-reach-ticker]');
+  const surface = target?.closest<HTMLElement>('[data-reach-surface]');
+  const section = surface?.closest<HTMLElement>('.reach-signal');
+  const source = section?.querySelector<HTMLElement>('[data-reach-source]');
+  if (!target || !ticker || !surface) return;
+
+  let currentData: ReachSignalData = REACH_SIGNAL_DATA;
+  ticker.textContent = buildReachTickerText(currentData);
+  let currentPhase = 0;
+  const render = (phase: number) => {
+    currentPhase = phase;
+    const fontSize = Number.parseFloat(getComputedStyle(target).fontSize) || 9;
+    const columns = clamp(Math.floor(surface.clientWidth / (fontSize * .61)), 48, 200);
+    target.textContent = buildReachFlowFrame({
+      data: currentData,
+      columns,
+      phase,
+    });
+  };
+
+  startReachFlowAnimation({
+    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    render,
+    requestFrame: (callback) => window.requestAnimationFrame(callback),
+    isHidden: () => document.hidden,
+  });
+
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(() => render(currentPhase));
+    observer.observe(surface);
+  }
+
+  const statsUrl = section?.dataset.reachStatsUrl;
+  if (statsUrl) {
+    void loadReachSignalSnapshot({
+      statsUrl,
+      fetchJson: fetchReachJson,
+      reportError: (error) => console.error('Unable to load the public reach signal:', error),
+    }).then((snapshot) => {
+      if (!snapshot) return;
+      currentData = snapshot;
+      ticker.textContent = buildReachTickerText(snapshot);
+      if (source) {
+        source.textContent = `live data · ${snapshot.periodDays} days`;
+        source.dataset.reachState = 'live';
+      }
+      render(currentPhase);
+    });
+  }
 }
 
 function initializeDetailDialog() {
@@ -225,5 +441,6 @@ function initializeDetailDialog() {
 export function initializeHome() {
   initializeAsciiAnimation();
   initializeChipiAnimation();
+  initializeReachSignal();
   initializeDetailDialog();
 }

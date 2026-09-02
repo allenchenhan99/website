@@ -59,8 +59,8 @@ test('persists the selected theme across public pages', async ({ page }) => {
   const selectedTheme = initialTheme === 'dark' ? 'light' : 'dark';
   await expect(page.locator('html')).toHaveAttribute('data-theme', selectedTheme);
 
-  await page.getByRole('link', { name: 'Profile', exact: true }).click();
-  await expect(page).toHaveURL(/profile\.html$/);
+  await page.getByRole('link', { name: 'CV', exact: true }).click();
+  await expect(page).toHaveURL(/cv\.html$/);
   await expect(page.locator('html')).toHaveAttribute('data-theme', selectedTheme);
   expect(await page.evaluate(() => localStorage.getItem('theme'))).toBe(selectedTheme);
   expect(errors).toEqual([]);
@@ -104,83 +104,281 @@ test('opens and closes a Home Recent detail dialog', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-// AC: Music defers Spotify until approach and persists Grid/List selection.
-// Behavior: Approach one Spotify card and select List → one iframe is created and view preference survives reload.
+// AC: Home owns the approved Profile composition at desktop and mobile widths.
+// Behavior: Render Home → inspect content, ordering, overlay alignment, and navigation → the B layout remains intact without horizontal overflow.
 // @category: e2e
 // @dependency: full-system
-// @complexity: high
-// ROI: 10
-test('keeps a direct Spotify link through a failed deferred embed and persists Music list view', async ({ page }) => {
-  const expectedSpotifyFailureUrls = new Set<string>();
-  const errors = collectRuntimeErrors(page, expectedSpotifyFailureUrls);
-  await page.setViewportSize({ width: 390, height: 600 });
-  await page.route('https://open.spotify.com/**', (route) => {
-    expectedSpotifyFailureUrls.add(route.request().url());
-    return route.fulfill({
-      status: 500,
-      contentType: 'text/html',
-      body: '<!doctype html><title>Spotify failure test double</title>',
-    });
+// @complexity: medium
+// ROI: 9
+test('integrates the Profile B layout into Home', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('index.html');
+
+  await expect(page.getByRole('link', { name: 'Profile', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Welcome to my Profile' })).toBeVisible();
+  await expect(page.getByAltText('Background Photo')).toBeVisible();
+  await expect(page.getByAltText('Profile Photo')).toBeVisible();
+
+  const desktop = await page.locator('.home-profile').evaluate((section) => {
+    const visual = section.querySelector<HTMLElement>('.home-profile-visual');
+    const backdrop = section.querySelector<HTMLElement>('.home-profile-backdrop');
+    const avatar = section.querySelector<HTMLElement>('.home-profile-avatar');
+    const copy = section.querySelector<HTMLElement>('.home-profile-copy');
+    if (!visual || !backdrop || !avatar || !copy) throw new Error('Profile composition is incomplete');
+    const visualRect = visual.getBoundingClientRect();
+    const backdropRect = backdrop.getBoundingClientRect();
+    const avatarRect = avatar.getBoundingClientRect();
+    const copyRect = copy.getBoundingClientRect();
+    return {
+      sectionWidth: section.getBoundingClientRect().width,
+      visualLeft: visualRect.left,
+      copyLeft: copyRect.left,
+      avatarCenterX: avatarRect.left + avatarRect.width / 2,
+      avatarCenterY: avatarRect.top + avatarRect.height / 2,
+      expectedCenterX: backdropRect.left + visualRect.width * 0.52,
+      expectedCenterY: visualRect.top + visualRect.height * 0.36,
+      recentWidth: document.querySelector<HTMLElement>('.recent-posts')?.getBoundingClientRect().width ?? 0,
+    };
   });
+
+  expect(desktop.sectionWidth).toBeGreaterThanOrEqual(1100);
+  expect(Math.abs(desktop.sectionWidth - desktop.recentWidth)).toBeLessThanOrEqual(2);
+  expect(desktop.visualLeft).toBeLessThan(desktop.copyLeft);
+  expect(Math.abs(desktop.avatarCenterX - desktop.expectedCenterX)).toBeLessThanOrEqual(2);
+  expect(Math.abs(desktop.avatarCenterY - desktop.expectedCenterY)).toBeLessThanOrEqual(2);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await page.locator('.home-profile').evaluate((section) => {
+    const visual = section.querySelector<HTMLElement>('.home-profile-visual');
+    const copy = section.querySelector<HTMLElement>('.home-profile-copy');
+    if (!visual || !copy) throw new Error('Profile composition is incomplete');
+    const visualRect = visual.getBoundingClientRect();
+    const copyRect = copy.getBoundingClientRect();
+    return {
+      visualBottom: visualRect.bottom,
+      copyTop: copyRect.top,
+      pageWidth: document.documentElement.scrollWidth,
+      viewportWidth: document.documentElement.clientWidth,
+    };
+  });
+
+  expect(mobile.visualBottom).toBeLessThanOrEqual(mobile.copyTop);
+  expect(mobile.pageWidth).toBeLessThanOrEqual(mobile.viewportWidth);
+  expect(errors).toEqual([]);
+});
+
+// AC: Recent keeps the selected three-block rail on desktop and stacks on mobile.
+// Behavior: Render Home at both widths → three recent notes are divided into readable blocks without overflow.
+// @category: e2e
+// @dependency: full-system
+// @complexity: low
+// ROI: 8
+test('renders Recent as three divided blocks', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('index.html');
+
+  const items = page.locator('[data-recent-open]');
+  await expect(items).toHaveCount(3);
+  const desktop = await items.evaluateAll((blocks) => blocks.map((block) => {
+    const rect = block.getBoundingClientRect();
+    return {
+      top: rect.top,
+      left: rect.left,
+      borderLeftWidth: getComputedStyle(block).borderLeftWidth,
+    };
+  }));
+  expect(new Set(desktop.map(({ top }) => Math.round(top))).size).toBe(1);
+  expect(desktop[0]!.left).toBeLessThan(desktop[1]!.left);
+  expect(desktop[1]!.borderLeftWidth).toBe('1px');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await items.evaluateAll((blocks) => blocks.map((block) => {
+    const rect = block.getBoundingClientRect();
+    return { top: rect.top, borderTopWidth: getComputedStyle(block).borderTopWidth };
+  }));
+  expect(mobile[0]!.top).toBeLessThan(mobile[1]!.top);
+  expect(mobile[1]!.borderTopWidth).toBe('1px');
+  expect(errors).toEqual([]);
+});
+
+// AC: Home ends with the approved A + C reach signal instead of duplicate category links.
+// Behavior: Render Home at desktop and mobile widths → the animated ASCII field and quiet market line remain readable without overflow.
+// @category: e2e
+// @dependency: full-system
+// @complexity: medium
+// ROI: 9
+test('integrates the A plus C reach signal into Home', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('index.html');
+
+  const signal = page.locator('.reach-signal');
+  const ticker = signal.locator('[data-reach-ticker]');
+  await expect(signal).toBeVisible();
+  await expect(ticker).toContainText('RCH 1,284');
+  await expect(ticker).toContainText('PVW 3,912');
+  await expect(page.locator('.categories')).toHaveCount(0);
+
+  const desktop = await signal.evaluate((section) => {
+    const flowField = section.querySelector<HTMLElement>('[data-reach-flow]');
+    const marketLine = section.querySelector<HTMLElement>('[data-reach-ticker]');
+    const recent = document.querySelector<HTMLElement>('.recent-posts');
+    if (!flowField || !marketLine || !recent) throw new Error('Reach signal is incomplete');
+    return {
+      width: section.getBoundingClientRect().width,
+      top: section.getBoundingClientRect().top,
+      recentBottom: recent.getBoundingClientRect().bottom,
+      rows: flowField.textContent?.split('\n').length ?? 0,
+      tickerOverflow: marketLine.scrollWidth - marketLine.clientWidth,
+      pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+
+  expect(desktop.width).toBeGreaterThanOrEqual(1100);
+  expect(desktop.top).toBeGreaterThanOrEqual(desktop.recentBottom);
+  expect(desktop.rows).toBe(21);
+  expect(desktop.tickerOverflow).toBe(0);
+  expect(desktop.pageOverflow).toBe(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(
+    () => signal.locator('[data-reach-flow]').evaluate((field) => field.textContent?.split('\n').length ?? 0),
+  ).toBe(18);
+  const mobile = await signal.evaluate((section) => {
+    const flowField = section.querySelector<HTMLElement>('[data-reach-flow]');
+    const marketLine = section.querySelector<HTMLElement>('[data-reach-ticker]');
+    if (!flowField || !marketLine) throw new Error('Reach signal is incomplete');
+    return {
+      width: section.getBoundingClientRect().width,
+      rows: flowField.textContent?.split('\n').length ?? 0,
+      tickerOverflow: marketLine.scrollWidth - marketLine.clientWidth,
+      pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+
+  expect(mobile.width).toBeLessThanOrEqual(358);
+  expect(mobile.rows).toBe(18);
+  expect(mobile.tickerOverflow).toBe(0);
+  expect(mobile.pageOverflow).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+// AC: Music uses its original Nujabes background and replaces the blue vinyl area with the album artwork without obscuring the introduction.
+// Behavior: Render Music on desktop and mobile → the picture-disc artwork remains visible inside the black rim and the copy stays readable without overflow.
+// @category: e2e
+// @dependency: full-system
+// @complexity: medium
+// ROI: 9
+test('integrates the original Nujabes background and album-art picture disc into Music', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('music.html');
-  const firstEmbed = page.locator('[data-spotify-embed]').first();
-  const frameSlot = firstEmbed.locator('[data-spotify-frame]');
-  const directLink = firstEmbed.locator('[data-spotify-fallback]');
-  await expect(directLink).toBeVisible();
-  await expect(directLink).toHaveAttribute('href', /^https:\/\/open\.spotify\.com\/playlist\//);
-  await expect(directLink).toHaveAttribute('target', '_blank');
+
+  const background = page.getByAltText('Nujabes Metaphorical Music album artwork');
+  const vinyl = page.locator('.vinyl-record[data-vinyl="album-art"]');
+  const vinylArtwork = vinyl.locator('.vinyl-artwork');
+  await expect(background).toBeVisible();
+  await expect(vinyl).toBeVisible();
+  await expect(vinylArtwork).toBeVisible();
+  await expect(vinyl).toHaveAttribute('aria-label', 'Rotating vinyl record filled with Nujabes Metaphorical Music cover art');
+
+  const desktop = await page.locator('.image-container').evaluate((hero) => {
+    const copy = hero.querySelector<HTMLElement>('.text-container');
+    const record = hero.querySelector<HTMLElement>('.vinyl-record');
+    if (!copy || !record) throw new Error('Music hero composition is incomplete');
+    const copyRect = copy.getBoundingClientRect();
+    const recordRect = record.getBoundingClientRect();
+    const recordDiameter = Number.parseFloat(getComputedStyle(record).width);
+    const recordCenterX = recordRect.left + recordRect.width / 2;
+    return {
+      recordVisualRight: recordCenterX + recordDiameter / 2,
+      copyLeft: copyRect.left,
+      pageWidth: document.documentElement.scrollWidth,
+      viewportWidth: document.documentElement.clientWidth,
+    };
+  });
+
+  expect(desktop.recordVisualRight).toBeLessThanOrEqual(desktop.copyLeft);
+  expect(desktop.pageWidth).toBeLessThanOrEqual(desktop.viewportWidth);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await page.locator('.image-container').evaluate((hero) => {
+    const picture = hero.querySelector<HTMLElement>('picture');
+    const copy = hero.querySelector<HTMLElement>('.text-container');
+    const record = hero.querySelector<HTMLElement>('.vinyl-record');
+    if (!picture || !copy || !record) throw new Error('Music hero composition is incomplete');
+    const pictureRect = picture.getBoundingClientRect();
+    const copyRect = copy.getBoundingClientRect();
+    const recordRect = record.getBoundingClientRect();
+    const recordDiameter = Number.parseFloat(getComputedStyle(record).width);
+    const recordCenterX = recordRect.left + recordRect.width / 2;
+    const recordCenterY = recordRect.top + recordRect.height / 2;
+    return {
+      copyTop: copyRect.top,
+      pictureBottom: pictureRect.bottom,
+      recordVisualLeft: recordCenterX - recordDiameter / 2,
+      recordVisualTop: recordCenterY - recordDiameter / 2,
+      recordVisualRight: recordCenterX + recordDiameter / 2,
+      recordVisualBottom: recordCenterY + recordDiameter / 2,
+      pictureLeft: pictureRect.left,
+      pictureTop: pictureRect.top,
+      pictureRight: pictureRect.right,
+      pageWidth: document.documentElement.scrollWidth,
+      viewportWidth: document.documentElement.clientWidth,
+    };
+  });
+
+  expect(mobile.copyTop).toBeGreaterThanOrEqual(mobile.pictureBottom);
+  expect(mobile.recordVisualLeft).toBeGreaterThanOrEqual(mobile.pictureLeft);
+  expect(mobile.recordVisualTop).toBeGreaterThanOrEqual(mobile.pictureTop);
+  expect(mobile.recordVisualRight).toBeLessThanOrEqual(mobile.pictureRight);
+  expect(mobile.recordVisualBottom).toBeLessThanOrEqual(mobile.pictureBottom);
+  expect(mobile.pageWidth).toBeLessThanOrEqual(mobile.viewportWidth);
+  expect(errors).toEqual([]);
+});
+
+// AC: Music keeps compact playlist links in the hero and persists Grid/List selection.
+// Behavior: Inspect the hero playlist rail and select List → links stay left of the description and view preference survives reload.
+// @category: e2e
+// @dependency: full-system
+// @complexity: medium
+// ROI: 9
+test('keeps compact Spotify links beside the Music description and persists list view', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('music.html');
+
+  const playlistRail = page.locator('.hero-playlists');
+  const playlistLinks = playlistRail.locator('.hero-playlist-link');
+  const playlistCovers = playlistRail.locator('.hero-playlist-cover');
+  await expect(playlistRail).toBeVisible();
+  await expect(playlistLinks).toHaveCount(2);
+  await expect(playlistCovers).toHaveCount(2);
+  await expect(page.locator('.playlists-section')).toHaveCount(0);
+  await expect(page.locator('[data-spotify-embed]')).toHaveCount(0);
+  for (const link of await playlistLinks.all()) {
+    await expect(link).toHaveAttribute('href', /^https:\/\/open\.spotify\.com\/playlist\//);
+    await expect(link).not.toHaveAttribute('href', /\/embed\//);
+  }
+  const desktop = await page.locator('.image-container').evaluate((hero) => {
+    const rail = hero.querySelector<HTMLElement>('.hero-playlists');
+    const copy = hero.querySelector<HTMLElement>('.text-container');
+    if (!rail || !copy) throw new Error('Music hero playlist composition is incomplete');
+    return {
+      railRight: rail.getBoundingClientRect().right,
+      copyLeft: copy.getBoundingClientRect().left,
+    };
+  });
+  expect(desktop.copyLeft - desktop.railRight).toBeGreaterThanOrEqual(39);
+
   const musicView = page.locator('[data-music-view]');
   const gridPanel = page.locator('[data-view-panel="grid"]');
   const listPanel = page.locator('[data-view-panel="list"]');
   await expect(musicView).toHaveAttribute('data-view', 'grid');
   await expect(gridPanel).toBeVisible();
   await expect(listPanel).toBeHidden();
-
-  const initialGeometry = await firstEmbed.evaluate((element) => ({
-    top: element.getBoundingClientRect().top,
-    viewportHeight: window.innerHeight,
-  }));
-  expect(initialGeometry.top).toBeGreaterThan(initialGeometry.viewportHeight + 300);
-  await expect(page.locator('[data-spotify-embed] iframe')).toHaveCount(0);
-  // Deliberate bounded stability window: the observer must not load while the card stays outside its margin.
-  await page.waitForTimeout(350);
-  await expect(page.locator('[data-spotify-embed] iframe')).toHaveCount(0);
-
-  await firstEmbed.evaluate((element) => {
-    const targetTop = element.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo(0, targetTop - window.innerHeight - 250);
-  });
-  const approachedGeometry = await page.locator('[data-spotify-embed]').evaluateAll((embeds) => ({
-    firstTop: embeds[0]?.getBoundingClientRect().top,
-    secondTop: embeds[1]?.getBoundingClientRect().top,
-    viewportHeight: window.innerHeight,
-  }));
-  expect(approachedGeometry.firstTop).toBeLessThanOrEqual(approachedGeometry.viewportHeight + 300);
-  expect(approachedGeometry.secondTop).toBeGreaterThan(approachedGeometry.viewportHeight + 300);
-  await expect(page.locator('[data-spotify-embed] iframe')).toHaveCount(1);
-  await expect(directLink).toBeVisible();
-  await expect(directLink).toBeEnabled();
-  const failedEmbedGeometry = await firstEmbed.evaluate((embed) => {
-    const slot = embed.querySelector<HTMLElement>('[data-spotify-frame]');
-    const iframe = embed.querySelector('iframe');
-    const link = embed.querySelector<HTMLElement>('[data-spotify-fallback]');
-    if (!slot || !iframe || !link) throw new Error('Spotify frame, iframe, or link is missing');
-    const slotRect = slot.getBoundingClientRect();
-    const iframeRect = iframe.getBoundingClientRect();
-    const linkRect = link.getBoundingClientRect();
-    return {
-      slotHeight: slotRect.height,
-      iframeHeight: iframeRect.height,
-      slotBottom: slotRect.bottom,
-      iframeBottom: iframeRect.bottom,
-      linkTop: linkRect.top,
-    };
-  });
-  expect(Math.abs(failedEmbedGeometry.slotHeight - 352)).toBeLessThanOrEqual(1);
-  expect(Math.abs(failedEmbedGeometry.iframeHeight - 352)).toBeLessThanOrEqual(1);
-  expect(failedEmbedGeometry.slotBottom).toBeLessThanOrEqual(failedEmbedGeometry.linkTop);
-  expect(failedEmbedGeometry.iframeBottom).toBeLessThanOrEqual(failedEmbedGeometry.linkTop);
-  await expect(frameSlot).toBeVisible();
 
   await page.getByRole('button', { name: 'List view' }).click();
   await expect(musicView).toHaveAttribute('data-view', 'list');
@@ -194,58 +392,45 @@ test('keeps a direct Spotify link through a failed deferred embed and persists M
   expect(errors).toEqual([]);
 });
 
-test('keeps the direct Spotify link below a successfully loaded iframe', async ({ page }) => {
-  const errors = collectRuntimeErrors(page);
-  await page.setViewportSize({ width: 390, height: 600 });
-  await page.route('https://open.spotify.com/**', (route) => route.fulfill({
-    status: 200,
-    contentType: 'text/html',
-    body: '<!doctype html><title>Spotify success test double</title>',
-  }));
-  await page.goto('music.html');
-
-  const firstEmbed = page.locator('[data-spotify-embed]').first();
-  const frameSlot = firstEmbed.locator('[data-spotify-frame]');
-  const directLink = firstEmbed.locator('[data-spotify-fallback]');
-  await frameSlot.scrollIntoViewIfNeeded();
-  await expect(firstEmbed.locator('iframe')).toHaveCount(1);
-  await expect(firstEmbed.locator('[data-spotify-status]')).toBeHidden();
-  await expect(directLink).toBeVisible();
-
-  const loadedGeometry = await firstEmbed.evaluate((embed) => {
-    const slot = embed.querySelector<HTMLElement>('[data-spotify-frame]');
-    const iframe = embed.querySelector('iframe');
-    const link = embed.querySelector<HTMLElement>('[data-spotify-fallback]');
-    if (!slot || !iframe || !link) throw new Error('Spotify frame, iframe, or link is missing');
-    const slotRect = slot.getBoundingClientRect();
-    const iframeRect = iframe.getBoundingClientRect();
-    const linkRect = link.getBoundingClientRect();
-    return {
-      slotHeight: slotRect.height,
-      iframeHeight: iframeRect.height,
-      slotBottom: slotRect.bottom,
-      iframeBottom: iframeRect.bottom,
-      linkTop: linkRect.top,
-    };
-  });
-  expect(Math.abs(loadedGeometry.slotHeight - 352)).toBeLessThanOrEqual(1);
-  expect(Math.abs(loadedGeometry.iframeHeight - 352)).toBeLessThanOrEqual(1);
-  expect(loadedGeometry.slotBottom).toBeLessThanOrEqual(loadedGeometry.linkTop);
-  expect(loadedGeometry.iframeBottom).toBeLessThanOrEqual(loadedGeometry.linkTop);
-  expect(errors).toEqual([]);
-});
-
-// AC: Perfume zero state and filter controls work without page errors.
-// Behavior: Open an empty collection and change filter mode → controls remain usable → zero-state stays visible.
+// AC: The Starwalker card, filters, and five-paragraph detail work without page errors.
+// Behavior: Open the collection, filter its single entry, and open its article → the selected B presentation stays intact.
 // @category: e2e
 // @dependency: full-system
-// @complexity: low
-// ROI: 7
-test('keeps Perfume empty-state filters interactive', async ({ page }) => {
+// @complexity: medium
+// ROI: 9
+test('renders and opens the selected Starwalker perfume entry', async ({ page }) => {
   const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('perfume.html');
-  await expect(page.locator('[data-perfume-empty]')).toBeVisible();
-  await expect(page.locator('[data-perfume-count]')).toHaveText('0 fragrances');
+  const card = page.locator('[data-perfume-card]');
+  await expect(card).toHaveCount(1);
+  await expect(card).toContainText('Montblanc');
+  await expect(card).toContainText('Starwalker');
+  await expect(card.locator('.personal-title')).toHaveText('安靜得剛剛好。');
+  await expect(page.locator('[data-perfume-count]')).toHaveText('1 fragrance');
+  await expect(page.locator('[data-perfume-empty]')).toBeHidden();
+  await expect(page.locator('.hero-description')).toContainText('To me, perfume is part of an outfit');
+  await expect(page.locator('.hero-collection-rail')).toBeVisible();
+  const cardGeometry = await card.evaluate((element) => {
+    const image = element.querySelector<HTMLImageElement>('.compact-card-image');
+    if (!image) throw new Error('Perfume bottle image is missing');
+    const cardRect = element.getBoundingClientRect();
+    const imageRect = image.getBoundingClientRect();
+    return {
+      cardWidth: cardRect.width,
+      imageTop: imageRect.top,
+      imageBottom: imageRect.bottom,
+      cardTop: cardRect.top,
+      cardBottom: cardRect.bottom,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+    };
+  });
+  expect(cardGeometry.cardWidth).toBeLessThan(320);
+  expect(cardGeometry.imageTop).toBeGreaterThanOrEqual(cardGeometry.cardTop);
+  expect(cardGeometry.imageBottom).toBeLessThanOrEqual(cardGeometry.cardBottom);
+  expect(cardGeometry.naturalHeight).toBeGreaterThan(cardGeometry.naturalWidth);
+
   const scentMode = page.getByRole('button', { name: 'By Scent' });
   const brandMode = page.getByRole('button', { name: 'By Brand' });
   await expect(scentMode).toHaveAttribute('aria-pressed', 'true');
@@ -254,17 +439,24 @@ test('keeps Perfume empty-state filters interactive', async ({ page }) => {
   await brandMode.click();
   await expect(brandMode).toHaveAttribute('aria-pressed', 'true');
   await expect(scentMode).toHaveAttribute('aria-pressed', 'false');
-  await expect(page.locator('[data-perfume-count]')).toHaveText('0 fragrances');
-  await expect(page.locator('[data-filter-value="All"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-perfume-empty]')).toBeVisible();
+  await page.locator('[data-filter-value="Montblanc"]').click();
+  await expect(page.locator('[data-perfume-count]')).toHaveText('1 fragrance');
+  await expect(card).toBeVisible();
 
   await scentMode.click();
   await expect(scentMode).toHaveAttribute('aria-pressed', 'true');
   await expect(brandMode).toHaveAttribute('aria-pressed', 'false');
-  await expect(page.locator('[data-perfume-count]')).toHaveText('0 fragrances');
-  await expect(page.locator('[data-filter-value="All"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-filter-value="All"]')).toBeVisible();
-  await expect(page.locator('[data-perfume-empty]')).toBeVisible();
+  await page.locator('[data-filter-value="White Musk"]').click();
+  await expect(page.locator('[data-perfume-count]')).toHaveText('1 fragrance');
+
+  await card.click();
+  const dialog = page.locator('[data-perfume-dialog]');
+  await expect(dialog).toHaveJSProperty('open', true);
+  await expect(dialog.locator('[data-dialog-title]')).toHaveText('安靜得剛剛好。');
+  await expect(dialog.locator('[data-dialog-content] p')).toHaveCount(5);
+  await expect(dialog.locator('[data-dialog-source]')).toHaveAttribute('href', 'https://makeup.jp/en/product/3452/');
+  await dialog.getByRole('button', { name: 'Close' }).click();
+  await expect(dialog).toHaveJSProperty('open', false);
   expect(errors).toEqual([]);
 });
 

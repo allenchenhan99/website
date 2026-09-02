@@ -1,19 +1,44 @@
 ---
+import { Picture } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { withBase } from "../config/site";
 import { perfumePosts } from "../lib/content";
-import { getPerfumeCoverLoading, getPerfumeFilterOptions } from "../scripts/perfume";
+import { getPerfumeCoverLoading, getPerfumeCoverPresentation, getPerfumeFilterOptions } from "../scripts/perfume";
+import galleryImage from "../assets/images/perfume-gallery-glass.png";
 import "../styles/perfume.css";
 import "../styles/responsive.css";
 
 const scentOptions = getPerfumeFilterOptions(perfumePosts, "scent");
-const coverUrl = (cover: string) => cover ? withBase(cover) : "";
+const fragranceCount = `${perfumePosts.length} ${perfumePosts.length === 1 ? "fragrance" : "fragrances"}`;
 ---
 
 <BaseLayout pageTitle="Perfume" activePage="perfume">
-  <section class="hero">
-    <h1>Perfume</h1>
-    <p>Scents that define moments — a curated journal of fragrances I've explored, worn, and loved.</p>
+  <section class="perfume-hero" aria-labelledby="perfume-heading">
+    <Picture
+      src={galleryImage}
+      formats={['avif', 'webp']}
+      widths={[640, 960, 1280, 1920]}
+      sizes="100vw"
+      alt="A softly lit glass perfume cabinet"
+      priority
+    />
+    <aside class="hero-collection-rail" aria-labelledby="collection-rail-heading">
+      <header>
+        <h2 id="collection-rail-heading">Collection</h2>
+        <span>{String(perfumePosts.length).padStart(2, "0")} / Journal</span>
+      </header>
+      <div class="hero-collection-note">
+        <span>Current note</span>
+        <strong>{perfumePosts[0]?.name ?? "Waiting for a scent"}</strong>
+      </div>
+      <div class="hero-collection-note">
+        <span>Last added</span>
+        <strong>{perfumePosts[0]?.date ?? "—"}</strong>
+      </div>
+    </aside>
+    <div class="hero-description">
+      <h1 id="perfume-heading">Perfume</h1>
+      <p>To me, perfume is part of an outfit, but more than that, it’s an invisible accessory. The way we smell can say something that the way we look sometimes can’t. It feels a little more personal, a little closer, and somehow leaves a stronger memory.</p>
+    </div>
   </section>
 
   <div class="main">
@@ -25,7 +50,7 @@ const coverUrl = (cover: string) => cover ? withBase(cover) : "";
           <button type="button" data-filter-mode="brand" aria-pressed="false">By Brand</button>
         </div>
       </div>
-      <span class="count-label" data-perfume-count>{perfumePosts.length} fragrances</span>
+      <span class="count-label" data-perfume-count>{fragranceCount}</span>
     </div>
 
     <div class="filter-tags" data-filter-tags>
@@ -39,64 +64,38 @@ const coverUrl = (cover: string) => cover ? withBase(cover) : "";
       ))}
     </div>
 
-    {perfumePosts.map((post, index) => (
-      <button
-        class="featured"
-        type="button"
-        data-perfume-card="true"
-        data-card-role="featured"
-        data-post-id={String(post.id)}
-        data-brand={post.brand}
-        data-scents={post.scents.join("|")}
-        data-perfume-open
-        aria-label={`Open ${post.name}`}
-        hidden={index !== 0}
-      >
-        <span class="featured-img">
-          {post.cover ? (
-            <img class="perfume-cover-image" src={coverUrl(post.cover)} alt="" loading={getPerfumeCoverLoading("featured", index)} width="720" height="960" />
-          ) : <span class="bottle-icon" aria-hidden="true">🧴</span>}
-        </span>
-        <span class="featured-body">
-          <span class="brand-label">{post.brand}</span>
-          <span class="featured-title">{post.name}</span>
-          <span class="notes">
-            {post.scents.map((scent) => <span class="tag">{scent}</span>)}
-          </span>
-          <span class="featured-excerpt">{post.excerpt}</span>
-          <span class="post-date">{post.date}</span>
-        </span>
-      </button>
-    ))}
-
-    <div class="section-label" data-more-label hidden={perfumePosts.length <= 1}>More from collection</div>
-    <div class="grid" data-perfume-grid hidden={perfumePosts.length <= 1}>
+    <div class="collection-grid" data-perfume-grid>
       {perfumePosts.map((post, index) => (
-        <article
-          class="grid-card"
+        <button
+          class="compact-card"
+          type="button"
           data-perfume-card="true"
-          data-card-role="grid"
           data-post-id={String(post.id)}
           data-brand={post.brand}
           data-scents={post.scents.join("|")}
-          hidden={index === 0}
+          data-perfume-open
+          aria-label={`Open ${post.brand} ${post.name} — ${post.title}`}
         >
-          <button class="card-open" type="button" data-perfume-open data-post-id={String(post.id)} aria-label={`Open ${post.name}`}>
-            <span class="grid-img">
-              {post.cover ? (
-                <img class="perfume-cover-image" src={coverUrl(post.cover)} alt="" loading={getPerfumeCoverLoading("grid", index)} width="480" height="640" />
-              ) : <span class="bottle-icon" aria-hidden="true">🧴</span>}
-            </span>
-            <span class="grid-body">
-              <span class="brand-label">{post.brand}</span>
-              <span class="grid-title">{post.name}</span>
-              <span class="notes">
-                {post.scents.map((scent) => <span class="tag">{scent}</span>)}
-              </span>
-              <span class="excerpt">{post.excerpt}</span>
-            </span>
-          </button>
-        </article>
+          <span class="compact-card-visual product-stage">
+            {post.cover ? (
+              <img
+                class="compact-card-image"
+                src={getPerfumeCoverPresentation(post).coverUrl}
+                alt={`${post.brand} ${post.name} bottle`}
+                loading={getPerfumeCoverLoading(index)}
+                referrerpolicy="no-referrer"
+                width="422"
+                height="760"
+              />
+            ) : <span class="bottle-icon" aria-hidden="true">🧴</span>}
+          </span>
+          <span class="compact-card-copy">
+            <span class="brand-label">{post.brand}</span>
+            <strong class="compact-card-name">{post.name}</strong>
+            <span class="personal-title">{post.title}</span>
+            <span class="compact-card-arrow" aria-hidden="true">↗</span>
+          </span>
+        </button>
       ))}
     </div>
 
@@ -107,21 +106,25 @@ const coverUrl = (cover: string) => cover ? withBase(cover) : "";
 
   <div hidden data-perfume-details>
     {perfumePosts.map((post) => (
-      <article data-perfume-detail data-post-id={String(post.id)} data-cover-path={post.cover}>
+      <article data-perfume-detail data-post-id={String(post.id)} data-cover-path={post.cover} data-source-url={post.source}>
         <span data-source-brand>{post.brand}</span>
         <span data-source-date>{post.date}</span>
         <span data-source-name>{post.name}</span>
+        <span data-source-title>{post.title}</span>
         <span data-source-excerpt>{post.excerpt}</span>
+        {post.content.map((paragraph) => <span data-source-paragraph>{paragraph}</span>)}
         {post.scents.map((scent) => <span data-source-scent>{scent}</span>)}
       </article>
     ))}
   </div>
 
   <dialog class="detail-overlay" data-perfume-dialog="true" aria-labelledby="perfume-detail-title">
-    <div class="detail-modal">
-      <img class="detail-cover" data-dialog-cover alt="" hidden />
-      <div class="detail-cover detail-cover-empty" data-dialog-cover-empty>
-        <span class="bottle-icon" aria-hidden="true">🧴</span>
+    <div class="detail-modal starwalker-modal">
+      <div class="detail-product-stage product-stage">
+        <img class="detail-product-image" data-dialog-cover alt="" hidden />
+        <div class="detail-product-empty" data-dialog-cover-empty>
+          <span class="bottle-icon" aria-hidden="true">🧴</span>
+        </div>
       </div>
       <div class="detail-body">
         <div class="detail-meta">
@@ -129,10 +132,12 @@ const coverUrl = (cover: string) => cover ? withBase(cover) : "";
           <span class="post-date" data-dialog-date></span>
         </div>
         <h2 class="detail-title" id="perfume-detail-title" data-dialog-name></h2>
+        <p class="detail-personal-title" data-dialog-title></p>
         <div class="detail-tags" data-dialog-scents></div>
-        <p class="detail-text" data-dialog-excerpt></p>
+        <article class="detail-text article-copy" data-dialog-content></article>
       </div>
       <div class="detail-footer">
+        <a class="image-credit" href="#" target="_blank" rel="noreferrer" data-dialog-source>Product image source ↗</a>
         <button class="detail-close" type="button" data-dialog-close>Close</button>
       </div>
     </div>

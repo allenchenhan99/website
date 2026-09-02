@@ -17,7 +17,6 @@ PAGES = {
 }
 NAV_TARGETS = (
     "index.html",
-    "profile.html",
     "cv.html",
     "music.html",
     "perfume.html",
@@ -53,6 +52,7 @@ class BrandingLayoutTest(unittest.TestCase):
         for target in NAV_TARGETS:
             with self.subTest(target=target):
                 self.assertIn(f'"{target}"', content)
+        self.assertNotIn('{ id: "profile"', content)
         self.assertIn('class:list={["nav-link", { active: activePage === item.id }]}', content)
         self.assertIn('class="navbar"', content)
         self.assertIn('class="nav-links"', content)

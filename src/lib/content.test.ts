@@ -20,15 +20,29 @@ const perfume = (id: number, overrides: Record<string, unknown> = {}) => ({
   date: '2026/08/29',
   brand: 'Maison',
   name: `Perfume ${id}`,
+  title: 'A quiet title.',
   excerpt: 'A perfume post.',
+  content: ['First paragraph.', 'Second paragraph.'],
   scents: ['cedar'],
+  source: 'https://example.com/perfume',
   ...overrides,
 });
 
 describe('content validation', () => {
   test('parses valid music and perfume post arrays', () => {
     expect(parseMusicPosts([music(1)])).toMatchObject([{ id: 1, cover: '' }]);
-    expect(parsePerfumePosts([perfume(2)])).toMatchObject([{ id: 2, cover: '' }]);
+    expect(parsePerfumePosts([perfume(2)])).toMatchObject([{
+      id: 2,
+      title: 'A quiet title.',
+      content: ['First paragraph.', 'Second paragraph.'],
+      source: 'https://example.com/perfume',
+      cover: '',
+    }]);
+  });
+
+  test('keeps an HTTPS perfume product image without requiring a local public asset', () => {
+    const cover = 'https://images.example.com/starwalker.jpg';
+    expect(parsePerfumePosts([perfume(1, { cover })], () => false)[0]?.cover).toBe(cover);
   });
 
   test('rejects dates outside YYYY/MM/DD format', () => {
@@ -56,6 +70,7 @@ describe('content validation', () => {
   test('rejects missing required music and perfume fields', () => {
     expect(() => parseMusicPosts([{ id: 1, date: '2026/08/28' }])).toThrow(/title/);
     expect(() => parsePerfumePosts([perfume(1, { scents: undefined })])).toThrow(/scents/);
+    expect(() => parsePerfumePosts([perfume(1, { content: undefined })])).toThrow(/content/);
   });
 
   test('normalizes missing and unavailable covers to empty strings', () => {

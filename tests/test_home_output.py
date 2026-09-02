@@ -143,26 +143,68 @@ class HomeOutputTest(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
-    def test_prerenders_all_category_links(self):
-        actual = [
-            (category["href"], "".join(category["text"]))
-            for category in self.parser.categories
-        ]
-        self.assertEqual(
-            actual,
-            [
-                ("profile.html", "ProfileAbout me and my journey"),
-                ("cv.html", "CVCurriculum Vitae"),
-                ("music.html", "MusicAlbums, songs & reflections"),
-                ("perfume.html", "PerfumeFragrance journey & reviews"),
-            ],
+    def test_removes_category_links_that_duplicate_the_primary_navigation(self):
+        self.assertEqual(self.parser.categories, [])
+
+    def test_merges_the_original_profile_content_and_images_into_home(self):
+        section = re.search(
+            r'<section[^>]*class="home-profile"[^>]*>(.*?)</section>',
+            self.html,
+            re.DOTALL,
         )
+        self.assertIsNotNone(section)
+        profile_html = re.sub(r"\s+", " ", section.group(1))
+
+        for expected in (
+            "Welcome to my Profile",
+            "Hi there! I'm someone with a deep curiosity and passion for just about everything",
+            "The reason I created this site is that",
+            "Feel free to explore and learn more about who I am and what I do!",
+            'alt="Background Photo"',
+            'alt="Profile Photo"',
+        ):
+            with self.subTest(expected=expected):
+                self.assertIn(expected, profile_html)
+        self.assertEqual(profile_html.count("<picture"), 2)
+
+    def test_profile_recent_blocks_and_reach_signal_share_the_wide_home_measure(self):
+        page = (ROOT / "src" / "pages" / "index.astro").read_text(encoding="utf-8")
+        css = (ROOT / "src" / "styles" / "style.css").read_text(encoding="utf-8")
+        content_rule = re.search(r"\.content\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        profile_rule = re.search(r"\.home-profile\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        recent_rule = re.search(r"\.recent-posts\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        recent_list_rule = re.search(r"\.recent-list\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+        reach_rule = re.search(r"\.reach-signal\s*\{(?P<body>.*?)\}", css, re.DOTALL)
+
+        self.assertIsNotNone(content_rule)
+        self.assertIsNotNone(profile_rule)
+        self.assertIsNotNone(recent_rule)
+        self.assertIsNotNone(recent_list_rule)
+        self.assertIsNotNone(reach_rule)
+        self.assertRegex(content_rule.group("body"), r"max-width:\s*800px")
+        wide_measure = r"width:\s*min\(1120px,\s*calc\(100vw\s*-\s*clamp\(32px,\s*8vw,\s*80px\)\)\)"
+        self.assertRegex(profile_rule.group("body"), wide_measure)
+        self.assertRegex(recent_rule.group("body"), wide_measure)
+        self.assertRegex(recent_list_rule.group("body"), r"grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)")
+        self.assertRegex(reach_rule.group("body"), wide_measure)
+        self.assertIn("widths={[320, 640, 960, 1280]}", page)
+        self.assertIn("min(50vw, 544px)", page)
+
+    def test_prerenders_the_reach_signal_shell_and_sample_market_line(self):
+        self.assertIn('class="reach-signal"', self.html)
+        self.assertIn('data-reach-flow', self.html)
+        self.assertIn('data-reach-ticker', self.html)
+        self.assertIn('data-reach-source', self.html)
+        self.assertIn("RCH 1,284", self.html)
+        self.assertIn("PVW 3,912", self.html)
+        self.assertIn("sample data", self.html)
 
     def test_embeds_exact_ascii_source_but_leaves_target_empty(self):
         ascii_source = (ROOT / "asciiArt.txt").read_text(encoding="utf-8")
 
         self.assertEqual("".join(self.parser.ascii_target), "")
         self.assertEqual("".join(self.parser.ascii_source).rstrip(), ascii_source.rstrip())
+        self.assertIn('aria-label="Allen Lin ASCII art"', self.html)
 
     def test_prerenders_only_the_exact_first_chipi_frame(self):
         chipi_source = (ROOT / "chipi.txt").read_text(encoding="utf-8")
@@ -191,8 +233,10 @@ class HomeOutputTest(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, client_code)
 
-        self.assertEqual(len(re.findall(r"\bfetch\(", client_code)), 1)
+        self.assertEqual(len(re.findall(r"\bfetch\(", client_code)), 2)
         self.assertRegex(client_code, r"priority\s*:\s*[`'\"]low[`'\"]")
+        self.assertRegex(client_code, r"Accept\s*:\s*[`'\"]application/json[`'\"]")
+        self.assertNotIn("UMAMI_API_KEY", client_code)
 
 
 if __name__ == "__main__":

@@ -69,7 +69,11 @@ canvas {
 .detail-modal,
 .recent-item,
 .category-item,
-.playlist-card,
+.home-profile,
+.home-profile-visual,
+.home-profile-copy,
+.reach-signal,
+.reach-signal-surface,
 .grid-card,
 .featured,
 .text-container,
@@ -133,13 +137,70 @@ canvas {
     .content,
     .cv-wrapper,
     .main,
-    .playlists-section,
     .posts-section {
         padding-inline: var(--page-gutter);
     }
 
     .content {
         gap: var(--section-space);
+    }
+
+    .home-profile {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .home-profile-visual {
+        min-height: 275px;
+    }
+
+    .home-profile-backdrop {
+        height: 235px;
+    }
+
+    .home-profile-avatar {
+        top: 36%;
+        left: 52%;
+        width: 126px;
+        height: 126px;
+    }
+
+    .home-profile-copy h1 {
+        font-size: 20px;
+    }
+
+    .recent-list {
+        grid-template-columns: 1fr;
+    }
+
+    .recent-item {
+        padding: 16px 0;
+        border-top: 1px solid var(--border);
+    }
+
+    .recent-item + .recent-item {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .reach-signal-intro {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .reach-flow {
+        min-height: 246px;
+        padding-bottom: 46px;
+        font-size: 7px;
+    }
+
+    .reach-ticker {
+        font-size: 6.5px;
+    }
+
+    .reach-signal-status span:nth-child(2) {
+        display: none;
     }
 
     .record-player {
@@ -206,7 +267,6 @@ canvas {
 
     .featured-body,
     .grid-body,
-    .playlist-card,
     .text-container {
         padding: clamp(14px, 4vw, 20px);
     }

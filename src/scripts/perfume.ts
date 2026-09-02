@@ -2,7 +2,6 @@ import { withBase } from '../config/site';
 import type { PerfumePost } from '../lib/content';
 
 export type PerfumeFilterMode = 'scent' | 'brand';
-export type PerfumeCoverRole = 'featured' | 'grid';
 export type PerfumeCoverLoading = 'eager' | 'lazy';
 
 export type PerfumeFilterState = {
@@ -30,10 +29,9 @@ type PerfumeDialogView = {
 const ALL_FILTER = 'All';
 
 export function getPerfumeCoverLoading(
-  role: PerfumeCoverRole,
   index: number,
 ): PerfumeCoverLoading {
-  return role === 'featured' && index === 0 ? 'eager' : 'lazy';
+  return index === 0 ? 'eager' : 'lazy';
 }
 
 export function getPerfumeFilterOptions(
@@ -64,7 +62,9 @@ export function filterPerfumePosts(
 }
 
 export function getPerfumeCoverPresentation(post: Pick<PerfumePost, 'cover'>) {
-  const coverUrl = post.cover ? withBase(post.cover) : '';
+  const coverUrl = post.cover
+    ? URL.canParse(post.cover) ? post.cover : withBase(post.cover)
+    : '';
   return { coverUrl, showPlaceholder: coverUrl.length === 0 };
 }
 
@@ -127,10 +127,14 @@ function readStaticPosts(): PerfumePost[] {
       date: detail.querySelector<HTMLElement>('[data-source-date]')?.textContent ?? '',
       brand: detail.querySelector<HTMLElement>('[data-source-brand]')?.textContent ?? '',
       name: detail.querySelector<HTMLElement>('[data-source-name]')?.textContent ?? '',
+      title: detail.querySelector<HTMLElement>('[data-source-title]')?.textContent ?? '',
       excerpt: detail.querySelector<HTMLElement>('[data-source-excerpt]')?.textContent ?? '',
+      content: [...detail.querySelectorAll<HTMLElement>('[data-source-paragraph]')]
+        .map((paragraph) => paragraph.textContent ?? ''),
       scents: [...detail.querySelectorAll<HTMLElement>('[data-source-scent]')]
         .map((scent) => scent.textContent ?? ''),
       cover: detail.dataset.coverPath ?? '',
+      source: detail.dataset.sourceUrl ?? '',
     }];
   });
 }
@@ -138,19 +142,17 @@ function readStaticPosts(): PerfumePost[] {
 function initializeFilterController(posts: PerfumePost[]) {
   const count = document.querySelector<HTMLElement>('[data-perfume-count]');
   const tags = document.querySelector<HTMLElement>('[data-filter-tags]');
-  const moreLabel = document.querySelector<HTMLElement>('[data-more-label]');
   const grid = document.querySelector<HTMLElement>('[data-perfume-grid]');
   const empty = document.querySelector<HTMLElement>('[data-perfume-empty]');
   const modeButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter-mode]')];
   const cards = [...document.querySelectorAll<HTMLElement>('[data-perfume-card]')];
-  if (!count || !tags || !moreLabel || !grid || !empty) return;
+  if (!count || !tags || !grid || !empty) return;
 
   let controller: ReturnType<typeof createPerfumeFilterController> | undefined;
   controller = createPerfumeFilterController(posts, {
     render(state) {
-      count.textContent = `${state.count} fragrances`;
-      moreLabel.hidden = !state.showMore;
-      grid.hidden = !state.showMore;
+      count.textContent = `${state.count} ${state.count === 1 ? 'fragrance' : 'fragrances'}`;
+      grid.hidden = state.empty;
       empty.hidden = !state.empty;
 
       modeButtons.forEach((button) => {
@@ -172,13 +174,9 @@ function initializeFilterController(posts: PerfumePost[]) {
       }));
 
       const visibleIds = new Set(state.visibleIds);
-      const gridIds = new Set(state.gridIds);
       cards.forEach((card) => {
         const id = Number(card.dataset.postId);
-        const role = card.dataset.cardRole;
-        card.hidden = role === 'featured'
-          ? id !== state.featuredId
-          : !visibleIds.has(id) || !gridIds.has(id);
+        card.hidden = !visibleIds.has(id);
       });
     },
   });
@@ -197,9 +195,11 @@ function initializeDetailDialog(posts: PerfumePost[]) {
   const brand = dialog?.querySelector<HTMLElement>('[data-dialog-brand]');
   const date = dialog?.querySelector<HTMLElement>('[data-dialog-date]');
   const name = dialog?.querySelector<HTMLElement>('[data-dialog-name]');
+  const title = dialog?.querySelector<HTMLElement>('[data-dialog-title]');
   const scents = dialog?.querySelector<HTMLElement>('[data-dialog-scents]');
-  const excerpt = dialog?.querySelector<HTMLElement>('[data-dialog-excerpt]');
-  if (!dialog || !cover || !emptyCover || !brand || !date || !name || !scents || !excerpt) return;
+  const content = dialog?.querySelector<HTMLElement>('[data-dialog-content]');
+  const source = dialog?.querySelector<HTMLAnchorElement>('[data-dialog-source]');
+  if (!dialog || !cover || !emptyCover || !brand || !date || !name || !title || !scents || !content || !source) return;
 
   const controller = createPerfumeDialogController(posts, {
     render(post) {
@@ -207,7 +207,12 @@ function initializeDetailDialog(posts: PerfumePost[]) {
       brand.textContent = post.brand;
       date.textContent = post.date;
       name.textContent = post.name;
-      excerpt.textContent = post.excerpt;
+      title.textContent = post.title;
+      content.replaceChildren(...post.content.map((paragraph) => {
+        const element = document.createElement('p');
+        element.textContent = paragraph;
+        return element;
+      }));
       scents.replaceChildren(...post.scents.map((scent) => {
         const tag = document.createElement('span');
         tag.className = 'tag';
@@ -223,6 +228,8 @@ function initializeDetailDialog(posts: PerfumePost[]) {
         cover.removeAttribute('src');
         cover.alt = '';
       }
+      source.href = post.source;
+      source.hidden = post.source.length === 0;
     },
     showModal() {
       if (!dialog.open) dialog.showModal();

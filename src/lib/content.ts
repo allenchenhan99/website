@@ -18,9 +18,12 @@ export type PerfumePost = {
   date: string;
   brand: string;
   name: string;
+  title: string;
   excerpt: string;
+  content: string[];
   scents: string[];
   cover: string;
+  source: string;
 };
 
 export type RecentPost =
@@ -96,6 +99,7 @@ const getCover = (record: ContentRecord, label: string, assetExists: AssetExists
   if (typeof cover !== 'string') {
     throw new TypeError(`${label} cover must be a string`);
   }
+  if (URL.canParse(cover) && new URL(cover).protocol === 'https:') return cover;
   if (assetExists(cover)) return cover;
 
   console.warn(`[content] ${label} cover is missing from public/${cover}; using no cover.`);
@@ -147,15 +151,22 @@ export function parsePerfumePosts(
     if (!Array.isArray(scents) || scents.some((scent) => typeof scent !== 'string')) {
       throw new TypeError(`${label} scents must be a string array`);
     }
+    const content = record.content;
+    if (!Array.isArray(content) || content.some((paragraph) => typeof paragraph !== 'string')) {
+      throw new TypeError(`${label} content must be a string array`);
+    }
 
     return {
       id,
       date: requireDate(record, label),
       brand: requireString(record, 'brand', label),
       name: requireString(record, 'name', label),
+      title: requireString(record, 'title', label),
       excerpt: requireString(record, 'excerpt', label),
+      content,
       scents,
       cover: getCover(record, label, assetExists),
+      source: requireString(record, 'source', label),
     };
   });
 }

@@ -1,22 +1,25 @@
 ---
 import { Image, Picture } from "astro:assets";
-import SpotifyEmbed from "../components/SpotifyEmbed.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { musicPosts } from "../lib/content";
 import { resolveCoverUrl } from "../scripts/music";
 import heroImage from "../assets/images/pxfuel.jpg";
-import recordPlayerImage from "../assets/images/record-player.jpg";
+import vinylImage from "../assets/images/vinyl-record-ochre.png";
+import westernHipHopCover from "../assets/images/spotify-western-hiphop.jpg";
+import koreanHipHopCover from "../assets/images/spotify-korean-hiphop.jpg";
 import "../styles/music.css";
 import "../styles/responsive.css";
 
 const playlists = [
   {
     title: "Western Hip-Hop",
-    src: "https://open.spotify.com/embed/playlist/0zOH4tLo3gS91K392iVukK?utm_source=generator&theme=0",
+    href: "https://open.spotify.com/playlist/0zOH4tLo3gS91K392iVukK?utm_source=generator",
+    cover: westernHipHopCover,
   },
   {
     title: "Korean Hip-Hop",
-    src: "https://open.spotify.com/embed/playlist/5FEkaCPvkQamrTWBAIvSra?utm_source=generator&theme=0",
+    href: "https://open.spotify.com/playlist/5FEkaCPvkQamrTWBAIvSra?utm_source=generator",
+    cover: koreanHipHopCover,
   },
 ] as const;
 ---
@@ -29,17 +32,64 @@ const playlists = [
         formats={['avif', 'webp']}
         widths={[640, 960, 1280, 1920]}
         sizes="100vw"
-        alt="Music Background"
+        alt="Nujabes Metaphorical Music album artwork"
         priority
       />
-      <div class="record-player">
+      <div
+        class="vinyl-record"
+        data-vinyl="album-art"
+        role="img"
+        aria-label="Rotating vinyl record filled with Nujabes Metaphorical Music cover art"
+      >
         <Image
-          src={recordPlayerImage}
+          class="vinyl-base"
+          src={vinylImage}
           widths={[100, 200, 400]}
-          sizes="(max-width: 768px) 100px, 200px"
-          alt="Record Player"
+          sizes="(max-width: 768px) 105px, 200px"
+          alt=""
         />
+        <span class="vinyl-material" aria-hidden="true">
+          <Image
+            class="vinyl-artwork"
+            src={heroImage}
+            widths={[100, 200, 400]}
+            sizes="(max-width: 768px) 90px, 174px"
+            alt=""
+          />
+        </span>
+        <span class="vinyl-label" aria-hidden="true">
+          <span class="vinyl-spindle"></span>
+        </span>
       </div>
+      <aside class="hero-playlists" aria-labelledby="playlists-heading">
+        <header class="hero-playlists-header">
+          <h2 id="playlists-heading">Playlists</h2>
+          <span>02 / Spotify</span>
+        </header>
+        <nav aria-label="Allen's Spotify playlists">
+          {playlists.map((playlist, index) => (
+            <a
+              class="hero-playlist-link"
+              href={playlist.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Image
+                class="hero-playlist-cover"
+                src={playlist.cover}
+                widths={[48, 96]}
+                sizes="48px"
+                alt={`${playlist.title} playlist cover`}
+              />
+              <span class="hero-playlist-copy">
+                <small>{String(index + 1).padStart(2, "0")} / Playlist</small>
+                <strong>{playlist.title}</strong>
+              </span>
+              <span class="hero-playlist-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </nav>
+      </aside>
       <div class="text-container">
         <h1 id="music-heading">Welcome to the Music Page</h1>
         <p>
@@ -57,18 +107,6 @@ const playlists = [
           enveloping the surrounding environment and drawing listeners into a state of mindful resonance.
         </p>
       </div>
-    </div>
-  </section>
-
-  <section class="playlists-section" aria-labelledby="playlists-heading">
-    <h2 class="playlists-title" id="playlists-heading">Playlists</h2>
-    <div class="playlists-grid">
-      {playlists.map((playlist) => (
-        <article class="playlist-card">
-          <h3>{playlist.title}</h3>
-          <SpotifyEmbed title={playlist.title} src={playlist.src} />
-        </article>
-      ))}
     </div>
   </section>
 

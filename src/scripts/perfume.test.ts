@@ -17,39 +17,43 @@ const posts: PerfumePost[] = [
     date: '2026/08/01',
     brand: 'Zoologist',
     name: 'Bee',
+    title: 'Honey in the quiet.',
     excerpt: 'Warm honey and incense.',
+    content: ['Warm honey and incense.'],
     scents: ['Honey', 'Amber'],
-    cover: 'assets/images/uploads/bee.jpg',
+    cover: 'https://images.example.com/bee.jpg',
+    source: 'https://example.com/bee',
   },
   {
     id: 2,
     date: '2026/08/02',
     brand: 'Aesop',
     name: 'Hwyl',
+    title: 'A quiet forest.',
     excerpt: 'A quiet forest.',
+    content: ['A quiet forest.'],
     scents: ['Woody', 'Incense'],
     cover: '',
+    source: 'https://example.com/hwyl',
   },
   {
     id: 3,
     date: '2026/08/03',
     brand: 'Zoologist',
     name: 'Squid',
+    title: 'Ink below the surface.',
     excerpt: 'Dark marine ink.',
+    content: ['Dark marine ink.'],
     scents: ['Amber', 'Marine'],
     cover: 'assets/images/uploads/squid.jpg',
+    source: 'https://example.com/squid',
   },
 ];
 
 describe('perfume filter helpers', () => {
-  test('makes only the initially featured cover eager for a non-empty collection', () => {
-    expect(posts.map((_, index) => getPerfumeCoverLoading('featured', index))).toEqual([
+  test('makes only the first compact card cover eager', () => {
+    expect(posts.map((_, index) => getPerfumeCoverLoading(index))).toEqual([
       'eager',
-      'lazy',
-      'lazy',
-    ]);
-    expect(posts.map((_, index) => getPerfumeCoverLoading('grid', index))).toEqual([
-      'lazy',
       'lazy',
       'lazy',
     ]);
@@ -93,7 +97,7 @@ describe('perfume filter helpers', () => {
 
   test('missing covers explicitly select the bottle placeholder', () => {
     expect(getPerfumeCoverPresentation(posts[0]!)).toEqual({
-      coverUrl: '/website/assets/images/uploads/bee.jpg',
+      coverUrl: 'https://images.example.com/bee.jpg',
       showPlaceholder: false,
     });
     expect(getPerfumeCoverPresentation(posts[1]!)).toEqual({

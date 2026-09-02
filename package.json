@@ -13,7 +13,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "test": "npm run test:unit && npm run test:contracts",
-    "test:unit": "vitest run src",
+    "test:unit": "vitest run src workers",
     "test:contracts": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "test:e2e": "playwright test",
     "verify": "npm run check && npm test && npm run build && npm run test:e2e"

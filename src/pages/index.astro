@@ -1,6 +1,9 @@
 ---
+import { Picture } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { recentPosts } from "../lib/content";
+import backgroundImage from "../assets/images/IMG_1049.JPG";
+import profileImage from "../assets/images/selfie.JPG";
 import asciiArt from "../../asciiArt.txt?raw";
 import chipi from "../../chipi.txt?raw";
 import chipiUrl from "../../chipi.txt?url";
@@ -8,11 +11,12 @@ import "../styles/style.css";
 import "../styles/responsive.css";
 
 const initialChipiFrame = chipi.trimEnd().split("\n").slice(0, 42).join("\n");
+const reachStatsUrl = import.meta.env.PUBLIC_REACH_STATS_URL?.trim();
 ---
 
 <BaseLayout activePage="index">
   <div class="content">
-    <pre class="ascii-art" id="ascii-art" data-ascii-animation aria-label="Welcome to my personal blog"></pre>
+    <pre class="ascii-art" id="ascii-art" data-ascii-animation aria-label="Allen Lin ASCII art"></pre>
     <template data-ascii-source>{asciiArt}</template>
 
     <pre
@@ -22,9 +26,47 @@ const initialChipiFrame = chipi.trimEnd().split("\n").slice(0, 42).join("\n");
       aria-label="Chipi ASCII animation"
     >{initialChipiFrame}</pre>
 
+    <section class="home-profile" aria-labelledby="profile-heading">
+      <figure class="home-profile-visual">
+        <div class="home-profile-backdrop">
+          <Picture
+            src={backgroundImage}
+            formats={['avif', 'webp']}
+            widths={[320, 640, 960, 1280]}
+            sizes="(max-width: 768px) calc(100vw - 32px), min(50vw, 544px)"
+            alt="Background Photo"
+            loading="lazy"
+          />
+        </div>
+        <div class="home-profile-avatar">
+          <Picture
+            src={profileImage}
+            formats={['avif', 'webp']}
+            widths={[126, 160, 320]}
+            sizes="(max-width: 768px) 126px, 160px"
+            alt="Profile Photo"
+            loading="lazy"
+          />
+        </div>
+        <figcaption>ALLEN LIN · PROFILE / 2026</figcaption>
+      </figure>
+
+      <div class="home-profile-copy">
+        <h1 id="profile-heading">Welcome to my Profile</h1>
+        <p>
+          Hi there! I'm someone with a deep curiosity and passion for just about everything, especially technology, music, and more. This space is my little corner to document and share my journey, personal and spiritual growth, and thoughts.
+          The reason I created this site is that, compared to mainstream social media, those platforms often feel like they're all about following trends or being told how to express yourself. I wanted a space where I could freely share my ideas and experiences without those limitations.
+          Feel free to explore and learn more about who I am and what I do!
+        </p>
+      </div>
+    </section>
+
     {recentPosts.length > 0 && (
       <section class="recent-posts" aria-labelledby="recent-heading">
-        <h2 class="section-title" id="recent-heading">Recent</h2>
+        <header class="recent-header">
+          <h2 class="section-title" id="recent-heading">Recent</h2>
+          <span>Latest notes from the site</span>
+        </header>
         <div class="recent-list">
           {recentPosts.map((post) => {
             const title = post.category === "music" ? post.title : `${post.brand} — ${post.name}`;
@@ -51,25 +93,27 @@ const initialChipiFrame = chipi.trimEnd().split("\n").slice(0, 42).join("\n");
       </section>
     )}
 
-    <section class="categories" aria-label="Categories">
-      <div class="category-list">
-        <a href="profile.html" class="category-item">
-          <span class="category-title">Profile</span>
-          <span class="category-desc">About me and my journey</span>
-        </a>
-        <a href="cv.html" class="category-item">
-          <span class="category-title">CV</span>
-          <span class="category-desc">Curriculum Vitae</span>
-        </a>
-        <a href="music.html" class="category-item">
-          <span class="category-title">Music</span>
-          <span class="category-desc">Albums, songs &amp; reflections</span>
-        </a>
-        <a href="perfume.html" class="category-item">
-          <span class="category-title">Perfume</span>
-          <span class="category-desc">Fragrance journey &amp; reviews</span>
-        </a>
-      </div>
+    <section
+      class="reach-signal"
+      aria-labelledby="reach-signal-heading"
+      data-reach-stats-url={reachStatsUrl || undefined}
+    >
+      <header class="reach-signal-intro">
+        <div>
+          <h2 id="reach-signal-heading">Site reach signal</h2>
+          <p>A public trace of how far this small corner has travelled.</p>
+        </div>
+        <span data-reach-source>sample data · 30 days</span>
+      </header>
+      <figure class="reach-signal-surface" data-reach-surface>
+        <pre class="reach-flow" data-reach-flow aria-hidden="true"></pre>
+        <div class="reach-ticker" data-reach-ticker aria-label="Reach market summary">RCH 1,284&nbsp; ▲18.0% &nbsp;│&nbsp; PVW 3,912 &nbsp;│&nbsp; 30D H 97 / L 18</div>
+        <figcaption class="reach-signal-status">
+          <span>30D AGO</span>
+          <span>character density = daily reach</span>
+          <span>TODAY</span>
+        </figcaption>
+      </figure>
     </section>
   </div>
 

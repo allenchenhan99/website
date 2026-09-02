@@ -5,39 +5,6 @@ export type MusicView = 'grid' | 'list';
 type StorageReader = Pick<Storage, 'getItem'>;
 type StorageWriter = Pick<Storage, 'setItem'>;
 type MusicStorage = StorageReader & StorageWriter;
-type FrameListener = () => void;
-
-type HideableElement = { hidden: boolean };
-type SpotifyFrame = {
-  setAttribute: (name: string, value: string) => void;
-  addEventListener: (name: string, listener: FrameListener, options?: { once: boolean }) => void;
-};
-type SpotifyElement = HideableElement & {
-  appendChild?: (frame: SpotifyFrame) => unknown;
-};
-
-export type SpotifyContainer = {
-  dataset: { src?: string; loaded?: string };
-  querySelector: (selector: string) => SpotifyElement | null;
-};
-
-type SpotifyDependencies = {
-  createIframe: () => SpotifyFrame;
-};
-
-type ObserverEntry = { isIntersecting: boolean; target: SpotifyContainer };
-type Observer = {
-  observe: (target: SpotifyContainer) => void;
-  unobserve: (target: SpotifyContainer) => void;
-};
-type ObserverFactory = (
-  callback: (entries: ObserverEntry[]) => void,
-  options: { rootMargin: string },
-) => Observer;
-
-const spotifyDefaults: SpotifyDependencies = {
-  createIframe: () => document.createElement('iframe'),
-};
 
 export function readMusicView(storage: StorageReader | null): MusicView {
   try {
@@ -60,60 +27,6 @@ export function writeMusicView(view: MusicView, storage: StorageWriter | null): 
 
 export function resolveCoverUrl(cover: string): string {
   return cover ? withBase(cover) : '';
-}
-
-export function loadSpotifyEmbed(
-  embed: SpotifyContainer,
-  dependencies: SpotifyDependencies = spotifyDefaults,
-): boolean {
-  const sourceUrl = embed.dataset.src;
-  if (!sourceUrl || embed.dataset.loaded === 'true') return false;
-
-  const frameSlot = embed.querySelector('[data-spotify-frame]');
-  if (!frameSlot?.appendChild) return false;
-
-  embed.dataset.loaded = 'true';
-  const status = embed.querySelector('[data-spotify-status]');
-  const iframe = dependencies.createIframe();
-  iframe.setAttribute('src', sourceUrl);
-  iframe.setAttribute('title', 'Spotify playlist');
-  iframe.setAttribute('width', '100%');
-  iframe.setAttribute('height', '352');
-  iframe.setAttribute('frameborder', '0');
-  iframe.setAttribute('allowfullscreen', '');
-  iframe.setAttribute(
-    'allow',
-    'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture',
-  );
-  iframe.setAttribute('loading', 'lazy');
-
-  iframe.addEventListener('load', () => {
-    if (status) status.hidden = true;
-  }, { once: true });
-  frameSlot.appendChild(iframe);
-  return true;
-}
-
-export function initializeSpotifyEmbeds(
-  embeds: Iterable<SpotifyContainer>,
-  dependencies: SpotifyDependencies & { createObserver?: ObserverFactory },
-) {
-  const targets = [...embeds];
-  if (targets.length === 0) return;
-
-  if (!dependencies.createObserver) {
-    targets.forEach((target) => loadSpotifyEmbed(target, dependencies));
-    return;
-  }
-
-  const observer = dependencies.createObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      loadSpotifyEmbed(entry.target, dependencies);
-      observer.unobserve(entry.target);
-    });
-  }, { rootMargin: '300px' });
-  targets.forEach((target) => observer.observe(target));
 }
 
 function initializeViewController(initialView: MusicView, storage: MusicStorage | null) {
@@ -186,35 +99,10 @@ function initializeDetailDialog() {
   });
 }
 
-function initializeSpotifyController() {
-  const embeds = document.querySelectorAll<HTMLElement>('[data-spotify-embed]');
-  const createObserver: ObserverFactory | undefined = 'IntersectionObserver' in window
-    ? (callback, options) => {
-        const observer = new IntersectionObserver(
-          (entries) => callback(entries.map((entry) => ({
-            isIntersecting: entry.isIntersecting,
-            target: entry.target as unknown as SpotifyContainer,
-          }))),
-          options,
-        );
-        return {
-          observe: (target) => observer.observe(target as unknown as Element),
-          unobserve: (target) => observer.unobserve(target as unknown as Element),
-        };
-      }
-    : undefined;
-
-  initializeSpotifyEmbeds(embeds as unknown as Iterable<SpotifyContainer>, {
-    ...spotifyDefaults,
-    createObserver,
-  });
-}
-
 export function initializeMusicControllers(dependencies: {
   getStorage: () => MusicStorage;
   initializeView: (initialView: MusicView, storage: MusicStorage | null) => void;
   initializeDetails: () => void;
-  initializeSpotify: () => void;
 }) {
   let storage: MusicStorage | null = null;
   try {
@@ -225,7 +113,6 @@ export function initializeMusicControllers(dependencies: {
 
   dependencies.initializeView(readMusicView(storage), storage);
   dependencies.initializeDetails();
-  dependencies.initializeSpotify();
 }
 
 export function initializeMusic() {
@@ -233,6 +120,5 @@ export function initializeMusic() {
     getStorage: () => window.localStorage,
     initializeView: initializeViewController,
     initializeDetails: initializeDetailDialog,
-    initializeSpotify: initializeSpotifyController,
   });
 }

@@ -10,6 +10,9 @@ interface Props {
 
 const { pageTitle, activePage, documentLanguage = "zh-Hant" } = Astro.props;
 const title = pageTitle ? `${pageTitle} | ${SITE.name}` : SITE.name;
+const umamiScriptUrl = import.meta.env.PUBLIC_UMAMI_SCRIPT_URL?.trim();
+const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID?.trim();
+const analyticsEnabled = import.meta.env.PROD && umamiScriptUrl && umamiWebsiteId;
 ---
 
 <!doctype html>
@@ -21,6 +24,16 @@ const title = pageTitle ? `${pageTitle} | ${SITE.name}` : SITE.name;
     <link rel="icon" type="image/svg+xml" href={withBase(SITE.faviconSvg)} />
     <link rel="icon" type="image/png" sizes="32x32" href={withBase(SITE.faviconPng)} />
     <link rel="apple-touch-icon" href={withBase(SITE.appleTouchIcon)} />
+    {analyticsEnabled && (
+      <script
+        is:inline
+        defer
+        src={umamiScriptUrl}
+        data-website-id={umamiWebsiteId}
+        data-domains="allenchenhan99.github.io"
+        data-do-not-track="true"
+      ></script>
+    )}
     <script is:inline>
       try {
         const saved = localStorage.getItem('theme');

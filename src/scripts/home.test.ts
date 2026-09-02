@@ -13,18 +13,32 @@ type TimeoutCallback = () => void;
 type FrameCallback = (timestamp: number) => void;
 
 describe('home animation helpers', () => {
-  test('builds the first ASCII block from the first ten columns', () => {
+  test('uses one six-row ASCII line that spells ALLEN LIN', () => {
+    const lines = ascii.trimEnd().split('\n');
+
+    expect(lines).toHaveLength(6);
+    expect(lines).toEqual([
+      ' █████╗ ██╗     ██╗     ███████╗███╗   ██╗    ██╗     ██╗ ███╗   ██╗',
+      '██╔══██╗██║     ██║     ██╔════╝████╗  ██║    ██║     ██║ ████╗  ██║',
+      '███████║██║     ██║     █████╗  ██╔██╗ ██║    ██║     ██║ ██╔██╗ ██║',
+      '██╔══██║██║     ██║     ██╔══╝  ██║╚██╗██║    ██║     ██║ ██║╚██╗██║',
+      '██║  ██║███████╗███████╗███████╗██║ ╚████║    ███████╗██║ ██║ ╚████║',
+      '╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚═╝  ╚═══╝    ╚══════╝╚═╝ ╚═╝  ╚═══╝',
+    ]);
+  });
+
+  test('builds the first ASCII block from the first eight columns', () => {
     const expectedFirstBlock = ascii
       .split('\n')
       .slice(0, 6)
-      .map((line) => line.slice(0, 10))
+      .map((line) => line.slice(0, 8))
       .join('\n');
 
     expect(home.buildAsciiFrame(ascii, 0)).toContain(expectedFirstBlock);
   });
 
-  test('composes the complete ASCII artwork after exactly 26 blocks', () => {
-    expect(home.buildAsciiFrame(ascii, 25).trimEnd()).toBe(ascii.trimEnd());
+  test('composes the complete ASCII artwork after exactly nine blocks', () => {
+    expect(home.buildAsciiFrame(ascii, 8).trimEnd()).toBe(ascii.trimEnd());
   });
 
   test('splits the Chipi source into 23 complete 42-line frames', () => {
@@ -48,7 +62,7 @@ describe('ASCII animation controller', () => {
     expect(scheduleTimeout).not.toHaveBeenCalled();
   });
 
-  test('renders all 26 blocks on a 100ms cadence', () => {
+  test('renders all nine blocks on a 100ms cadence', () => {
     const pending: TimeoutCallback[] = [];
     const delays: number[] = [];
     const render = vi.fn();
@@ -64,10 +78,10 @@ describe('ASCII animation controller', () => {
 
     while (pending.length > 0) pending.shift()?.();
 
-    expect(render).toHaveBeenCalledTimes(26);
+    expect(render).toHaveBeenCalledTimes(9);
     expect(render.mock.calls[0]?.[0]).toBe(home.buildAsciiFrame(ascii, 0));
     expect(render.mock.calls.at(-1)?.[0]).toBe(ascii.trimEnd());
-    expect(delays).toEqual(Array.from({ length: 25 }, () => 100));
+    expect(delays).toEqual(Array.from({ length: 8 }, () => 100));
   });
 });
 
@@ -154,5 +168,113 @@ describe('Chipi animation controller', () => {
     expect(visibleFrame).toBe('static frame');
     expect(requestFrame).not.toHaveBeenCalled();
     expect(reportError).toHaveBeenCalledOnce();
+  });
+});
+
+describe('Home reach signal', () => {
+  const liveSnapshot = {
+    periodDays: 30,
+    totalReach: 2468,
+    pageViews: 7135,
+    periodChange: -6.4,
+    dailyReach: Array.from({ length: 30 }, (_, index) => index + 1),
+    updatedAt: '2026-09-02T04:30:00.000Z',
+  };
+
+  test('accepts a complete live reach snapshot from the public stats endpoint', () => {
+    expect(home.parseReachSignalSnapshot(liveSnapshot)).toEqual(liveSnapshot);
+  });
+
+  test.each([
+    { ...liveSnapshot, periodDays: 7 },
+    { ...liveSnapshot, totalReach: -1 },
+    { ...liveSnapshot, pageViews: Number.NaN },
+    { ...liveSnapshot, dailyReach: [1, 2, 3] },
+    { ...liveSnapshot, updatedAt: 'not-a-date' },
+  ])('rejects malformed live reach data', (snapshot) => {
+    expect(home.parseReachSignalSnapshot(snapshot)).toBeNull();
+  });
+
+  test('loads and validates live reach data without exposing endpoint details to the UI', async () => {
+    const reportError = vi.fn();
+    const result = await home.loadReachSignalSnapshot({
+      statsUrl: 'https://reach.example.workers.dev',
+      fetchJson: vi.fn().mockResolvedValue(liveSnapshot),
+      reportError,
+    });
+
+    expect(result).toEqual(liveSnapshot);
+    expect(reportError).not.toHaveBeenCalled();
+  });
+
+  test('keeps sample data when the live endpoint returns an invalid payload', async () => {
+    const reportError = vi.fn();
+    const result = await home.loadReachSignalSnapshot({
+      statsUrl: 'https://reach.example.workers.dev',
+      fetchJson: vi.fn().mockResolvedValue({ pageViews: 99 }),
+      reportError,
+    });
+
+    expect(result).toBeNull();
+    expect(reportError).toHaveBeenCalledOnce();
+  });
+
+  test('builds the approved A plus C flow as a fixed-width text field', () => {
+    const frame = home.buildReachFlowFrame({
+      data: home.REACH_SIGNAL_DATA,
+      columns: 120,
+      phase: 0,
+    });
+    const lines = frame.split('\n');
+
+    expect(lines).toHaveLength(21);
+    expect(lines.every((line) => line.length === 120)).toBe(true);
+    expect(frame).toContain('ALLEN.LIN // PUBLIC REACH SIGNAL');
+    expect(frame).toContain('30D H 97 / L 18 // DENSITY = DAILY REACH');
+  });
+
+  test('formats the quiet market line from the shared reach data', () => {
+    expect(home.buildReachTickerText(home.REACH_SIGNAL_DATA)).toBe(
+      'RCH 1,284  ▲18.0%   │   PVW 3,912   │   30D H 97 / L 18',
+    );
+  });
+
+  test('uses a downward market marker when reach declines', () => {
+    expect(home.buildReachTickerText({
+      ...home.REACH_SIGNAL_DATA,
+      periodChange: -6.4,
+    })).toContain('▼6.4%');
+  });
+
+  test('renders a valid flow when the site has not collected its first visit yet', () => {
+    const frame = home.buildReachFlowFrame({
+      data: {
+        totalReach: 0,
+        pageViews: 0,
+        periodChange: 0,
+        dailyReach: Array.from({ length: 30 }, () => 0),
+      },
+      columns: 80,
+      phase: 0,
+    });
+
+    expect(frame).not.toContain('undefined');
+    expect(frame.split('\n')).toHaveLength(18);
+  });
+
+  test('renders one static reach frame when reduced motion is requested', () => {
+    const render = vi.fn();
+    const requestFrame = vi.fn();
+
+    home.startReachFlowAnimation({
+      reducedMotion: true,
+      render,
+      requestFrame,
+      isHidden: () => false,
+    });
+
+    expect(render).toHaveBeenCalledOnce();
+    expect(render).toHaveBeenCalledWith(0);
+    expect(requestFrame).not.toHaveBeenCalled();
   });
 });
