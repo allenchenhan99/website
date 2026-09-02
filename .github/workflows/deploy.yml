@@ -14,8 +14,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      PUBLIC_UMAMI_SCRIPT_URL: ${{ vars.PUBLIC_UMAMI_SCRIPT_URL }}
-      PUBLIC_UMAMI_WEBSITE_ID: ${{ vars.PUBLIC_UMAMI_WEBSITE_ID }}
       PUBLIC_REACH_STATS_URL: ${{ vars.PUBLIC_REACH_STATS_URL }}
     permissions:
       contents: read
