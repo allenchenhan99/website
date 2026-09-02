@@ -1,106 +1,100 @@
 const PERIOD_DAYS = 30;
+const COUNTER_KEY = 'visitor-counter';
+const COUNTER_NAME = 'global';
+const TIMEZONE = 'Asia/Taipei';
 
-type UmamiStats = {
-  visitors: number;
-  pageviews: number;
-};
-
-type UmamiSeries = {
-  sessions: Array<{ x: string; y: number }>;
+export type CounterState = {
+  totalReach: number;
+  daily: Record<string, number>;
+  updatedAt: string;
 };
 
 export type ReachPayload = {
   periodDays: 30;
   totalReach: number;
-  pageViews: number;
-  periodChange: number;
+  todayReach: number;
   dailyReach: number[];
   updatedAt: string;
 };
 
+type DurableObjectStorageLike = {
+  get<T>(key: string): Promise<T | undefined>;
+  put<T>(key: string, value: T): Promise<void>;
+};
+
+type DurableObjectStateLike = {
+  storage: DurableObjectStorageLike;
+  blockConcurrencyWhile<T>(callback: () => Promise<T>): Promise<T>;
+};
+
+type CounterDependencies = {
+  now: () => number;
+};
+
+type DurableObjectStubLike = {
+  fetch(request: Request): Promise<Response>;
+};
+
+type DurableObjectNamespaceLike = {
+  idFromName(name: string): unknown;
+  get(id: unknown): DurableObjectStubLike;
+};
+
 type WorkerEnvironment = {
-  UMAMI_API_URL?: string;
-  UMAMI_API_KEY?: string;
-  UMAMI_WEBSITE_ID?: string;
-  UMAMI_TIMEZONE?: string;
+  VISITOR_COUNTER?: DurableObjectNamespaceLike;
 };
 
 type WorkerContext = {
   waitUntil(promise: Promise<unknown>): void;
 };
 
-type WorkerDependencies = {
-  fetch: typeof fetch;
-  now: () => number;
-};
+const dateFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: TIMEZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+function dateKey(timestamp: number): string {
+  return dateFormatter.format(new Date(timestamp));
 }
 
-function isCount(value: unknown): value is number {
-  return typeof value === 'number'
-    && Number.isSafeInteger(value)
-    && value >= 0;
+function recentDateKeys(timestamp: number): string[] {
+  const dayMilliseconds = 24 * 60 * 60 * 1_000;
+  return Array.from(
+    { length: PERIOD_DAYS },
+    (_, index) => dateKey(timestamp - (PERIOD_DAYS - index - 1) * dayMilliseconds),
+  );
 }
 
-function parseStats(value: unknown): UmamiStats | null {
-  if (!isRecord(value) || !isCount(value.visitors) || !isCount(value.pageviews)) return null;
-  return { visitors: value.visitors, pageviews: value.pageviews };
-}
-
-function parseSeries(value: unknown): UmamiSeries | null {
-  if (!isRecord(value) || !Array.isArray(value.sessions)) return null;
-
-  const sessions: UmamiSeries['sessions'] = [];
-  for (const point of value.sessions) {
-    if (
-      !isRecord(point)
-      || typeof point.x !== 'string'
-      || !Number.isFinite(Date.parse(point.x))
-      || !isCount(point.y)
-    ) return null;
-    sessions.push({ x: point.x, y: point.y });
-  }
-  return { sessions };
-}
-
-function normalizeDailyReach(sessions: UmamiSeries['sessions']): number[] {
-  const latest = [...sessions]
-    .sort((left, right) => Date.parse(left.x) - Date.parse(right.x))
-    .slice(-PERIOD_DAYS)
-    .map(({ y }) => y);
-  return [
-    ...Array.from({ length: PERIOD_DAYS - latest.length }, () => 0),
-    ...latest,
-  ];
-}
-
-function calculatePeriodChange(current: number, previous: number): number {
-  if (previous === 0) return current === 0 ? 0 : 100;
-  return Math.round(((current - previous) / previous) * 1_000) / 10;
-}
-
-export function buildReachPayload(options: {
-  current: unknown;
-  previous: unknown;
-  series: unknown;
-  updatedAt: string;
-}): ReachPayload {
-  const current = parseStats(options.current);
-  const previous = parseStats(options.previous);
-  const series = parseSeries(options.series);
-  if (!current || !previous || !series) {
-    throw new Error('Invalid Umami statistics response');
-  }
+export function recordVisit(state: CounterState | undefined, timestamp: number): CounterState {
+  const keys = recentDateKeys(timestamp);
+  const retainedKeys = new Set(keys);
+  const daily = Object.fromEntries(
+    Object.entries(state?.daily ?? {}).filter(([key]) => retainedKeys.has(key)),
+  );
+  const today = keys.at(-1)!;
+  daily[today] = (daily[today] ?? 0) + 1;
 
   return {
+    totalReach: (state?.totalReach ?? 0) + 1,
+    daily,
+    updatedAt: new Date(timestamp).toISOString(),
+  };
+}
+
+export function buildReachSnapshot(
+  state: CounterState | undefined,
+  timestamp: number,
+): ReachPayload {
+  const keys = recentDateKeys(timestamp);
+  const dailyReach = keys.map((key) => state?.daily[key] ?? 0);
+  return {
     periodDays: PERIOD_DAYS,
-    totalReach: current.visitors,
-    pageViews: current.pageviews,
-    periodChange: calculatePeriodChange(current.visitors, previous.visitors),
-    dailyReach: normalizeDailyReach(series.sessions),
-    updatedAt: options.updatedAt,
+    totalReach: state?.totalReach ?? 0,
+    todayReach: dailyReach.at(-1) ?? 0,
+    dailyReach,
+    updatedAt: state?.updatedAt ?? new Date(timestamp).toISOString(),
   };
 }
 
@@ -109,119 +103,96 @@ function jsonResponse(body: unknown, status = 200): Response {
     status,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=86400',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Accept, Content-Type',
+      'Cache-Control': 'no-store',
     },
   });
 }
 
-function createUmamiUrl(options: {
-  apiUrl: string;
-  websiteId: string;
-  resource: 'stats' | 'pageviews';
-  startAt: number;
-  endAt: number;
-  timezone: string;
-}): URL {
-  const base = options.apiUrl.replace(/\/$/, '');
-  const url = new URL(`${base}/websites/${encodeURIComponent(options.websiteId)}/${options.resource}`);
-  url.searchParams.set('startAt', String(options.startAt));
-  url.searchParams.set('endAt', String(options.endAt));
-  if (options.resource === 'pageviews') {
-    url.searchParams.set('unit', 'day');
-    url.searchParams.set('timezone', options.timezone);
-  }
-  return url;
-}
+export class VisitorCounter {
+  private counter: CounterState | undefined;
+  private readonly ready: Promise<void>;
+  private writeQueue: Promise<unknown> = Promise.resolve();
+  private readonly now: () => number;
 
-async function readJson(response: Response): Promise<unknown> {
-  if (!response.ok) throw new Error(`Umami request returned ${response.status}`);
-  return response.json() as Promise<unknown>;
+  constructor(
+    private readonly state: DurableObjectStateLike,
+    dependencies: Partial<CounterDependencies> = {},
+  ) {
+    this.now = dependencies.now ?? Date.now;
+    this.ready = state.blockConcurrencyWhile(async () => {
+      this.counter = await state.storage.get<CounterState>(COUNTER_KEY);
+    });
+  }
+
+  async fetch(request: Request): Promise<Response> {
+    await this.ready;
+    if (request.method === 'GET') {
+      await this.writeQueue;
+      return jsonResponse(buildReachSnapshot(this.counter, this.now()));
+    }
+    if (request.method !== 'POST') {
+      return jsonResponse({ error: 'Method not allowed' }, 405);
+    }
+
+    const update = this.writeQueue.then(async () => {
+      const next = recordVisit(this.counter, this.now());
+      await this.state.storage.put(COUNTER_KEY, next);
+      this.counter = next;
+      return buildReachSnapshot(next, this.now());
+    });
+    this.writeQueue = update.then(() => undefined, () => undefined);
+
+    try {
+      return jsonResponse(await update);
+    } catch (error) {
+      console.error('Unable to persist the visitor count:', error);
+      return jsonResponse({ error: 'Visitor counter is unavailable' }, 503);
+    }
+  }
 }
 
 export async function handleReachRequest(
   request: Request,
   environment: WorkerEnvironment,
-  dependencies: WorkerDependencies = { fetch, now: Date.now },
 ): Promise<Response> {
-  if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Accept',
-      },
-    });
+  if (request.method === 'OPTIONS') return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Accept, Content-Type',
+    },
+  });
+  if (request.method !== 'GET' && request.method !== 'POST') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
   }
-  if (request.method !== 'GET') return jsonResponse({ error: 'Method not allowed' }, 405);
-
-  const apiUrl = environment.UMAMI_API_URL?.trim();
-  const apiKey = environment.UMAMI_API_KEY?.trim();
-  const websiteId = environment.UMAMI_WEBSITE_ID?.trim();
-  if (!apiUrl || !apiKey || !websiteId) {
-    return jsonResponse({ error: 'Analytics service is not configured' }, 503);
+  if (!environment.VISITOR_COUNTER) {
+    return jsonResponse({ error: 'Visitor counter is not configured' }, 503);
   }
-
-  const endAt = dependencies.now();
-  const periodMilliseconds = PERIOD_DAYS * 24 * 60 * 60 * 1_000;
-  const currentStartAt = endAt - periodMilliseconds;
-  const previousStartAt = currentStartAt - periodMilliseconds;
-  const timezone = environment.UMAMI_TIMEZONE?.trim() || 'Asia/Taipei';
-  const headers = { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' };
 
   try {
-    const [currentResponse, previousResponse, seriesResponse] = await Promise.all([
-      dependencies.fetch(createUmamiUrl({
-        apiUrl,
-        websiteId,
-        resource: 'stats',
-        startAt: currentStartAt,
-        endAt,
-        timezone,
-      }), { headers }),
-      dependencies.fetch(createUmamiUrl({
-        apiUrl,
-        websiteId,
-        resource: 'stats',
-        startAt: previousStartAt,
-        endAt: currentStartAt,
-        timezone,
-      }), { headers }),
-      dependencies.fetch(createUmamiUrl({
-        apiUrl,
-        websiteId,
-        resource: 'pageviews',
-        startAt: currentStartAt,
-        endAt,
-        timezone,
-      }), { headers }),
-    ]);
-    const payload = buildReachPayload({
-      current: await readJson(currentResponse),
-      previous: await readJson(previousResponse),
-      series: await readJson(seriesResponse),
-      updatedAt: new Date(endAt).toISOString(),
-    });
-    return jsonResponse(payload);
+    const namespace = environment.VISITOR_COUNTER;
+    const id = namespace.idFromName(COUNTER_NAME);
+    const response = await namespace.get(id).fetch(new Request('https://counter.internal/', {
+      method: request.method,
+      headers: { Accept: 'application/json' },
+    }));
+    const headers = new Headers(response.headers);
+    headers.set('Access-Control-Allow-Origin', '*');
+    headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    headers.set('Access-Control-Allow-Headers', 'Accept, Content-Type');
+    headers.set('Cache-Control', 'no-store');
+    return new Response(response.body, { status: response.status, headers });
   } catch (error) {
-    console.error('Unable to read Umami reach statistics:', error);
-    return jsonResponse({ error: 'Analytics service is unavailable' }, 502);
+    console.error('Unable to read the visitor counter:', error);
+    return jsonResponse({ error: 'Visitor counter is unavailable' }, 502);
   }
-}
-
-function defaultCache(): Cache | undefined {
-  const cacheStorage = globalThis.caches as CacheStorage & { default?: Cache };
-  return cacheStorage?.default;
 }
 
 export default {
-  async fetch(request: Request, environment: WorkerEnvironment, context: WorkerContext): Promise<Response> {
-    const cache = request.method === 'GET' ? defaultCache() : undefined;
-    const cached = await cache?.match(request);
-    if (cached) return cached;
-
-    const response = await handleReachRequest(request, environment);
-    if (cache && response.ok) context.waitUntil(cache.put(request, response.clone()));
-    return response;
+  fetch(request: Request, environment: WorkerEnvironment, _context: WorkerContext): Promise<Response> {
+    return handleReachRequest(request, environment);
   },
 };
