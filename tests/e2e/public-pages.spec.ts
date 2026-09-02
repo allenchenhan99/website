@@ -217,9 +217,15 @@ test('integrates the A plus C reach signal into Home', async ({ page }) => {
   const signal = page.locator('.reach-signal');
   const ticker = signal.locator('[data-reach-ticker]');
   await expect(signal).toBeVisible();
-  await expect(ticker).toContainText('RCH —');
   await expect(ticker).not.toContainText('PVW');
-  await expect(signal.locator('[data-reach-source]')).toHaveText('counter unavailable');
+  const source = signal.locator('[data-reach-source]');
+  await expect.poll(async () => source.textContent()).toMatch(/live counter|counter unavailable/);
+  if ((await source.textContent())?.includes('live counter')) {
+    await expect(ticker).toContainText(/RCH [\d,]+/);
+    await expect(ticker).toContainText(/TODAY [\d,]+/);
+  } else {
+    await expect(ticker).toContainText('RCH —');
+  }
   await expect(page.locator('.categories')).toHaveCount(0);
 
   const desktop = await signal.evaluate((section) => {

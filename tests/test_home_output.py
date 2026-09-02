@@ -1,5 +1,6 @@
 from html.parser import HTMLParser
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -96,9 +97,12 @@ class HomeOutputParser(HTMLParser):
 class HomeOutputTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        environment = os.environ.copy()
+        environment["PUBLIC_REACH_STATS_URL"] = ""
         cls.build = subprocess.run(
             ["npm", "run", "build"],
             cwd=ROOT,
+            env=environment,
             check=True,
             capture_output=True,
             text=True,
