@@ -11,8 +11,7 @@ const REACH_FLOW_INTERVAL_MS = 105;
 
 export type ReachSignalData = {
   totalReach: number;
-  pageViews: number;
-  periodChange: number;
+  todayReach: number;
   dailyReach: readonly number[];
 };
 
@@ -22,10 +21,9 @@ export type ReachSignalSnapshot = ReachSignalData & {
 };
 
 export const REACH_SIGNAL_DATA: ReachSignalData = {
-  totalReach: 1284,
-  pageViews: 3912,
-  periodChange: 18,
-  dailyReach: [18, 22, 20, 29, 31, 27, 35, 38, 34, 41, 36, 44, 47, 43, 52, 49, 58, 54, 63, 67, 61, 72, 69, 77, 74, 83, 79, 88, 92, 97],
+  totalReach: 0,
+  todayReach: 0,
+  dailyReach: Array.from({ length: 30 }, () => 0),
 };
 
 export function buildAsciiFrame(source: string, blockIndex: number): string {
@@ -78,9 +76,7 @@ export function parseReachSignalSnapshot(value: unknown): ReachSignalSnapshot | 
   if (
     value.periodDays !== 30
     || !isCount(value.totalReach)
-    || !isCount(value.pageViews)
-    || typeof value.periodChange !== 'number'
-    || !Number.isFinite(value.periodChange)
+    || !isCount(value.todayReach)
     || !Array.isArray(dailyReach)
     || dailyReach.length !== 30
     || !dailyReach.every(isCount)
@@ -91,8 +87,7 @@ export function parseReachSignalSnapshot(value: unknown): ReachSignalSnapshot | 
   return {
     periodDays: 30,
     totalReach: value.totalReach,
-    pageViews: value.pageViews,
-    periodChange: value.periodChange,
+    todayReach: value.todayReach,
     dailyReach,
     updatedAt: value.updatedAt,
   };
@@ -100,13 +95,28 @@ export function parseReachSignalSnapshot(value: unknown): ReachSignalSnapshot | 
 
 export async function loadReachSignalSnapshot(options: {
   statsUrl: string;
-  fetchJson: (statsUrl: string) => Promise<unknown>;
+  registerVisit: boolean;
+  hasCountedVisit: () => boolean;
+  markVisitCounted: () => void;
+  fetchJson: (statsUrl: string, method: 'GET' | 'POST') => Promise<unknown>;
   reportError: (error: unknown) => void;
 }): Promise<ReachSignalSnapshot | null> {
-  const { statsUrl, fetchJson, reportError } = options;
+  const {
+    statsUrl,
+    registerVisit,
+    hasCountedVisit,
+    markVisitCounted,
+    fetchJson,
+    reportError,
+  } = options;
   try {
-    const snapshot = parseReachSignalSnapshot(await fetchJson(statsUrl));
+    const shouldIncrement = registerVisit && !hasCountedVisit();
+    const snapshot = parseReachSignalSnapshot(await fetchJson(
+      statsUrl,
+      shouldIncrement ? 'POST' : 'GET',
+    ));
     if (!snapshot) throw new Error('Reach endpoint returned an invalid payload');
+    if (shouldIncrement) markVisitCounted();
     return snapshot;
   } catch (error) {
     reportError(error);
@@ -178,9 +188,7 @@ export function buildReachFlowFrame(options: {
 export function buildReachTickerText(data: ReachSignalData): string {
   const high = Math.max(...data.dailyReach);
   const low = Math.min(...data.dailyReach);
-  const direction = data.periodChange > 0 ? '▲' : data.periodChange < 0 ? '▼' : '—';
-  const change = Math.abs(data.periodChange).toFixed(1);
-  return `RCH ${data.totalReach.toLocaleString('en-US')}  ${direction}${change}%   │   PVW ${data.pageViews.toLocaleString('en-US')}   │   30D H ${high} / L ${low}`;
+  return `RCH ${data.totalReach.toLocaleString('en-US')}   │   TODAY ${data.todayReach.toLocaleString('en-US')}   │   30D H ${high} / L ${low}`;
 }
 
 export function startReachFlowAnimation(options: {
@@ -318,8 +326,9 @@ async function fetchChipiText(sourceUrl: string): Promise<string> {
   return response.text();
 }
 
-async function fetchReachJson(statsUrl: string): Promise<unknown> {
+async function fetchReachJson(statsUrl: string, method: 'GET' | 'POST'): Promise<unknown> {
   const response = await fetch(statsUrl, {
+    method,
     headers: { Accept: 'application/json' },
   });
   if (!response.ok) throw new Error(`Reach endpoint returned ${response.status}`);
@@ -363,7 +372,6 @@ function initializeReachSignal() {
   if (!target || !ticker || !surface) return;
 
   let currentData: ReachSignalData = REACH_SIGNAL_DATA;
-  ticker.textContent = buildReachTickerText(currentData);
   let currentPhase = 0;
   const render = (phase: number) => {
     currentPhase = phase;
@@ -392,6 +400,21 @@ function initializeReachSignal() {
   if (statsUrl) {
     void loadReachSignalSnapshot({
       statsUrl,
+      registerVisit: window.location.hostname === 'allenchenhan99.github.io',
+      hasCountedVisit: () => {
+        try {
+          return window.localStorage.getItem('allenlin-reach-counted-v1') === '1';
+        } catch {
+          return true;
+        }
+      },
+      markVisitCounted: () => {
+        try {
+          window.localStorage.setItem('allenlin-reach-counted-v1', '1');
+        } catch {
+          // Storage can be unavailable in strict privacy modes; avoid blocking the live count.
+        }
+      },
       fetchJson: fetchReachJson,
       reportError: (error) => console.error('Unable to load the public reach signal:', error),
     }).then((snapshot) => {
@@ -399,7 +422,7 @@ function initializeReachSignal() {
       currentData = snapshot;
       ticker.textContent = buildReachTickerText(snapshot);
       if (source) {
-        source.textContent = `live data · ${snapshot.periodDays} days`;
+        source.textContent = `live counter · ${snapshot.periodDays} days`;
         source.dataset.reachState = 'live';
       }
       render(currentPhase);

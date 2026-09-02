@@ -217,8 +217,9 @@ test('integrates the A plus C reach signal into Home', async ({ page }) => {
   const signal = page.locator('.reach-signal');
   const ticker = signal.locator('[data-reach-ticker]');
   await expect(signal).toBeVisible();
-  await expect(ticker).toContainText('RCH 1,284');
-  await expect(ticker).toContainText('PVW 3,912');
+  await expect(ticker).toContainText('RCH —');
+  await expect(ticker).not.toContainText('PVW');
+  await expect(signal.locator('[data-reach-source]')).toHaveText('counter unavailable');
   await expect(page.locator('.categories')).toHaveCount(0);
 
   const desktop = await signal.evaluate((section) => {

@@ -175,8 +175,7 @@ describe('Home reach signal', () => {
   const liveSnapshot = {
     periodDays: 30,
     totalReach: 2468,
-    pageViews: 7135,
-    periodChange: -6.4,
+    todayReach: 30,
     dailyReach: Array.from({ length: 30 }, (_, index) => index + 1),
     updatedAt: '2026-09-02T04:30:00.000Z',
   };
@@ -188,34 +187,74 @@ describe('Home reach signal', () => {
   test.each([
     { ...liveSnapshot, periodDays: 7 },
     { ...liveSnapshot, totalReach: -1 },
-    { ...liveSnapshot, pageViews: Number.NaN },
+    { ...liveSnapshot, todayReach: Number.NaN },
     { ...liveSnapshot, dailyReach: [1, 2, 3] },
     { ...liveSnapshot, updatedAt: 'not-a-date' },
   ])('rejects malformed live reach data', (snapshot) => {
     expect(home.parseReachSignalSnapshot(snapshot)).toBeNull();
   });
 
-  test('loads and validates live reach data without exposing endpoint details to the UI', async () => {
+  test('registers an uncounted production browser once and marks it only after success', async () => {
     const reportError = vi.fn();
+    const markVisitCounted = vi.fn();
+    const fetchJson = vi.fn().mockResolvedValue(liveSnapshot);
     const result = await home.loadReachSignalSnapshot({
       statsUrl: 'https://reach.example.workers.dev',
-      fetchJson: vi.fn().mockResolvedValue(liveSnapshot),
+      registerVisit: true,
+      hasCountedVisit: () => false,
+      markVisitCounted,
+      fetchJson,
       reportError,
     });
 
     expect(result).toEqual(liveSnapshot);
+    expect(fetchJson).toHaveBeenCalledWith('https://reach.example.workers.dev', 'POST');
+    expect(markVisitCounted).toHaveBeenCalledOnce();
     expect(reportError).not.toHaveBeenCalled();
   });
 
-  test('keeps sample data when the live endpoint returns an invalid payload', async () => {
+  test('reads without incrementing for a counted browser or localhost', async () => {
+    const fetchJson = vi.fn().mockResolvedValue(liveSnapshot);
+    const markVisitCounted = vi.fn();
+
+    await home.loadReachSignalSnapshot({
+      statsUrl: 'https://reach.example.workers.dev',
+      registerVisit: false,
+      hasCountedVisit: () => false,
+      markVisitCounted,
+      fetchJson,
+      reportError: vi.fn(),
+    });
+    await home.loadReachSignalSnapshot({
+      statsUrl: 'https://reach.example.workers.dev',
+      registerVisit: true,
+      hasCountedVisit: () => true,
+      markVisitCounted,
+      fetchJson,
+      reportError: vi.fn(),
+    });
+
+    expect(fetchJson.mock.calls).toEqual([
+      ['https://reach.example.workers.dev', 'GET'],
+      ['https://reach.example.workers.dev', 'GET'],
+    ]);
+    expect(markVisitCounted).not.toHaveBeenCalled();
+  });
+
+  test('does not mark a browser when the counter returns an invalid payload', async () => {
     const reportError = vi.fn();
+    const markVisitCounted = vi.fn();
     const result = await home.loadReachSignalSnapshot({
       statsUrl: 'https://reach.example.workers.dev',
-      fetchJson: vi.fn().mockResolvedValue({ pageViews: 99 }),
+      registerVisit: true,
+      hasCountedVisit: () => false,
+      markVisitCounted,
+      fetchJson: vi.fn().mockResolvedValue({ totalReach: 99 }),
       reportError,
     });
 
     expect(result).toBeNull();
+    expect(markVisitCounted).not.toHaveBeenCalled();
     expect(reportError).toHaveBeenCalledOnce();
   });
 
@@ -230,28 +269,29 @@ describe('Home reach signal', () => {
     expect(lines).toHaveLength(21);
     expect(lines.every((line) => line.length === 120)).toBe(true);
     expect(frame).toContain('ALLEN.LIN // PUBLIC REACH SIGNAL');
-    expect(frame).toContain('30D H 97 / L 18 // DENSITY = DAILY REACH');
+    expect(frame).toContain('30D H 0 / L 0 // DENSITY = DAILY REACH');
   });
 
   test('formats the quiet market line from the shared reach data', () => {
     expect(home.buildReachTickerText(home.REACH_SIGNAL_DATA)).toBe(
-      'RCH 1,284  ▲18.0%   │   PVW 3,912   │   30D H 97 / L 18',
+      'RCH 0   │   TODAY 0   │   30D H 0 / L 0',
     );
   });
 
-  test('uses a downward market marker when reach declines', () => {
+  test('shows the current daily reach without a page-view metric', () => {
     expect(home.buildReachTickerText({
       ...home.REACH_SIGNAL_DATA,
-      periodChange: -6.4,
-    })).toContain('▼6.4%');
+      totalReach: 2468,
+      todayReach: 30,
+      dailyReach: Array.from({ length: 30 }, (_, index) => index + 1),
+    })).toBe('RCH 2,468   │   TODAY 30   │   30D H 30 / L 1');
   });
 
   test('renders a valid flow when the site has not collected its first visit yet', () => {
     const frame = home.buildReachFlowFrame({
       data: {
         totalReach: 0,
-        pageViews: 0,
-        periodChange: 0,
+        todayReach: 0,
         dailyReach: Array.from({ length: 30 }, () => 0),
       },
       columns: 80,

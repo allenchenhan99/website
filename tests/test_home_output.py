@@ -190,14 +190,16 @@ class HomeOutputTest(unittest.TestCase):
         self.assertIn("widths={[320, 640, 960, 1280]}", page)
         self.assertIn("min(50vw, 544px)", page)
 
-    def test_prerenders_the_reach_signal_shell_and_sample_market_line(self):
+    def test_prerenders_the_reach_signal_shell_without_fake_analytics(self):
         self.assertIn('class="reach-signal"', self.html)
         self.assertIn('data-reach-flow', self.html)
         self.assertIn('data-reach-ticker', self.html)
         self.assertIn('data-reach-source', self.html)
-        self.assertIn("RCH 1,284", self.html)
-        self.assertIn("PVW 3,912", self.html)
-        self.assertIn("sample data", self.html)
+        self.assertIn("RCH —", self.html)
+        self.assertIn("counter unavailable", self.html)
+        self.assertNotIn("RCH 1,284", self.html)
+        self.assertNotIn("PVW 3,912", self.html)
+        self.assertNotIn("sample data", self.html)
 
     def test_embeds_exact_ascii_source_but_leaves_target_empty(self):
         ascii_source = (ROOT / "asciiArt.txt").read_text(encoding="utf-8")

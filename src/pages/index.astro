@@ -103,11 +103,11 @@ const reachStatsUrl = import.meta.env.PUBLIC_REACH_STATS_URL?.trim();
           <h2 id="reach-signal-heading">Site reach signal</h2>
           <p>A public trace of how far this small corner has travelled.</p>
         </div>
-        <span data-reach-source>sample data · 30 days</span>
+        <span data-reach-source>{reachStatsUrl ? "connecting · live counter" : "counter unavailable"}</span>
       </header>
       <figure class="reach-signal-surface" data-reach-surface>
         <pre class="reach-flow" data-reach-flow aria-hidden="true"></pre>
-        <div class="reach-ticker" data-reach-ticker aria-label="Reach market summary">RCH 1,284&nbsp; ▲18.0% &nbsp;│&nbsp; PVW 3,912 &nbsp;│&nbsp; 30D H 97 / L 18</div>
+        <div class="reach-ticker" data-reach-ticker aria-label="Reach market summary">RCH — &nbsp;│&nbsp; TODAY — &nbsp;│&nbsp; 30D H — / L —</div>
         <figcaption class="reach-signal-status">
           <span>30D AGO</span>
           <span>character density = daily reach</span>
