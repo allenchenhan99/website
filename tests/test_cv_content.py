@@ -6,6 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CV_HTML = ROOT / "src" / "pages" / "cv.astro"
+CV_CSS = ROOT / "src" / "styles" / "cv.css"
+RESPONSIVE_CSS = ROOT / "src" / "styles" / "responsive.css"
 CV_LANGUAGE = ROOT / "src" / "scripts" / "cv-language.ts"
 BASE_LAYOUT = ROOT / "src" / "layouts" / "BaseLayout.astro"
 ENGLISH_PDF = ROOT / "public" / "cv_pdf" / "English_CV.pdf"
@@ -40,8 +42,6 @@ class CvContentTest(unittest.TestCase):
             "WorldQuant International Quant Championship",
             "4th Place in Taiwan",
             "5,164 alpha expressions",
-            "AI Engineering & Agentic Workflows",
-            "Software Engineering & Infrastructure",
         ]
         for text in required:
             with self.subTest(text=text):
@@ -85,9 +85,6 @@ class CvContentTest(unittest.TestCase):
             "從原始資料到研究結論的完整流程",
             "校準曲線",
             "台灣第四名",
-            "量化研究",
-            "AI 工程與代理工作流程",
-            "軟體工程與基礎設施",
         ]
         for text in required:
             with self.subTest(text=text):
@@ -125,33 +122,53 @@ class CvContentTest(unittest.TestCase):
             '2026/03 – <span data-lang="en">Present</span>',
             "Financial Data Infrastructure",
             "金融資料基礎建設",
+            "Technical Skills",
+            "技術能力",
+            "AI Engineering & Agentic Workflows",
+            "Software Engineering & Infrastructure",
+            "AI 工程與代理工作流程",
+            "軟體工程與基礎設施",
         ]
         for text in removed:
             with self.subTest(text=text):
                 self.assertNotIn(text, self.content)
 
-    def test_keeps_cv_links_current(self):
-        self.assertIn("+886 978 261 955", self.content)
-        self.assertIn("https://allenchenhan99.github.io/website/", self.content)
+    def test_keeps_only_the_requested_cv_contact_links(self):
+        self.assertIn("allenchenhan99@gmail.com", self.content)
+        self.assertIn("https://github.com/allenchenhan99", self.content)
         self.assertIn(
             "https://www.linkedin.com/in/chen-han-lin-488492344/",
             self.content,
         )
-        self.assertEqual(self.content.count("cv_pdf/English_CV.pdf"), 1)
-        self.assertEqual(self.content.count("cv_pdf/Chinese_CV.pdf"), 1)
-        self.assertIn('withBase("cv_pdf/English_CV.pdf")', self.content)
-        self.assertIn('withBase("cv_pdf/Chinese_CV.pdf")', self.content)
-        self.assertNotIn("'Download PDF'", self.content)
+        self.assertNotIn("+886 978 261 955", self.content)
+        self.assertNotIn("https://allenchenhan99.github.io/website/", self.content)
+        self.assertNotIn(">Portfolio</a>", self.content)
+        self.assertNotIn("View PDF", self.content)
+        self.assertNotIn("查看 PDF", self.content)
+        self.assertNotIn("cv_pdf/", self.content)
+        self.assertNotIn("withBase", self.content)
 
-    def test_publishes_new_english_pdf_and_preserves_chinese_pdf_link(self):
+    def test_preserves_cv_pdf_files_without_rendering_view_links(self):
         english_pdf_sha256 = hashlib.sha256(ENGLISH_PDF.read_bytes()).hexdigest()
         chinese_pdf_sha256 = hashlib.sha256(CHINESE_PDF.read_bytes()).hexdigest()
 
+        self.assertTrue(ENGLISH_PDF.exists())
         self.assertTrue(CHINESE_PDF.exists())
         self.assertEqual(chinese_pdf_sha256, OLD_CHINESE_PDF_SHA256)
         self.assertEqual(english_pdf_sha256, NEW_ENGLISH_PDF_SHA256)
-        self.assertIn('withBase("cv_pdf/English_CV.pdf")', self.content)
-        self.assertIn('withBase("cv_pdf/Chinese_CV.pdf")', self.content)
+        self.assertNotIn('withBase("cv_pdf/English_CV.pdf")', self.content)
+        self.assertNotIn('withBase("cv_pdf/Chinese_CV.pdf")', self.content)
+
+    def test_removes_the_technical_skills_section_and_obsolete_styles(self):
+        css = CV_CSS.read_text(encoding="utf-8") + RESPONSIVE_CSS.read_text(encoding="utf-8")
+
+        for text in ("Technical Skills", "技術能力", "skills-group", "skills-tags", "skill-tag"):
+            with self.subTest(text=text):
+                self.assertNotIn(text, self.content)
+
+        for selector in (".skills-group", ".skills-tags", ".skill-tag", ".pdf-btn", ".pdf-links", ".pdf-card", ".pdf-icon"):
+            with self.subTest(selector=selector):
+                self.assertNotIn(selector, css)
 
     def test_uses_static_bilingual_markup_without_vue_interpolation(self):
         self.assertIn('data-lang="en"', self.content)

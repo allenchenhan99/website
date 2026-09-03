@@ -170,22 +170,6 @@ body {
     background-color: var(--accent-dim);
 }
 
-.pdf-btn {
-    display: inline-block;
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 13px;
-    text-decoration: none;
-    padding: 6px 16px;
-    border-radius: 6px;
-    transition: background-color 0.2s;
-}
-
-.pdf-btn:hover {
-    background-color: var(--hover);
-}
-
 /* ===== Section ===== */
 .cv-section {
     margin-bottom: 36px;
@@ -272,73 +256,6 @@ body {
     margin-bottom: 6px;
 }
 
-/* ===== Skills ===== */
-.skills-group {
-    margin-bottom: 20px;
-}
-
-.skills-group:last-child {
-    margin-bottom: 0;
-}
-
-.skills-group h3 {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 10px;
-}
-
-.skills-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.skill-tag {
-    display: inline-block;
-    padding: 5px 14px;
-    background: var(--accent-dim);
-    border: 1px solid var(--accent-border);
-    border-radius: 5px;
-    font-size: 13px;
-    font-family: inherit;
-    color: var(--accent);
-    transition: background-color 0.2s;
-}
-
-.skill-tag:hover {
-    background: var(--accent-border);
-}
-
-/* ===== PDF Download Section ===== */
-.pdf-links {
-    display: flex;
-    gap: 16px;
-}
-
-.pdf-card {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    text-decoration: none;
-    color: var(--text);
-    font-size: 14px;
-    transition: background-color 0.2s, border-color 0.2s;
-}
-
-.pdf-card:hover {
-    background: var(--hover);
-    border-color: var(--accent-border);
-}
-
-.pdf-icon {
-    font-size: 28px;
-}
-
 /* ===== Responsive ===== */
 @media screen and (max-width: 768px) {
     .navbar {
@@ -370,9 +287,6 @@ body {
         font-size: 14px;
     }
 
-    .pdf-links {
-        flex-direction: column;
-    }
 }
 
 @media screen and (max-width: 375px) {

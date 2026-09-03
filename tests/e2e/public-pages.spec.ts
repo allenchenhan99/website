@@ -79,6 +79,14 @@ test('switches the CV from English to Chinese', async ({ page }) => {
   await page.reload();
 
   await expect(page.getByRole('heading', { name: 'Chen-Han Lin' })).toBeVisible();
+  await expect(page.getByText('allenchenhan99@gmail.com')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeVisible();
+  await expect(page.getByText('+886 978 261 955')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Portfolio', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /View PDF|查看 PDF/ })).toHaveCount(0);
+  await expect(page.getByText('Technical Skills', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('技術能力', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: /中文/ }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant');
   await expect(page.getByRole('heading', { name: '林辰翰' })).toBeVisible();

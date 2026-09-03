@@ -77,7 +77,6 @@ canvas {
 .grid-card,
 .featured,
 .text-container,
-.pdf-card,
 .timeline-content,
 .list-body,
 .featured-body,
@@ -248,8 +247,7 @@ canvas {
         align-items: stretch;
     }
 
-    .lang-toggle,
-    .pdf-btn {
+    .lang-toggle {
         text-align: center;
     }
 
