@@ -4,12 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https:; script-src 'self'; style-src 'self'; connect-src https://api.github.com; base-uri 'none'; form-action 'self'">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
     <title>Content Desk | Allen Lin</title>
-    <link rel="stylesheet" href="/admin.css">
-    <script src="/admin.js" defer></script>
+    <link rel="stylesheet" href="./admin.css">
+    <script type="module" src="./admin.js"></script>
   </head>
   <body>
-    <header class="topbar">
+    <section id="login" class="login-screen" aria-labelledby="login-title">
+      <form id="login-form" class="login-card">
+        <div class="login-prompt" aria-hidden="true">&gt;_</div>
+        <span class="eyebrow">ALLEN LIN / CONTENT DESK</span>
+        <h1 id="login-title">Connect GitHub</h1>
+        <p>Use a fine-grained Personal Access Token limited to the <strong>website</strong> repository.</p>
+        <label>GitHub Personal Access Token
+          <input id="token-input" name="token" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="github_pat_…" required>
+        </label>
+        <label class="remember-option">
+          <input id="remember-device" name="remember" type="checkbox">
+          <span>Remember this device</span>
+        </label>
+        <p id="login-error" class="login-error" role="alert" aria-live="polite"></p>
+        <button id="connect-token" class="publish-button" type="submit">Connect to GitHub →</button>
+        <div class="login-help">
+          <span>The token is sent only to api.github.com.</span>
+          <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">Create a fine-grained token ↗</a>
+        </div>
+      </form>
+    </section>
+
+    <header class="topbar" hidden>
       <div class="wordmark">
         <span class="prompt" aria-hidden="true">&gt;_</span>
         <span>ALLEN LIN</span>
@@ -17,12 +42,13 @@
       </div>
       <div class="session">
         <span class="status-dot" aria-hidden="true"></span>
-        <span id="identity">Verifying session…</span>
+        <span id="identity">GitHub connected</span>
         <a href="https://allenchenhan99.github.io/website/" target="_blank" rel="noreferrer">View site ↗</a>
+        <button id="logout" class="session-button" type="button">Logout</button>
       </div>
     </header>
 
-    <main class="workspace" aria-busy="true">
+    <main class="workspace" aria-busy="false" hidden>
       <aside class="library">
         <div class="library-tabs" role="tablist" aria-label="Content type">
           <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="perfume">Perfume</button>
@@ -58,7 +84,7 @@
                   <span class="image-placeholder">
                     <b>Drop a bottle image</b>
                     <small>JPG, PNG or WebP · max 5 MB</small>
-                    <small>Full image preserved · optimized on upload</small>
+                    <small>Crop and position before upload</small>
                   </span>
                   <input id="perfume-image" name="image" type="file" accept="image/jpeg,image/png,image/webp">
                 </label>
@@ -129,7 +155,7 @@
               <div class="image-control">
                 <label class="image-field" for="music-image">
                   <img id="music-preview" alt="Selected music cover preview" hidden>
-                  <span class="image-placeholder"><b>Drop a cover image</b><small>JPG, PNG or WebP · max 5 MB</small></span>
+                  <span class="image-placeholder"><b>Drop a cover image</b><small>JPG, PNG or WebP · max 5 MB</small><small>Crop and position before upload</small></span>
                   <input id="music-image" name="image" type="file" accept="image/jpeg,image/png,image/webp">
                 </label>
                 <button id="clear-music-image" class="clear-image" type="button" hidden>Remove cover</button>
@@ -155,8 +181,41 @@
       </section>
     </main>
 
-    <div id="loading" class="loading-screen">
-      <span class="terminal-loader">&gt; verifying Cloudflare Access<span>_</span></span>
+    <dialog id="crop-dialog" class="crop-dialog" aria-labelledby="crop-title">
+      <div class="crop-shell">
+        <header class="crop-header">
+          <div>
+            <span class="eyebrow">IMAGE EDITOR / <span id="crop-aspect">4 : 5 PORTRAIT</span></span>
+            <h2 id="crop-title">Crop perfume image</h2>
+          </div>
+          <button id="crop-close" class="crop-close" type="button" aria-label="Close image editor">×</button>
+        </header>
+        <div class="crop-workspace">
+          <div class="crop-frame">
+            <canvas id="crop-canvas" width="424" height="530" aria-label="Image crop preview"></canvas>
+            <span class="crop-corner crop-corner-top-left" aria-hidden="true"></span>
+            <span class="crop-corner crop-corner-top-right" aria-hidden="true"></span>
+            <span class="crop-corner crop-corner-bottom-left" aria-hidden="true"></span>
+            <span class="crop-corner crop-corner-bottom-right" aria-hidden="true"></span>
+          </div>
+          <p>Drag the image to position it inside the frame.</p>
+        </div>
+        <div class="crop-controls">
+          <span aria-hidden="true">−</span>
+          <label for="crop-zoom">Zoom</label>
+          <input id="crop-zoom" type="range" min="1" max="3" step="0.01" value="1">
+          <span aria-hidden="true">＋</span>
+          <output id="crop-zoom-value" for="crop-zoom">100%</output>
+        </div>
+        <footer class="crop-actions">
+          <button id="crop-cancel" class="danger-button" type="button">Cancel</button>
+          <button id="crop-apply" class="publish-button" type="button">Use crop →</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <div id="loading" class="loading-screen" hidden>
+      <span class="terminal-loader">&gt; connecting to GitHub<span>_</span></span>
     </div>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </body>

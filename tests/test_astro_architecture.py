@@ -17,7 +17,13 @@ LEGACY_PUBLIC_FILES = (
     "js/music.js",
     "js/perfume.js",
 )
-WORKER_ADMIN_FILES = ("public/index.html", "public/admin.css", "public/admin.js")
+PAGES_ADMIN_FILES = (
+    "index.html",
+    "admin.css",
+    "admin.js",
+    "github-client.js",
+    "image-crop.js",
+)
 GENERATED_TEXT_SUFFIXES = {".html", ".js", ".mjs"}
 
 
@@ -86,11 +92,11 @@ class AstroArchitectureTest(unittest.TestCase):
             self.assertNotIn("Vue.createApp", content)
             self.assertNotIn("Personal Access Token", content)
 
-    def test_admin_runtime_is_isolated_in_the_worker(self):
-        worker = ROOT / "workers" / "admin"
-        for relative_path in WORKER_ADMIN_FILES:
-            with self.subTest(relative_path=relative_path):
-                self.assertTrue((worker / relative_path).exists())
+    def test_admin_runtime_is_published_in_an_isolated_pages_directory(self):
+        for root in (ROOT / "public" / "admin", DIST / "admin"):
+            for relative_path in PAGES_ADMIN_FILES:
+                with self.subTest(root=root, relative_path=relative_path):
+                    self.assertTrue((root / relative_path).exists())
 
 
 if __name__ == "__main__":

@@ -1,4 +1,13 @@
+import {
+  GitHubAdminClient,
+  clearAdminToken,
+  readAdminToken,
+  saveAdminToken,
+} from './github-client.js';
+import { getCoverPlacement, getCropPreset } from './image-crop.js';
+
 const SITE_ROOT = 'https://allenchenhan99.github.io/website/';
+const GITHUB_CONFIG = { owner: 'allenchenhan99', repo: 'website', branch: 'main' };
 const ratingKeys = ['longevity', 'presence', 'sweetness', 'warmth', 'complexity', 'dailyWearability'];
 const ratingLabels = ['LONGEVITY', 'PRESENCE', 'SWEETNESS', 'WARMTH', 'COMPLEXITY', 'DAILY'];
 
@@ -11,9 +20,30 @@ const state = {
   images: { perfume: null, music: null },
   previewUrls: { perfume: '', music: '' },
   publishing: false,
+  client: null,
+  identity: '',
+};
+
+const cropState = {
+  type: '',
+  file: null,
+  image: null,
+  zoom: 1,
+  offsetX: 0,
+  offsetY: 0,
+  pointerId: null,
+  pointerX: 0,
+  pointerY: 0,
 };
 
 const elements = {
+  login: document.querySelector('#login'),
+  loginForm: document.querySelector('#login-form'),
+  tokenInput: document.querySelector('#token-input'),
+  rememberDevice: document.querySelector('#remember-device'),
+  loginError: document.querySelector('#login-error'),
+  connectToken: document.querySelector('#connect-token'),
+  topbar: document.querySelector('.topbar'),
   workspace: document.querySelector('.workspace'),
   loading: document.querySelector('#loading'),
   identity: document.querySelector('#identity'),
@@ -33,6 +63,16 @@ const elements = {
   deleteMusic: document.querySelector('#delete-music'),
   clearPerfumeImage: document.querySelector('#clear-perfume-image'),
   clearMusicImage: document.querySelector('#clear-music-image'),
+  logout: document.querySelector('#logout'),
+  cropDialog: document.querySelector('#crop-dialog'),
+  cropTitle: document.querySelector('#crop-title'),
+  cropAspect: document.querySelector('#crop-aspect'),
+  cropCanvas: document.querySelector('#crop-canvas'),
+  cropZoom: document.querySelector('#crop-zoom'),
+  cropZoomValue: document.querySelector('#crop-zoom-value'),
+  cropCancel: document.querySelector('#crop-cancel'),
+  cropClose: document.querySelector('#crop-close'),
+  cropApply: document.querySelector('#crop-apply'),
 };
 
 function splitList(value) {
@@ -68,19 +108,12 @@ function showToast(message, options = {}) {
   showToast.timeout = window.setTimeout(() => elements.toast.classList.remove('visible'), 7000);
 }
 
-async function api(path, options = {}) {
-  const response = await fetch(path, options);
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || `Request failed (${response.status})`);
-  return payload;
-}
-
 function setBusy(busy) {
   state.publishing = busy;
-  document.querySelectorAll('.publish-button, .danger-button').forEach((button) => {
+  document.querySelectorAll('.content-form .publish-button, .danger-button').forEach((button) => {
     button.disabled = busy;
   });
-  document.querySelectorAll('.publish-button').forEach((button) => {
+  document.querySelectorAll('.content-form .publish-button').forEach((button) => {
     button.textContent = busy ? 'Publishing…' : button.dataset.label;
   });
 }
@@ -296,38 +329,153 @@ function updateRatings() {
   drawRadar();
 }
 
-async function optimizeImage(file) {
+function validateImage(file) {
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Choose a JPG, PNG, or WebP image.');
   if (file.size > 12 * 1024 * 1024) throw new Error('The original image must be under 12 MB.');
-  const bitmap = await createImageBitmap(file);
-  const maxSide = 1800;
-  const ratio = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(bitmap.width * ratio);
-  canvas.height = Math.round(bitmap.height * ratio);
-  canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', .86));
-  if (!blob || blob.size > 5 * 1024 * 1024) throw new Error('The optimized image is still over 5 MB.');
-  const base64 = await new Promise((resolve, reject) => {
+}
+
+async function decodeImage(file) {
+  if ('createImageBitmap' in window) return createImageBitmap(file);
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+  try {
+    image.src = url;
+    await image.decode();
+    return image;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function canvasToBlob(canvas) {
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', .86));
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result).split(',')[1]);
     reader.onerror = () => reject(new Error('Unable to read the image.'));
     reader.readAsDataURL(blob);
   });
-  return { name: file.name.replace(/\.[^.]+$/, '.webp'), type: 'image/webp', base64 };
 }
 
-async function acceptImage(type, file) {
+function cropFrameSize(preset) {
+  const scale = Math.min(520 / preset.width, 530 / preset.height);
+  return {
+    width: Math.round(preset.width * scale),
+    height: Math.round(preset.height * scale),
+  };
+}
+
+function currentCropPlacement(width = elements.cropCanvas.width, height = elements.cropCanvas.height) {
+  const offsetScale = width / elements.cropCanvas.width;
+  return getCoverPlacement({
+    imageWidth: cropState.image.width,
+    imageHeight: cropState.image.height,
+    frameWidth: width,
+    frameHeight: height,
+    zoom: cropState.zoom,
+    offsetX: cropState.offsetX * offsetScale,
+    offsetY: cropState.offsetY * offsetScale,
+  });
+}
+
+function renderCrop() {
+  if (!cropState.image) return;
+  const canvas = elements.cropCanvas;
+  const context = canvas.getContext('2d');
+  const placement = currentCropPlacement();
+  cropState.offsetX = placement.offsetX;
+  cropState.offsetY = placement.offsetY;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(cropState.image, placement.x, placement.y, placement.drawWidth, placement.drawHeight);
+}
+
+function releaseCropImage() {
+  if (typeof cropState.image?.close === 'function') cropState.image.close();
+  cropState.type = '';
+  cropState.file = null;
+  cropState.image = null;
+  cropState.pointerId = null;
+}
+
+function closeCropDialog() {
+  if (elements.cropDialog.open) elements.cropDialog.close();
+}
+
+async function openCropDialog(type, file) {
+  validateImage(file);
+  const image = await decodeImage(file);
+  const preset = getCropPreset(type);
+  const frame = cropFrameSize(preset);
+  cropState.type = type;
+  cropState.file = file;
+  cropState.image = image;
+  cropState.zoom = 1;
+  cropState.offsetX = 0;
+  cropState.offsetY = 0;
+  cropState.pointerId = null;
+  elements.cropCanvas.width = frame.width;
+  elements.cropCanvas.height = frame.height;
+  elements.cropZoom.value = '1';
+  elements.cropZoomValue.value = '100%';
+  elements.cropTitle.textContent = type === 'perfume' ? 'Crop perfume image' : 'Crop music cover';
+  elements.cropAspect.textContent = preset.label;
+  elements.cropDialog.classList.toggle('music-crop', type === 'music');
+  renderCrop();
+  elements.cropDialog.showModal();
+}
+
+async function createCroppedImage() {
+  const preset = getCropPreset(cropState.type);
+  const canvas = document.createElement('canvas');
+  canvas.width = preset.width;
+  canvas.height = preset.height;
+  const placement = currentCropPlacement(preset.width, preset.height);
+  canvas.getContext('2d').drawImage(
+    cropState.image,
+    placement.x,
+    placement.y,
+    placement.drawWidth,
+    placement.drawHeight,
+  );
+  const blob = await canvasToBlob(canvas);
+  if (!blob || blob.size > 5 * 1024 * 1024) throw new Error('The cropped image is still over 5 MB. Try a tighter crop.');
+  const base64 = await blobToBase64(blob);
+  const baseName = cropState.file.name.replace(/\.[^.]+$/, '') || cropState.type;
+  return { blob, upload: { name: `${baseName}.webp`, type: 'image/webp', base64 } };
+}
+
+async function acceptImage(type, file, input) {
   if (!file) return;
   try {
-    state.images[type] = await optimizeImage(file);
-    if (state.previewUrls[type]) URL.revokeObjectURL(state.previewUrls[type]);
-    state.previewUrls[type] = URL.createObjectURL(file);
-    setPreview(type, '');
-    elements.dirty.textContent = 'IMAGE READY';
+    await openCropDialog(type, file);
   } catch (error) {
     showToast(error.message, { error: true });
+  } finally {
+    if (input) input.value = '';
+  }
+}
+
+async function applyCrop() {
+  if (!cropState.image || !cropState.type) return;
+  elements.cropApply.disabled = true;
+  elements.cropApply.textContent = 'Preparing…';
+  try {
+    const type = cropState.type;
+    const { blob, upload } = await createCroppedImage();
+    state.images[type] = upload;
+    if (state.previewUrls[type]) URL.revokeObjectURL(state.previewUrls[type]);
+    state.previewUrls[type] = URL.createObjectURL(blob);
+    setPreview(type, '');
+    elements.dirty.textContent = 'CROPPED IMAGE READY';
+    closeCropDialog();
+  } catch (error) {
+    showToast(error.message, { error: true });
+  } finally {
+    elements.cropApply.disabled = false;
+    elements.cropApply.textContent = 'Use crop →';
   }
 }
 
@@ -377,15 +525,11 @@ function musicPayload() {
 async function publish(type, item) {
   setBusy(true);
   try {
-    const payload = await api(`/api/publish/${type}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Action': 'publish' },
-      body: JSON.stringify({
-        action: 'upsert',
-        revision: state.revision,
-        [type]: item,
-        image: state.images[type] || undefined,
-      }),
+    const payload = await state.client.publish(type, {
+      action: 'upsert',
+      revision: state.revision,
+      item,
+      image: state.images[type] || undefined,
     });
     showToast('Published. GitHub Pages is rebuilding now.', { link: payload.commitUrl });
     await loadContent(payload.post?.id);
@@ -400,10 +544,10 @@ async function deleteEntry(type) {
   if (!state.selectedId || !window.confirm(`Delete this ${type} entry? This will publish immediately.`)) return;
   setBusy(true);
   try {
-    const payload = await api(`/api/publish/${type}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Action': 'publish' },
-      body: JSON.stringify({ action: 'delete', revision: state.revision, id: state.selectedId }),
+    const payload = await state.client.publish(type, {
+      action: 'delete',
+      revision: state.revision,
+      id: state.selectedId,
     });
     showToast('Deleted. GitHub Pages is rebuilding now.', { link: payload.commitUrl });
     await loadContent();
@@ -415,11 +559,11 @@ async function deleteEntry(type) {
 }
 
 async function loadContent(preferredId) {
-  const content = await api('/api/content');
+  const content = await state.client.loadContent();
   state.perfume = content.perfume;
   state.music = content.music;
   state.revision = content.revision;
-  elements.identity.textContent = content.identity.email;
+  elements.identity.textContent = `@${state.identity}`;
   const selected = state[state.tab].find((post) => post.id === preferredId);
   if (selected) state.tab === 'perfume' ? fillPerfume(selected) : fillMusic(selected);
   else if (state.tab === 'perfume') resetPerfume();
@@ -427,7 +571,57 @@ async function loadContent(preferredId) {
   elements.dirty.textContent = `SYNCED / ${content.revision.slice(0, 7)}`;
 }
 
-document.querySelectorAll('.publish-button').forEach((button) => { button.dataset.label = button.textContent; });
+function showLogin(message = '') {
+  elements.loading.hidden = true;
+  elements.topbar.hidden = true;
+  elements.workspace.hidden = true;
+  elements.login.hidden = false;
+  elements.loginError.textContent = message;
+  elements.connectToken.disabled = false;
+  elements.connectToken.textContent = 'Connect to GitHub →';
+  elements.tokenInput.focus();
+}
+
+function showEditor() {
+  elements.loading.hidden = true;
+  elements.login.hidden = true;
+  elements.topbar.hidden = false;
+  elements.workspace.hidden = false;
+  elements.workspace.setAttribute('aria-busy', 'false');
+}
+
+async function connectToGitHub(token, remember, savedSession = false) {
+  elements.loginError.textContent = '';
+  elements.login.hidden = true;
+  elements.loading.hidden = false;
+  elements.connectToken.disabled = true;
+  elements.connectToken.textContent = 'Connecting…';
+  state.client = new GitHubAdminClient({ token, ...GITHUB_CONFIG });
+  try {
+    const identity = await state.client.verify();
+    state.identity = identity.login;
+    await loadContent();
+    saveAdminToken(token, remember, sessionStorage, localStorage);
+    elements.tokenInput.value = '';
+    showEditor();
+  } catch (error) {
+    state.client = null;
+    state.identity = '';
+    if (savedSession) clearAdminToken(sessionStorage, localStorage);
+    showLogin(error instanceof Error ? error.message : 'Unable to connect to GitHub.');
+  }
+}
+
+function logout() {
+  clearAdminToken(sessionStorage, localStorage);
+  state.client = null;
+  state.identity = '';
+  state.perfume = [];
+  state.music = [];
+  showLogin();
+}
+
+document.querySelectorAll('.content-form .publish-button').forEach((button) => { button.dataset.label = button.textContent; });
 document.querySelectorAll('.tab').forEach((button) => button.addEventListener('click', () => selectTab(button.dataset.tab)));
 elements.newEntry.addEventListener('click', () => state.tab === 'perfume' ? resetPerfume() : resetMusic());
 elements.perfumeForm.addEventListener('input', (event) => {
@@ -443,8 +637,8 @@ elements.musicForm.addEventListener('submit', (event) => {
   event.preventDefault();
   if (!state.publishing) publish('music', musicPayload());
 });
-document.querySelector('#perfume-image').addEventListener('change', (event) => acceptImage('perfume', event.target.files[0]));
-document.querySelector('#music-image').addEventListener('change', (event) => acceptImage('music', event.target.files[0]));
+document.querySelector('#perfume-image').addEventListener('change', (event) => acceptImage('perfume', event.target.files[0], event.target));
+document.querySelector('#music-image').addEventListener('change', (event) => acceptImage('music', event.target.files[0], event.target));
 document.querySelectorAll('.image-field').forEach((field) => {
   field.addEventListener('dragover', (event) => { event.preventDefault(); field.classList.add('dragging'); });
   field.addEventListener('dragleave', () => field.classList.remove('dragging'));
@@ -455,18 +649,61 @@ document.querySelectorAll('.image-field').forEach((field) => {
     acceptImage(type, event.dataTransfer.files[0]);
   });
 });
+elements.cropZoom.addEventListener('input', () => {
+  cropState.zoom = Number(elements.cropZoom.value);
+  elements.cropZoomValue.value = `${Math.round(cropState.zoom * 100)}%`;
+  renderCrop();
+});
+elements.cropCanvas.addEventListener('pointerdown', (event) => {
+  if (!cropState.image) return;
+  event.preventDefault();
+  cropState.pointerId = event.pointerId;
+  cropState.pointerX = event.clientX;
+  cropState.pointerY = event.clientY;
+  elements.cropCanvas.setPointerCapture(event.pointerId);
+});
+elements.cropCanvas.addEventListener('pointermove', (event) => {
+  if (cropState.pointerId !== event.pointerId) return;
+  event.preventDefault();
+  const bounds = elements.cropCanvas.getBoundingClientRect();
+  cropState.offsetX += (event.clientX - cropState.pointerX) * elements.cropCanvas.width / bounds.width;
+  cropState.offsetY += (event.clientY - cropState.pointerY) * elements.cropCanvas.height / bounds.height;
+  cropState.pointerX = event.clientX;
+  cropState.pointerY = event.clientY;
+  renderCrop();
+});
+for (const eventName of ['pointerup', 'pointercancel']) {
+  elements.cropCanvas.addEventListener(eventName, (event) => {
+    if (cropState.pointerId !== event.pointerId) return;
+    cropState.pointerId = null;
+    if (elements.cropCanvas.hasPointerCapture(event.pointerId)) elements.cropCanvas.releasePointerCapture(event.pointerId);
+  });
+}
+elements.cropCancel.addEventListener('click', closeCropDialog);
+elements.cropClose.addEventListener('click', closeCropDialog);
+elements.cropApply.addEventListener('click', applyCrop);
+elements.cropDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeCropDialog();
+});
+elements.cropDialog.addEventListener('close', releaseCropImage);
 elements.deletePerfume.addEventListener('click', () => deleteEntry('perfume'));
 elements.deleteMusic.addEventListener('click', () => deleteEntry('music'));
 elements.clearPerfumeImage.addEventListener('click', () => removeCover('perfume'));
 elements.clearMusicImage.addEventListener('click', () => removeCover('music'));
+elements.loginForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const token = elements.tokenInput.value.trim();
+  if (token) connectToGitHub(token, elements.rememberDevice.checked);
+});
+elements.logout.addEventListener('click', logout);
 
 updateRatings();
-loadContent()
-  .catch((error) => {
-    showToast(error.message, { error: true });
-    elements.identity.textContent = 'Session unavailable';
-  })
-  .finally(() => {
-    elements.loading.hidden = true;
-    elements.workspace.setAttribute('aria-busy', 'false');
-  });
+const savedToken = readAdminToken(sessionStorage, localStorage);
+if (savedToken) {
+  const remembered = localStorage.getItem('allenlin_admin_token') === savedToken;
+  elements.rememberDevice.checked = remembered;
+  connectToGitHub(savedToken, remembered, true);
+} else {
+  showLogin();
+}
