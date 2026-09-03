@@ -14,6 +14,19 @@
       "這種時候，Starwalker 就剛剛好。"
     ],
     "scents": ["Woody", "Bamboo", "White Musk"],
+    "notes": {
+      "top": ["Bamboo", "Bergamot", "Mandarin Orange"],
+      "middle": ["White Musk", "Sandalwood", "Cedar"],
+      "base": ["Ginger", "Fir Resin", "Nutmeg", "Amber"]
+    },
+    "ratings": {
+      "longevity": 3,
+      "presence": 2.5,
+      "sweetness": 2,
+      "warmth": 2.5,
+      "complexity": 2.5,
+      "dailyWearability": 4.5
+    },
     "cover": "assets/images/perfume-starwalker.jpg",
     "source": "https://makeup.jp/en/product/3452/"
   }

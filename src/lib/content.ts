@@ -13,6 +13,25 @@ export type MusicPost = {
   cover: string;
 };
 
+export const perfumeRatingKeys = [
+  'longevity',
+  'presence',
+  'sweetness',
+  'warmth',
+  'complexity',
+  'dailyWearability',
+] as const;
+
+export type PerfumeRatingKey = typeof perfumeRatingKeys[number];
+
+export type PerfumeNotes = {
+  top: string[];
+  middle: string[];
+  base: string[];
+};
+
+export type PerfumeRatings = Record<PerfumeRatingKey, number>;
+
 export type PerfumePost = {
   id: number;
   date: string;
@@ -22,6 +41,8 @@ export type PerfumePost = {
   excerpt: string;
   content: string[];
   scents: string[];
+  notes: PerfumeNotes;
+  ratings: PerfumeRatings;
   cover: string;
   source: string;
 };
@@ -111,6 +132,47 @@ const validateArray = (input: unknown, label: string): unknown[] => {
   return input;
 };
 
+const requireStringArray = (input: unknown, label: string): string[] => {
+  const values = validateArray(input, label);
+  if (values.length === 0 || values.some((value) => typeof value !== 'string' || value.length === 0)) {
+    throw new TypeError(`${label} must be a non-empty string array`);
+  }
+  return values as string[];
+};
+
+const requirePerfumeNotes = (record: ContentRecord, label: string): PerfumeNotes => {
+  const notes = asRecord(record.notes, `${label} notes`);
+  return {
+    top: requireStringArray(notes.top, `${label} notes.top`),
+    middle: requireStringArray(notes.middle, `${label} notes.middle`),
+    base: requireStringArray(notes.base, `${label} notes.base`),
+  };
+};
+
+const requirePerfumeRatings = (record: ContentRecord, label: string): PerfumeRatings => {
+  const ratings = asRecord(record.ratings, `${label} ratings`);
+  const unsupportedKeys = Object.keys(ratings).filter(
+    (key) => !perfumeRatingKeys.includes(key as PerfumeRatingKey),
+  );
+  if (unsupportedKeys.length > 0) {
+    throw new TypeError(`${label} has unsupported rating: ${unsupportedKeys.join(', ')}`);
+  }
+
+  return Object.fromEntries(perfumeRatingKeys.map((key) => {
+    const value = ratings[key];
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      throw new TypeError(`${label} ratings.${key} must be a number`);
+    }
+    if (value < 1 || value > 5) {
+      throw new TypeError(`${label} ratings.${key} must be between 1 and 5`);
+    }
+    if (!Number.isInteger(value * 2)) {
+      throw new TypeError(`${label} ratings.${key} must use increments of 0.5`);
+    }
+    return [key, value];
+  })) as PerfumeRatings;
+};
+
 export function parseMusicPosts(
   input: unknown,
   assetExists: AssetExists = publicAssetExists,
@@ -147,14 +209,8 @@ export function parsePerfumePosts(
     const id = requirePositiveId(record, label);
     if (ids.has(id)) throw new TypeError(`Perfume posts contain duplicate id: ${id}`);
     ids.add(id);
-    const scents = record.scents;
-    if (!Array.isArray(scents) || scents.some((scent) => typeof scent !== 'string')) {
-      throw new TypeError(`${label} scents must be a string array`);
-    }
-    const content = record.content;
-    if (!Array.isArray(content) || content.some((paragraph) => typeof paragraph !== 'string')) {
-      throw new TypeError(`${label} content must be a string array`);
-    }
+    const scents = requireStringArray(record.scents, `${label} scents`);
+    const content = requireStringArray(record.content, `${label} content`);
 
     return {
       id,
@@ -165,6 +221,8 @@ export function parsePerfumePosts(
       excerpt: requireString(record, 'excerpt', label),
       content,
       scents,
+      notes: requirePerfumeNotes(record, label),
+      ratings: requirePerfumeRatings(record, label),
       cover: getCover(record, label, assetExists),
       source: requireString(record, 'source', label),
     };

@@ -128,13 +128,56 @@ class PerfumeOutputTest(unittest.TestCase):
         self.assertEqual(len(self.parser.dialogs), 1)
         self.assertEqual(self.parser.dialogs[0].get("aria-labelledby"), "perfume-detail-title")
 
+    def test_detail_dialog_uses_the_approved_split_dossier(self):
+        css = (ROOT / "src" / "styles" / "perfume.css").read_text(encoding="utf-8")
+        expected = json.loads((ROOT / "posts" / "perfume.json").read_text(encoding="utf-8"))[0]
+
+        self.assertIn("notes", expected)
+        self.assertIn("ratings", expected)
+        self.assertEqual(expected["notes"]["top"], ["Bamboo", "Bergamot", "Mandarin Orange"])
+        self.assertEqual(expected["notes"]["middle"], ["White Musk", "Sandalwood", "Cedar"])
+        self.assertEqual(expected["notes"]["base"], ["Ginger", "Fir Resin", "Nutmeg", "Amber"])
+        self.assertEqual(sorted(expected["ratings"].keys()), [
+            "complexity",
+            "dailyWearability",
+            "longevity",
+            "presence",
+            "sweetness",
+            "warmth",
+        ])
+        self.assertIn('class="detail-overview-row"', self.html)
+        self.assertIn('class="detail-reflection-row"', self.html)
+        self.assertIn('data-dialog-notes="top"', self.html)
+        self.assertIn('data-dialog-radar', self.html)
+        self.assertIn('data-dialog-scores', self.html)
+        self.assertNotIn("主觀評分 · 1–5 · step 0.5", self.html)
+        self.assertRegex(
+            css,
+            r"\.detail-overview-row\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*42fr\)\s+minmax\(0,\s*58fr\)",
+        )
+        self.assertRegex(
+            css,
+            r"\.detail-reflection-row\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*58fr\)\s+minmax\(0,\s*42fr\)",
+        )
+        self.assertRegex(
+            css,
+            r"\.detail-modal\.starwalker-modal\s*\{[\s\S]*?max-width:\s*1040px",
+        )
+        self.assertRegex(
+            css,
+            r"@media screen and \(max-width:\s*760px\)[\s\S]*?\.detail-overview-row,[\s\S]*?\.detail-reflection-row\s*\{[\s\S]*?grid-template-columns:\s*1fr",
+        )
+
     def test_source_binds_compact_card_covers_to_the_loading_policy(self):
         page = PERFUME_PAGE.read_text(encoding="utf-8")
+        client_script = (ROOT / "src" / "scripts" / "perfume.ts").read_text(encoding="utf-8")
         self.assertIn(
             'import { getPerfumeCoverLoading, getPerfumeCoverPresentation, getPerfumeFilterOptions } from "../scripts/perfume";',
             page,
         )
         self.assertIn('loading={getPerfumeCoverLoading(index)}', page)
+        self.assertIn("import type {", client_script)
+        self.assertNotIn("import {\n  type PerfumePost", client_script)
 
     def test_uses_the_layout_main_landmark_without_nesting_another(self):
         self.assertEqual(self.parser.main_elements, 1)

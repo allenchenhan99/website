@@ -1,7 +1,7 @@
 ---
 import { Picture } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { perfumePosts } from "../lib/content";
+import { perfumePosts, perfumeRatingKeys } from "../lib/content";
 import { getPerfumeCoverLoading, getPerfumeCoverPresentation, getPerfumeFilterOptions } from "../scripts/perfume";
 import galleryImage from "../assets/images/perfume-gallery-glass.png";
 import "../styles/perfume.css";
@@ -114,27 +114,66 @@ const fragranceCount = `${perfumePosts.length} ${perfumePosts.length === 1 ? "fr
         <span data-source-excerpt>{post.excerpt}</span>
         {post.content.map((paragraph) => <span data-source-paragraph>{paragraph}</span>)}
         {post.scents.map((scent) => <span data-source-scent>{scent}</span>)}
+        {post.notes.top.map((note) => <span data-source-note="top">{note}</span>)}
+        {post.notes.middle.map((note) => <span data-source-note="middle">{note}</span>)}
+        {post.notes.base.map((note) => <span data-source-note="base">{note}</span>)}
+        {perfumeRatingKeys.map((key) => <span data-source-rating={key}>{post.ratings[key]}</span>)}
       </article>
     ))}
   </div>
 
   <dialog class="detail-overlay" data-perfume-dialog="true" aria-labelledby="perfume-detail-title">
     <div class="detail-modal starwalker-modal">
-      <div class="detail-product-stage product-stage">
-        <img class="detail-product-image" data-dialog-cover alt="" hidden />
-        <div class="detail-product-empty" data-dialog-cover-empty>
-          <span class="bottle-icon" aria-hidden="true">🧴</span>
+      <div class="detail-overview-row">
+        <div class="detail-product-stage product-stage">
+          <img class="detail-product-image" data-dialog-cover alt="" hidden />
+          <div class="detail-product-empty" data-dialog-cover-empty>
+            <span class="bottle-icon" aria-hidden="true">🧴</span>
+          </div>
         </div>
+        <section class="detail-overview">
+          <header class="detail-header">
+            <div class="detail-meta">
+              <span class="brand-label" data-dialog-brand></span>
+              <span class="post-date" data-dialog-date></span>
+            </div>
+            <h2 class="detail-title" id="perfume-detail-title" data-dialog-name></h2>
+            <p class="detail-personal-title" data-dialog-title></p>
+          </header>
+          <section class="detail-scent-profile" aria-labelledby="perfume-scent-profile-title">
+            <header class="detail-section-heading">
+              <h3 id="perfume-scent-profile-title">Scent profile</h3>
+              <span>Top / Middle / Base notes</span>
+            </header>
+            <div class="detail-notes-panel">
+              <div class="detail-note-group">
+                <div class="detail-note-label"><span>Top</span><small>初聞</small></div>
+                <p data-dialog-notes="top"></p>
+              </div>
+              <div class="detail-note-group">
+                <div class="detail-note-label"><span>Middle</span><small>發展</small></div>
+                <p data-dialog-notes="middle"></p>
+              </div>
+              <div class="detail-note-group">
+                <div class="detail-note-label"><span>Base</span><small>尾韻</small></div>
+                <p data-dialog-notes="base"></p>
+              </div>
+            </div>
+          </section>
+        </section>
       </div>
-      <div class="detail-body">
-        <div class="detail-meta">
-          <span class="brand-label" data-dialog-brand></span>
-          <span class="post-date" data-dialog-date></span>
-        </div>
-        <h2 class="detail-title" id="perfume-detail-title" data-dialog-name></h2>
-        <p class="detail-personal-title" data-dialog-title></p>
-        <div class="detail-tags" data-dialog-scents></div>
-        <article class="detail-text article-copy" data-dialog-content></article>
+      <div class="detail-reflection-row">
+        <section class="detail-personal-story" aria-labelledby="perfume-personal-note-title">
+          <header class="detail-section-heading detail-story-heading">
+            <h3 id="perfume-personal-note-title">Personal note</h3>
+          </header>
+          <article class="detail-text article-copy" data-dialog-content></article>
+        </section>
+        <figure class="detail-radar-panel">
+          <figcaption>My impression</figcaption>
+          <div class="detail-radar-mount" data-dialog-radar></div>
+          <ul class="detail-score-list" data-dialog-scores aria-label="Subjective perfume ratings"></ul>
+        </figure>
       </div>
       <div class="detail-footer">
         <a class="image-credit" href="#" target="_blank" rel="noreferrer" data-dialog-source>Product image source ↗</a>

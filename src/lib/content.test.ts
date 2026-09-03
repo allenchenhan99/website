@@ -24,6 +24,19 @@ const perfume = (id: number, overrides: Record<string, unknown> = {}) => ({
   excerpt: 'A perfume post.',
   content: ['First paragraph.', 'Second paragraph.'],
   scents: ['cedar'],
+  notes: {
+    top: ['Bergamot'],
+    middle: ['Cedar'],
+    base: ['Amber'],
+  },
+  ratings: {
+    longevity: 3,
+    presence: 2.5,
+    sweetness: 2,
+    warmth: 2.5,
+    complexity: 2.5,
+    dailyWearability: 4.5,
+  },
   source: 'https://example.com/perfume',
   ...overrides,
 });
@@ -35,6 +48,19 @@ describe('content validation', () => {
       id: 2,
       title: 'A quiet title.',
       content: ['First paragraph.', 'Second paragraph.'],
+      notes: {
+        top: ['Bergamot'],
+        middle: ['Cedar'],
+        base: ['Amber'],
+      },
+      ratings: {
+        longevity: 3,
+        presence: 2.5,
+        sweetness: 2,
+        warmth: 2.5,
+        complexity: 2.5,
+        dailyWearability: 4.5,
+      },
       source: 'https://example.com/perfume',
       cover: '',
     }]);
@@ -71,6 +97,54 @@ describe('content validation', () => {
     expect(() => parseMusicPosts([{ id: 1, date: '2026/08/28' }])).toThrow(/title/);
     expect(() => parsePerfumePosts([perfume(1, { scents: undefined })])).toThrow(/scents/);
     expect(() => parsePerfumePosts([perfume(1, { content: undefined })])).toThrow(/content/);
+    expect(() => parsePerfumePosts([perfume(1, { notes: undefined })])).toThrow(/notes/);
+    expect(() => parsePerfumePosts([perfume(1, { ratings: undefined })])).toThrow(/ratings/);
+  });
+
+  test('rejects incomplete note pyramids and invalid subjective ratings', () => {
+    expect(() => parsePerfumePosts([perfume(1, {
+      notes: { top: ['Bergamot'], middle: ['Cedar'] },
+    })])).toThrow(/notes\.base/);
+    expect(() => parsePerfumePosts([perfume(1, {
+      ratings: {
+        longevity: 3.2,
+        presence: 2.5,
+        sweetness: 2,
+        warmth: 2.5,
+        complexity: 2.5,
+        dailyWearability: 4.5,
+      },
+    })])).toThrow(/0\.5/);
+    expect(() => parsePerfumePosts([perfume(1, {
+      ratings: {
+        longevity: 0.5,
+        presence: 2.5,
+        sweetness: 2,
+        warmth: 2.5,
+        complexity: 2.5,
+        dailyWearability: 4.5,
+      },
+    })])).toThrow(/between 1 and 5/);
+    expect(() => parsePerfumePosts([perfume(1, {
+      ratings: {
+        longevity: 3,
+        sweetness: 2,
+        warmth: 2.5,
+        complexity: 2.5,
+        dailyWearability: 4.5,
+      },
+    })])).toThrow(/ratings\.presence/);
+    expect(() => parsePerfumePosts([perfume(1, {
+      ratings: {
+        longevity: 3,
+        presence: 2.5,
+        sweetness: 2,
+        warmth: 2.5,
+        complexity: 2.5,
+        dailyWearability: 4.5,
+        freshness: 3,
+      },
+    })])).toThrow(/unsupported rating/);
   });
 
   test('normalizes missing and unavailable covers to empty strings', () => {

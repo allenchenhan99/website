@@ -462,6 +462,39 @@ test('renders and opens the selected Starwalker perfume entry', async ({ page })
   await expect(dialog).toHaveJSProperty('open', true);
   await expect(dialog.locator('[data-dialog-title]')).toHaveText('安靜得剛剛好。');
   await expect(dialog.locator('[data-dialog-content] p')).toHaveCount(5);
+  await expect(dialog.locator('[data-dialog-notes="top"]')).toContainText('Bamboo');
+  await expect(dialog.locator('[data-dialog-notes="middle"]')).toContainText('White Musk');
+  await expect(dialog.locator('[data-dialog-notes="base"]')).toContainText('Amber');
+  await expect(dialog.locator('[data-dialog-radar] svg')).toHaveCount(1);
+  await expect(dialog.locator('[data-dialog-scores] li')).toHaveCount(6);
+  await expect(dialog.locator('[data-dialog-scores]')).toContainText('4.5');
+  const desktopDialogGeometry = await dialog.evaluate((element) => {
+    const image = element.querySelector<HTMLElement>('.detail-product-stage');
+    const overview = element.querySelector<HTMLElement>('.detail-overview');
+    const story = element.querySelector<HTMLElement>('.detail-personal-story');
+    const radar = element.querySelector<HTMLElement>('.detail-radar-panel');
+    if (!image || !overview || !story || !radar) throw new Error('Perfume detail layout is incomplete');
+    return {
+      imageWidth: image.getBoundingClientRect().width,
+      overviewWidth: overview.getBoundingClientRect().width,
+      storyWidth: story.getBoundingClientRect().width,
+      radarWidth: radar.getBoundingClientRect().width,
+    };
+  });
+  expect(desktopDialogGeometry.overviewWidth).toBeGreaterThan(desktopDialogGeometry.imageWidth);
+  expect(desktopDialogGeometry.storyWidth).toBeGreaterThan(desktopDialogGeometry.radarWidth);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileDialogOrder = await dialog.evaluate((element) => {
+    const selectors = ['.detail-product-stage', '.detail-overview', '.detail-personal-story', '.detail-radar-panel'];
+    const tops = selectors.map((selector) => {
+      const target = element.querySelector<HTMLElement>(selector);
+      if (!target) throw new Error(`Missing ${selector}`);
+      return target.getBoundingClientRect().top;
+    });
+    return tops.every((top, index) => index === 0 || top > tops[index - 1]!);
+  });
+  expect(mobileDialogOrder).toBe(true);
   await expect(dialog.locator('[data-dialog-source]')).toHaveAttribute('href', 'https://makeup.jp/en/product/3452/');
   await dialog.getByRole('button', { name: 'Close' }).click();
   await expect(dialog).toHaveJSProperty('open', false);
