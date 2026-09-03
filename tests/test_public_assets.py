@@ -20,6 +20,16 @@ class PublicAssetsTest(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertTrue(path.exists())
 
+    def test_worker_bundles_admin_files_instead_of_using_static_assets_router(self):
+        config = (ROOT / "workers" / "admin" / "wrangler.jsonc").read_text(
+            encoding="utf-8"
+        )
+        worker = (ROOT / "workers" / "admin" / "src" / "index.ts").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn('"assets"', config)
+        self.assertNotIn("ASSETS.fetch", worker)
+
     def test_brand_icon_is_transparent_and_without_removed_canvas_path(self):
         content = ICON_SVG.read_text(encoding="utf-8")
         self.assertNotIn("#FEA4FC", content)

@@ -1,3 +1,7 @@
+import adminCss from '../public/admin.css?raw';
+import adminHtml from '../public/index.html?raw';
+import adminJavaScript from '../public/admin.js?raw';
+
 const GITHUB_API = 'https://api.github.com';
 const GITHUB_API_VERSION = '2026-03-10';
 const PERFUME_PATH = 'posts/perfume.json';
@@ -579,15 +583,15 @@ function verifySameOrigin(request: Request): void {
   }
 }
 
-function secureAssetResponse(response: Response): Response {
-  const headers = responseHeaders(response.headers);
+function uiResponse(content: string, contentType: string, headOnly = false): Response {
+  const headers = responseHeaders({ 'Content-Type': contentType });
   headers.set(
     'Content-Security-Policy',
     "default-src 'self'; img-src 'self' data: https:; "
       + "script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; "
       + "form-action 'self'; frame-ancestors 'none'",
   );
-  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  return new Response(headOnly ? null : content, { status: 200, headers });
 }
 
 export async function handleAdminRequest(
@@ -631,7 +635,17 @@ export async function handleAdminRequest(
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       return jsonResponse({ error: 'Method not allowed.' }, 405);
     }
-    return secureAssetResponse(await environment.ASSETS.fetch(request));
+    const headOnly = request.method === 'HEAD';
+    if (url.pathname === '/' || url.pathname === '/index.html') {
+      return uiResponse(adminHtml, 'text/html; charset=utf-8', headOnly);
+    }
+    if (url.pathname === '/admin.css') {
+      return uiResponse(adminCss, 'text/css; charset=utf-8', headOnly);
+    }
+    if (url.pathname === '/admin.js') {
+      return uiResponse(adminJavaScript, 'text/javascript; charset=utf-8', headOnly);
+    }
+    return jsonResponse({ error: 'Not found.' }, 404);
   } catch (error) {
     const status = error instanceof HttpError ? error.status : 500;
     const message = error instanceof HttpError ? error.message : 'Unexpected admin service error.';

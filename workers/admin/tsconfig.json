@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "types": []
   },
-  "include": ["worker-configuration.d.ts", "src/index.ts"]
+  "include": ["worker-configuration.d.ts", "src/index.ts", "src/**/*.d.ts"]
 }

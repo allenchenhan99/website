@@ -39,13 +39,14 @@ const starwalker: PerfumePost = {
   source: 'https://example.com/starwalker',
 };
 
+const legacyAssetFetch = vi.fn();
 const environment = {
   ADMIN_EMAIL,
   GITHUB_OWNER: 'allenchenhan99',
   GITHUB_REPO: 'website',
   GITHUB_BRANCH: 'main',
   GITHUB_TOKEN: 'test-secret',
-  ASSETS: { fetch: vi.fn() },
+  ASSETS: { fetch: legacyAssetFetch },
 } as unknown as AdminEnvironment;
 
 const access = (email?: string): AccessContextLike => ({
@@ -76,7 +77,20 @@ describe('Cloudflare Access authorization', () => {
     expect(health.status).toBe(200);
     await expect(health.json()).resolves.toMatchObject({ ok: true });
     expect(ui.status).toBe(403);
-    expect(environment.ASSETS.fetch).not.toHaveBeenCalled();
+    expect(legacyAssetFetch).not.toHaveBeenCalled();
+  });
+
+  test('serves the editor directly from the authenticated Worker invocation', async () => {
+    const ui = await handleAdminRequest(
+      new Request('https://admin.example/'),
+      environment,
+      { access: access(ADMIN_EMAIL) },
+    );
+
+    expect(ui.status).toBe(200);
+    expect(ui.headers.get('Content-Type')).toContain('text/html');
+    await expect(ui.text()).resolves.toContain('Content Desk');
+    expect(legacyAssetFetch).not.toHaveBeenCalled();
   });
 });
 
