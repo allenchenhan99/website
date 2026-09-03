@@ -2,6 +2,7 @@ node_modules/
 dist/
 .astro/
 .worktrees/
+.wrangler/
 playwright-report/
 test-results/
 __pycache__/

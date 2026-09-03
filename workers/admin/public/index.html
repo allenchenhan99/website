@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>Content Desk | Allen Lin</title>
+    <link rel="stylesheet" href="/admin.css">
+    <script src="/admin.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wordmark">
+        <span class="prompt" aria-hidden="true">&gt;_</span>
+        <span>ALLEN LIN</span>
+        <span class="muted">/ CONTENT DESK</span>
+      </div>
+      <div class="session">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="identity">Verifying session…</span>
+        <a href="https://allenchenhan99.github.io/website/" target="_blank" rel="noreferrer">View site ↗</a>
+      </div>
+    </header>
+
+    <main class="workspace" aria-busy="true">
+      <aside class="library">
+        <div class="library-tabs" role="tablist" aria-label="Content type">
+          <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="perfume">Perfume</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-tab="music">Music</button>
+        </div>
+        <div class="library-heading">
+          <div>
+            <span class="eyebrow">COLLECTION</span>
+            <strong id="item-count">— entries</strong>
+          </div>
+          <button id="new-entry" class="icon-button" type="button" aria-label="Create new entry">＋</button>
+        </div>
+        <div id="entry-list" class="entry-list" aria-live="polite"></div>
+      </aside>
+
+      <section class="editor">
+        <div class="editor-heading">
+          <div>
+            <span id="editor-mode" class="eyebrow">NEW ENTRY</span>
+            <h1 id="editor-title">Add a perfume</h1>
+          </div>
+          <span id="dirty-state" class="save-state">ALL CHANGES LOCAL</span>
+        </div>
+
+        <form id="perfume-form" class="content-form">
+          <input type="hidden" name="id">
+          <section class="form-section cover-section">
+            <div class="section-label"><span>01</span> Identity</div>
+            <div class="cover-grid">
+              <div class="image-control">
+                <label class="image-field" for="perfume-image">
+                  <img id="perfume-preview" alt="Selected perfume cover preview" hidden>
+                  <span class="image-placeholder">
+                    <b>Drop a bottle image</b>
+                    <small>JPG, PNG or WebP · max 5 MB</small>
+                    <small>Full image preserved · optimized on upload</small>
+                  </span>
+                  <input id="perfume-image" name="image" type="file" accept="image/jpeg,image/png,image/webp">
+                </label>
+                <button id="clear-perfume-image" class="clear-image" type="button" hidden>Remove cover</button>
+              </div>
+              <div class="field-stack">
+                <div class="field-row">
+                  <label>Brand<input name="brand" autocomplete="off" required placeholder="Montblanc"></label>
+                  <label>Perfume name<input name="name" autocomplete="off" required placeholder="Starwalker"></label>
+                </div>
+                <label>Title<input name="title" autocomplete="off" required placeholder="安靜得剛剛好。"></label>
+                <div class="field-row date-source">
+                  <label>Date<input name="date" inputmode="numeric" required placeholder="YYYY/MM/DD"></label>
+                  <label>Reference URL<input name="source" type="url" placeholder="https://…"></label>
+                </div>
+                <label>Scent tags<input name="scents" required placeholder="Woody, Bamboo, White Musk"><small>Separate each tag with a comma.</small></label>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-label"><span>02</span> Note pyramid</div>
+            <div class="notes-grid">
+              <label><em>TOP</em><input name="notes-top" required placeholder="Bamboo, Bergamot"></label>
+              <label><em>MIDDLE</em><input name="notes-middle" required placeholder="White Musk, Sandalwood"></label>
+              <label><em>BASE</em><input name="notes-base" required placeholder="Ginger, Amber"></label>
+            </div>
+          </section>
+
+          <section class="form-section writing-section">
+            <div class="section-label"><span>03</span> Personal note</div>
+            <label>Card excerpt<textarea name="excerpt" rows="3" required placeholder="A short line shown on the collection card."></textarea></label>
+            <label>Full article<textarea name="content" rows="12" required placeholder="Write your personal impression here.&#10;&#10;Leave a blank line between paragraphs."></textarea><small>Blank lines become separate paragraphs in the article.</small></label>
+          </section>
+
+          <section class="form-section impression-section">
+            <div class="section-label"><span>04</span> My impression</div>
+            <div class="impression-grid">
+              <div class="rating-list">
+                <label><span>Longevity <output data-output="longevity">3.0</output></span><input name="longevity" type="range" min="1" max="5" step="0.5" value="3"></label>
+                <label><span>Presence <output data-output="presence">3.0</output></span><input name="presence" type="range" min="1" max="5" step="0.5" value="3"></label>
+                <label><span>Sweetness <output data-output="sweetness">3.0</output></span><input name="sweetness" type="range" min="1" max="5" step="0.5" value="3"></label>
+                <label><span>Warmth <output data-output="warmth">3.0</output></span><input name="warmth" type="range" min="1" max="5" step="0.5" value="3"></label>
+                <label><span>Complexity <output data-output="complexity">3.0</output></span><input name="complexity" type="range" min="1" max="5" step="0.5" value="3"></label>
+                <label><span>Daily wearability <output data-output="dailyWearability">3.0</output></span><input name="dailyWearability" type="range" min="1" max="5" step="0.5" value="3"></label>
+              </div>
+              <div class="radar-card">
+                <canvas id="radar" width="360" height="310" aria-label="Live radar chart preview"></canvas>
+                <span>LIVE PREVIEW</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="publish-bar">
+            <p><span class="status-dot"></span>Publishing creates one GitHub commit and starts the site deployment.</p>
+            <div>
+              <button id="delete-perfume" class="danger-button" type="button" hidden>Delete</button>
+              <button class="publish-button" type="submit">Publish perfume →</button>
+            </div>
+          </div>
+        </form>
+
+        <form id="music-form" class="content-form" hidden>
+          <input type="hidden" name="id">
+          <section class="form-section cover-section">
+            <div class="section-label"><span>01</span> Music post</div>
+            <div class="cover-grid">
+              <div class="image-control">
+                <label class="image-field" for="music-image">
+                  <img id="music-preview" alt="Selected music cover preview" hidden>
+                  <span class="image-placeholder"><b>Drop a cover image</b><small>JPG, PNG or WebP · max 5 MB</small></span>
+                  <input id="music-image" name="image" type="file" accept="image/jpeg,image/png,image/webp">
+                </label>
+                <button id="clear-music-image" class="clear-image" type="button" hidden>Remove cover</button>
+              </div>
+              <div class="field-stack">
+                <label>Title<input name="title" required placeholder="Nujabes — Metaphorical Music"></label>
+                <div class="field-row">
+                  <label>Tag<input name="tag" required placeholder="Jazz Hip-Hop"></label>
+                  <label>Date<input name="date" inputmode="numeric" required placeholder="YYYY/MM/DD"></label>
+                </div>
+                <label>Personal note<textarea name="excerpt" rows="10" required placeholder="Write your thoughts…"></textarea></label>
+              </div>
+            </div>
+          </section>
+          <div class="publish-bar">
+            <p><span class="status-dot music-dot"></span>Publishing creates one GitHub commit and starts the site deployment.</p>
+            <div>
+              <button id="delete-music" class="danger-button" type="button" hidden>Delete</button>
+              <button class="publish-button music-button" type="submit">Publish music →</button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <div id="loading" class="loading-screen">
+      <span class="terminal-loader">&gt; verifying Cloudflare Access<span>_</span></span>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

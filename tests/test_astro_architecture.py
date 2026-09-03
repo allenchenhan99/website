@@ -17,12 +17,7 @@ LEGACY_PUBLIC_FILES = (
     "js/music.js",
     "js/perfume.js",
 )
-ADMIN_RUNTIME_FILES = {
-    "admin.html",
-    "admin-preview.html",
-    "post-preview.html",
-    "js/admin.js",
-}
+WORKER_ADMIN_FILES = ("public/index.html", "public/admin.css", "public/admin.js")
 GENERATED_TEXT_SUFFIXES = {".html", ".js", ".mjs"}
 
 
@@ -62,7 +57,7 @@ class AstroArchitectureTest(unittest.TestCase):
             with self.subTest(route=route):
                 self.assertTrue(output.exists())
 
-    def test_generated_public_runtime_has_no_vue_outside_exact_admin_files(self):
+    def test_generated_public_runtime_has_no_vue(self):
         generated_files = sorted(
             path
             for path in DIST.rglob("*")
@@ -76,9 +71,6 @@ class AstroArchitectureTest(unittest.TestCase):
 
         violations = []
         for path in generated_files:
-            relative_path = path.relative_to(DIST).as_posix()
-            if relative_path in ADMIN_RUNTIME_FILES:
-                continue
             content = path.read_text(encoding="utf-8")
             for marker in ("unpkg.com/vue", "Vue.createApp"):
                 if marker in content:
@@ -86,11 +78,19 @@ class AstroArchitectureTest(unittest.TestCase):
 
         self.assertEqual(violations, [])
 
-    def test_legacy_admin_runtime_remains_explicitly_isolated(self):
-        for relative_path in ADMIN_RUNTIME_FILES:
+    def test_legacy_admin_is_only_a_redirect(self):
+        for root in (ROOT / "public", DIST):
+            admin = root / "admin.html"
+            content = admin.read_text(encoding="utf-8")
+            self.assertIn('http-equiv="refresh"', content)
+            self.assertNotIn("Vue.createApp", content)
+            self.assertNotIn("Personal Access Token", content)
+
+    def test_admin_runtime_is_isolated_in_the_worker(self):
+        worker = ROOT / "workers" / "admin"
+        for relative_path in WORKER_ADMIN_FILES:
             with self.subTest(relative_path=relative_path):
-                self.assertTrue((ROOT / "public" / relative_path).exists())
-                self.assertTrue((DIST / relative_path).exists())
+                self.assertTrue((worker / relative_path).exists())
 
 
 if __name__ == "__main__":
