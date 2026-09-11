@@ -4,11 +4,13 @@ import { SITE, withBase } from "../config/site";
 
 interface Props {
   pageTitle?: string;
-  activePage: "index" | "profile" | "cv" | "music" | "perfume";
+  description?: string;
+  article?: boolean;
+  activePage: "index" | "profile" | "cv" | "music" | "perfume" | "journal" | "research";
   documentLanguage?: string;
 }
 
-const { pageTitle, activePage, documentLanguage = "zh-Hant" } = Astro.props;
+const { pageTitle, activePage, documentLanguage = "zh-Hant", description = SITE.description, article = false } = Astro.props;
 const title = pageTitle ? `${pageTitle} | ${SITE.name}` : SITE.name;
 const pageUrl = new URL(Astro.url.pathname, SITE.siteUrl).href;
 const imageUrl = new URL(withBase(SITE.ogImage), SITE.siteUrl).href;
@@ -20,11 +22,11 @@ const imageUrl = new URL(withBase(SITE.ogImage), SITE.siteUrl).href;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
-    <meta name="description" content={SITE.description} />
-    <meta property="og:type" content="website" />
+    <meta name="description" content={description} />
+    <meta property="og:type" content={article ? "article" : "website"} />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={SITE.description} />
+    <meta property="og:description" content={description} />
     <meta property="og:url" content={pageUrl} />
     <meta property="og:image" content={imageUrl} />
     <meta property="og:image:type" content="image/png" />
@@ -33,7 +35,7 @@ const imageUrl = new URL(withBase(SITE.ogImage), SITE.siteUrl).href;
     <meta property="og:image:alt" content={SITE.ogImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={SITE.description} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
     <meta name="twitter:image:alt" content={SITE.ogImageAlt} />
     <link rel="icon" type="image/svg+xml" href={withBase(SITE.faviconSvg)} />

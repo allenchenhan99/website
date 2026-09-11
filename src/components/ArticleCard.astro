@@ -1,0 +1,13 @@
+---
+import type { Article } from '../lib/articles';
+import { withBase } from '../config/site';
+interface Props { article: Article }
+const { article: row } = Astro.props;
+const research = row.type === 'research';
+---
+<a class="writing-card" data-topic={row.topic} href={withBase(`${row.type}/${row.slug}.html`)}>
+  {research && <div class="research-card-subject"><span>{row.featured ? 'Featured research' : 'Research note'}</span><span>{row.link ? 'Related work' : 'Working notes'}</span></div>}
+  <div class="writing-card-meta"><span class="writing-tag">{row.topic}</span><time class="writing-date" datetime={row.date}>{row.date.replaceAll('-','/')}</time></div>
+  <div class="writing-card-copy"><h2>{row.title}</h2><p>{row.summary}</p></div>
+  <div class="writing-card-footer"><span class="writing-card-state" data-stage={research ? row.stage : undefined}>{research ? row.stage : row.featured ? 'Featured entry' : 'Personal note'}</span><span>{research ? 'Read research ↗' : 'Read entry ↗'}</span></div>
+</a>

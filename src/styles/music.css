@@ -366,7 +366,7 @@ body {
 
 /* ===== Posts Section ===== */
 .posts-section {
-    max-width: 960px;
+    max-width: 1240px;
     margin: 0 auto;
     padding: 40px 20px 80px;
 }
@@ -451,7 +451,7 @@ body {
 /* ===== Grid View ===== */
 .posts-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
 }
 
@@ -485,36 +485,21 @@ body {
     transform: translateY(-2px);
 }
 
-.grid-cover {
-    width: 100%;
-    aspect-ratio: 1;
-    background: #2a2a2a;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
-    font-size: 12px;
-}
-
-.post-cover-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+.grid-card .post-open { display:flex; flex-direction:column; min-height:300px; height:100%; }
 
 .grid-body {
     display: block;
-    padding: 16px;
+    flex:1;
+    padding:24px;
 }
 
 .grid-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 23px;
+    gap:8px;
+    flex-wrap:wrap;
 }
 
 .grid-body .post-title,
@@ -523,11 +508,16 @@ body {
 }
 
 .grid-body .post-title {
-    font-size: 14px;
+    font-size:20px;
+    font-weight:600;
+    line-height:1.65;
+    margin:0 0 15px;
+    overflow-wrap:anywhere;
 }
 
 .grid-body .post-excerpt {
-    font-size: 12px;
+    font-size: 13px;
+    line-height:1.9;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -536,43 +526,31 @@ body {
 
 /* ===== List View ===== */
 .posts-list {
-    display: flex;
-    flex-direction: column;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
 }
 
 .list-post {
-    padding: 24px 0;
-    border-bottom: 1px solid var(--border);
-    transition: background-color 0.2s;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
 }
 
-.list-open {
-    display: flex;
-    gap: 20px;
+.list-open { display:flex; flex-direction:column; }
+.list-body { padding:24px; }
+.music-card-footer {
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    width:100%;
+    border-top:1px solid var(--border);
+    padding:16px 24px;
+    font-size:10px;
+    color:var(--text-secondary);
 }
-
-.list-post:first-child {
-    padding-top: 0;
-}
-
-.list-post:last-child {
-    border-bottom: none;
-}
-
-.list-cover {
-    width: 130px;
-    height: 130px;
-    min-width: 130px;
-    background: #2a2a2a;
-    background-size: cover;
-    background-position: center;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
-    font-size: 12px;
-}
+.music-card-footer > :last-child { color:var(--accent); }
 
 .list-body {
     display: block;
@@ -747,25 +725,14 @@ body {
         grid-template-columns: 1fr 1fr;
     }
 
-    .list-post {
-        padding-block: 16px;
-    }
-
-    .list-open {
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .list-cover {
-        width: 100%;
-        height: 200px;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .vinyl-record {
         animation: none;
     }
+    .grid-card { transition:none; }
+    .grid-card:hover { transform:none; }
 }
 
 @media screen and (max-width: 480px) {
@@ -799,4 +766,20 @@ body {
         bottom: 20px;
         padding: 15px;
     }
+}
+
+@media (max-width:1050px) { .posts-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:700px) { .posts-grid { grid-template-columns:1fr; gap:16px; } .grid-card .post-open { min-height:270px; } .grid-body .post-title { font-size:19px; } }
+
+/* Album covers lead the cards, followed by the listening notes. */
+.music-card-cover { display:block; flex:none; width:100%; aspect-ratio:1; overflow:hidden; background:var(--accent-dim); color:var(--accent); border-bottom:1px solid var(--border); }
+.music-card-cover img,.music-card-cover svg { display:block; width:100%; height:100%; object-fit:contain; }
+.grid-body { width:100%; }
+.list-open { display:grid; grid-template-columns:220px minmax(0,1fr); }
+.list-open .music-card-cover { border-bottom:0; border-right:1px solid var(--border); }
+.list-open .music-card-footer { grid-column:1/-1; }
+@media (max-width:700px) {
+  .list-open { grid-template-columns:140px minmax(0,1fr); }
+  .list-open .list-body { padding:16px; }
+  .list-open .post-excerpt { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 }

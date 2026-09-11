@@ -136,19 +136,18 @@ const playlists = [
       {musicPosts.map((post) => (
         <article class="grid-card">
           <button class="post-open" type="button" data-post-open data-post-id={String(post.id)} aria-label={`Open ${post.title}`}>
-            <span class="grid-cover">
-              {post.cover ? (
-                <img class="post-cover-image" src={resolveCoverUrl(post.cover)} alt="" loading="lazy" width="640" height="640" />
-              ) : <span>No Cover</span>}
-            </span>
+                <span class="music-card-cover">
+                  {post.cover ? <img src={resolveCoverUrl(post.cover)} alt={`${post.title} 封面`} loading="lazy" width="600" height="600" /> : <svg viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="27" stroke="currentColor"/><circle cx="40" cy="40" r="21" stroke="currentColor" opacity=".4"/><circle cx="40" cy="40" r="8" stroke="currentColor"/><circle cx="40" cy="40" r="2" fill="currentColor"/></svg>}
+                </span>
             <span class="grid-body">
               <span class="grid-meta">
-                <span class="tag">{post.tag}</span>
-                <span class="post-date">{post.date}</span>
+                  <span class="tag">{post.tag}</span>
+                  <span class="post-date">{post.date}</span>
               </span>
               <span class="post-title">{post.title}</span>
               <span class="post-excerpt">{post.excerpt}</span>
             </span>
+            <span class="music-card-footer"><span>Listening notes</span><span>Read note ↗</span></span>
           </button>
         </article>
       ))}
@@ -158,19 +157,18 @@ const playlists = [
       {musicPosts.map((post) => (
         <article class="list-post">
           <button class="post-open list-open" type="button" data-post-open data-post-id={String(post.id)} aria-label={`Open ${post.title}`}>
-            <span class="list-cover">
-              {post.cover ? (
-                <img class="post-cover-image" src={resolveCoverUrl(post.cover)} alt="" loading="lazy" width="640" height="640" />
-              ) : <span>No Cover</span>}
-            </span>
+                <span class="music-card-cover">
+                  {post.cover ? <img src={resolveCoverUrl(post.cover)} alt={`${post.title} 封面`} loading="lazy" width="600" height="600" /> : <svg viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="27" stroke="currentColor"/><circle cx="40" cy="40" r="21" stroke="currentColor" opacity=".4"/><circle cx="40" cy="40" r="8" stroke="currentColor"/><circle cx="40" cy="40" r="2" fill="currentColor"/></svg>}
+                </span>
             <span class="list-body">
               <span class="list-meta">
-                <span class="tag">{post.tag}</span>
-                <span class="post-date">{post.date}</span>
+                  <span class="tag">{post.tag}</span>
+                  <span class="post-date">{post.date}</span>
               </span>
               <span class="post-title">{post.title}</span>
               <span class="post-excerpt">{post.excerpt}</span>
             </span>
+            <span class="music-card-footer"><span>Listening notes</span><span>Read note ↗</span></span>
           </button>
         </article>
       ))}

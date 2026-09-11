@@ -1,0 +1,38 @@
+---
+import { withBase } from '../config/site';
+import '../styles/article-admin.css';
+---
+<!doctype html>
+<html lang="zh-Hant">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="robots" content="noindex,nofollow" /><title>Articles · Content Desk | AllenLin</title></head>
+  <body>
+    <header class="desk-top"><a href={withBase('journal.html')} class="desk-brand">AllenLin <span>/ Content Desk</span></a><nav aria-label="後台導覽"><a href={withBase('admin/index.html')}>Music &amp; Perfume</a><a href={withBase('research.html')}>查看網站 ↗</a></nav></header>
+    <div class="local-banner">本機文章管理 · 儲存會寫入專案檔案；正式網站在部署後更新。</div>
+    <main class="article-desk" data-article-desk>
+      <aside class="desk-library">
+        <div class="desk-library-head"><h1>文章管理</h1><button type="button" id="new-article" aria-label="新增文章">＋</button></div>
+        <div class="desk-tabs" role="group" aria-label="文章類型"><button type="button" data-library="all" aria-pressed="true">全部</button><button type="button" data-library="journal" aria-pressed="false">Journal</button><button type="button" data-library="research" aria-pressed="false">Research</button></div>
+        <div id="desk-list"></div>
+        <p class="library-foot">草稿不會輸出到網站。<br>標記「發布（待部署）」後可在 localhost 查看。</p>
+      </aside>
+      <section class="desk-editor">
+        <header class="desk-editor-head"><div><p>Writing space</p><h2 id="editing-title">編輯文章</h2></div><span id="save-status" role="status">尚未修改</span></header>
+        <form id="article-form">
+          <div class="fields two"><label>內容類型<select name="type"><option value="journal">Journal · 日誌</option><option value="research">Research · 研究</option></select></label><label>分類／主題<select name="topic"></select></label></div>
+          <label>文章標題<input name="title" required maxlength="160" placeholder="從一個想留下的問題開始" /></label>
+          <label>摘要<textarea name="summary" rows="2" required maxlength="400" placeholder="讓讀者用兩句話知道這篇在寫什麼"></textarea></label>
+          <div class="fields two"><label>網址代稱<input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="my-first-note" /></label><label>發布日期<input name="date" type="date" required /></label></div>
+          <div class="fields two"><label>發布狀態<select name="status"><option value="draft">草稿</option><option value="published">發布（待部署）</option></select></label><label class="check-label"><input name="featured" type="checkbox" />設為精選文章</label></div>
+          <div id="research-fields" class="fields two" hidden><label>研究狀態<select name="stage"><option value="進行中">進行中</option><option value="已完成">已完成</option></select></label><label>程式碼／報告連結<input name="link" type="url" placeholder="https://github.com/…" /></label></div>
+          <div id="competition-fields" class="fields two" hidden><label>比賽／活動名稱<input name="event" placeholder="活動名稱" /></label><label>我的角色<input name="role" placeholder="實際負責的工作" /></label></div>
+          <button type="button" id="insert-template">帶入寫作架構</button><div class="body-label"><label for="article-body">內文</label><span>Markdown · 標題、連結、圖片、表格、程式碼</span></div>
+          <textarea id="article-body" name="body" rows="16" required spellcheck="false" placeholder="# 從這裡開始"></textarea>
+          <div class="editor-actions"><button type="button" id="read-preview">儲存並開啟閱讀預覽 ↗</button><button class="primary-action" type="submit">儲存到專案</button></div>
+          <p id="editor-feedback" role="status"></p>
+        </form>
+      </section>
+      <aside class="desk-preview"><div class="preview-heading"><span>閱讀預覽</span><span>即時更新</span></div><div id="preview-meta"></div><h2 id="preview-title"></h2><p id="preview-summary"></p><div id="preview-body" class="prose"></div></aside>
+    </main>
+    <script>import { initializeArticleAdmin } from '../scripts/article-admin'; initializeArticleAdmin();</script>
+  </body>
+</html>

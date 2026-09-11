@@ -1,13 +1,16 @@
 ---
 import ThemeToggle from "./ThemeToggle.astro";
+import { withBase } from "../config/site";
 
 interface Props {
-  activePage: "index" | "profile" | "cv" | "music" | "perfume";
+  activePage: "index" | "profile" | "cv" | "music" | "perfume" | "journal" | "research";
 }
 
 const { activePage } = Astro.props;
 const items = [
   { id: "index", label: "Home", href: "index.html" },
+  { id: "research", label: "Research", href: "research.html" },
+  { id: "journal", label: "Journal", href: "journal.html" },
   { id: "cv", label: "CV", href: "cv.html" },
   { id: "music", label: "Music", href: "music.html" },
   { id: "perfume", label: "Perfume", href: "perfume.html" },
@@ -18,11 +21,29 @@ const items = [
   <div class="nav-links">
     {
       items.map((item) => (
-        <a href={item.href} class:list={["nav-link", { active: activePage === item.id }]}>
+        <a href={withBase(item.href)} aria-current={activePage === item.id ? 'page' : undefined} class:list={["nav-link", { active: activePage === item.id }]}>
           {item.label}
         </a>
       ))
     }
   </div>
+  <details class="mobile-navigation">
+    <summary>{items.find(item => item.id === activePage)?.label ?? 'Home'} <span>Menu ＋</span></summary>
+    <div>{items.map(item => <a href={withBase(item.href)} aria-current={activePage === item.id ? 'page' : undefined}>{item.label}</a>)}</div>
+  </details>
   <ThemeToggle />
 </nav>
+
+<style>
+  .mobile-navigation { display: none; }
+  @media (max-width: 700px) {
+    .navbar > .nav-links { display: none; }
+    .mobile-navigation { display: block; flex: 1; min-width: 0; margin-right: 22px; }
+    summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 20px; font-size: 14px; }
+    summary::-webkit-details-marker { display: none; }
+    summary span { color: var(--text-secondary); }
+    .mobile-navigation > div { position: absolute; left: 0; right: 0; top: 100%; padding: 20px; background: var(--nav-bg); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mobile-navigation a { padding: 12px; color: var(--text); text-decoration: none; }
+    .mobile-navigation a[aria-current] { background: var(--hover); }
+  }
+</style>

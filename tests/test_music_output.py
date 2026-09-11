@@ -105,12 +105,15 @@ class MusicOutputTest(unittest.TestCase):
         self.assertRegex(css, r"\.hero-playlist-link\s*\{[\s\S]*?grid-template-columns:\s*48px")
         self.assertRegex(css, r"\.text-container\s*\{[\s\S]*?width:\s*min\(900px,\s*calc\(90%\s*-\s*330px\)\)")
 
-    def test_uses_optimized_fixed_images_and_real_lazy_cover_images(self):
+    def test_uses_optimized_hero_images_and_lazy_album_covers(self):
         self.assertIn("image/avif", self.parser.picture_types)
         self.assertIn("image/webp", self.parser.picture_types)
-        lazy_covers = [image for image in self.parser.images if "post-cover-image" in self._classes(image)]
+        lazy_covers = [image for image in self.parser.images if (image.get("alt") or "").endswith(" 封面")]
         self.assertTrue(lazy_covers)
         self.assertTrue(all(image.get("loading") == "lazy" for image in lazy_covers))
+        self.assertNotIn("No Cover", self.html)
+        self.assertIn("music-card-footer", self.html)
+        self.assertIn("music-card-cover", self.html)
 
     def test_restores_the_nujabes_background_and_replaces_the_blue_vinyl_area_with_the_cover(self):
         page = (ROOT / "src" / "pages" / "music.astro").read_text(encoding="utf-8")

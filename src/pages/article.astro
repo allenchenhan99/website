@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../config/site';
+import '../styles/style.css';
+import '../styles/responsive.css';
+import '../styles/articles.css';
+---
+<BaseLayout pageTitle="Article preview" activePage="journal">
+  <article class="article-reader" data-reader>
+    <a class="reader-back" href={withBase('journal.html')}>← 返回 Journal</a>
+    <div class="preview-note" data-local-note hidden><span>本機文章預覽</span><a href={withBase('admin-articles.html')}>編輯文章 ↗</a></div>
+    <p class="reader-meta" data-reader-meta></p>
+    <h1 class="reader-title" data-reader-title>載入文章…</h1>
+    <p class="reader-summary" data-reader-summary></p>
+    <dl class="reader-context" data-reader-context hidden></dl>
+    <div class="prose" data-reader-body></div>
+    <p class="reader-meta"><a data-reader-link hidden target="_blank" rel="noreferrer">相關專案／報告 ↗</a></p>
+  </article>
+  <script>import { initializeReader } from '../scripts/articles'; initializeReader();</script>
+</BaseLayout>

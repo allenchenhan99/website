@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { loadArticleStore } from '../../lib/article-store';
+import { articleHtml } from '../../lib/article-markdown';
+import { withBase } from '../../config/site';
+import '../../styles/style.css';
+import '../../styles/responsive.css';
+import '../../styles/articles.css';
+export async function getStaticPaths() {
+  return (await loadArticleStore()).rows.filter(row => row.status === 'published').map(row => ({params:{type:row.type,slug:row.slug},props:{row}}));
+}
+const { row } = Astro.props;
+---
+<BaseLayout pageTitle={row.title} description={row.summary} activePage={row.type} article>
+  <article class="article-reader">
+    <a class="reader-back" href={withBase(`${row.type}.html`)}>← 返回 {row.type === 'journal' ? 'Journal' : 'Research'}</a>
+    <p class="reader-meta"><time datetime={row.date}>{row.date}</time> / {row.topic}{row.type === 'research' && ` / ${row.stage}`}</p>
+    <h1 class="reader-title">{row.title}</h1>
+    <p class="reader-summary">{row.summary}</p>
+    {row.type === 'journal' && row.topic === 'Competitions' && <dl class="reader-context">{row.event && <><dt>比賽／活動</dt><dd>{row.event}</dd></>}{row.role && <><dt>我的角色</dt><dd>{row.role}</dd></>}</dl>}
+    <div class="prose" set:html={articleHtml(row.body)} />
+    {row.link && <p class="reader-meta"><a href={row.link} target="_blank" rel="noreferrer">相關專案／報告 ↗</a></p>}
+  </article>
+</BaseLayout>

@@ -1,0 +1,39 @@
+---
+import ArticleCard from './ArticleCard.astro';
+import { loadArticleStore } from '../lib/article-store';
+import { visibleArticles } from '../lib/articles';
+import { withBase } from '../config/site';
+interface Props { type: 'journal' | 'research' }
+const { type } = Astro.props;
+const rows = visibleArticles((await loadArticleStore()).rows, type);
+const research = type === 'research';
+const filters = research ? ['全部','Agent Systems','Deep Learning','Quantitative Finance'] : ['全部','Competitions','Weekly Notes'];
+---
+<div data-writing-type={type}>
+  <section class="writing-hero" aria-labelledby="writing-title">
+    <img src={withBase(`assets/images/${type}-hero.webp`)} alt={research ? '研究室的黑板、論文與桌面，AI 生成示意圖' : '雨天窗邊的筆記本與書桌，AI 生成示意圖'} width="1536" height="1024" fetchpriority="high" />
+    <aside class="writing-hero-rail" aria-label={research ? '研究概覽' : '日誌概覽'}>
+      <div><span>{research ? 'Research notebook' : 'Personal journal'}</span><span data-writing-total>{String(rows.length).padStart(2,'0')} / Notes</span></div>
+      <p>{research ? 'Current question' : 'Latest entry'}</p>
+      <strong data-writing-latest>{rows[0]?.title ?? 'A new page awaits'}</strong>
+      <p>{research ? 'Last updated' : 'Last written'}</p>
+      <strong data-writing-date>{rows[0]?.date.replaceAll('-','/') ?? '—'}</strong>
+    </aside>
+    <div class="writing-description">
+      <h1 id="writing-title">{research ? 'Research' : 'Journal'}</h1>
+      <p>{research ? 'A place for questions worth staying with. Notes on AI development, deep learning, and quantitative research — from the first hypothesis to the experiments, results, and limitations that follow.' : 'Some things are worth writing down while they are still unfinished. Competition experiences, weekly reflections, and small discoveries along the way — a record of what I build, learn, and slowly figure out.'}</p>
+    </div>
+  </section>
+  <section class="writing-page" aria-label={research ? '研究文章' : '日誌文章'}>
+    <div class="writing-toolbar"><h2>{research ? 'Research notes' : 'Entries'}</h2><div class="writing-toolbar-end"><span data-article-count>{rows.length} entries</span><div class="writing-view" role="group" aria-label="文章顯示方式"><button type="button" data-writing-view="grid" aria-label="卡片檢視" aria-pressed="true"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></button><button type="button" data-writing-view="list" aria-label="列表檢視" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="1" y="2" width="16" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="16" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="14" width="16" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></button></div></div></div>
+    <div class="article-filters" role="group" aria-label={research ? '研究主題' : '文章分類'}>
+      {filters.map((filter,index) => <button type="button" data-filter={filter} aria-pressed={index === 0}>{filter === '全部' ? 'All' : filter}</button>)}
+    </div>
+    <div class="writing-grid" data-article-list aria-live="polite">{rows.map(article => <ArticleCard article={article} />)}<p class="empty-writing" data-empty hidden={rows.length > 0}>這個分類還沒有已發布的文章。</p></div>
+    <div class="preview-note" data-local-note hidden><span>本機預覽 · 文章從專案檔案讀取</span><a href={withBase('admin-articles.html')}>管理文章 ↗</a></div>
+  </section>
+  </div>
+<script>
+  import { initializeWritingIndex } from '../scripts/articles';
+  initializeWritingIndex();
+</script>

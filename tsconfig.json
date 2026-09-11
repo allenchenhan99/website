@@ -4,5 +4,5 @@
     "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true
   },
-  "exclude": ["workers/admin"]
+  "exclude": ["workers/admin", "dist"]
 }

@@ -241,7 +241,19 @@ class HomeOutputTest(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, client_code)
 
-        self.assertEqual(len(re.findall(r"\bfetch\(", client_code)), 2)
+        # Count only scripts reachable from Home; the local article editor also fetches.
+        pending = [DIST / source.removeprefix("/website/") for source in re.findall(r'<script[^>]+src="([^"]+\.js)"', self.html)]
+        visited = set()
+        home_code = self.html
+        while pending:
+            path = pending.pop().resolve()
+            if path in visited:
+                continue
+            visited.add(path)
+            source = path.read_text(encoding="utf-8")
+            home_code += source
+            pending.extend(path.parent / name for name in re.findall(r'["\'`]([^"\'`]+\.js)["\'`]', source) if name.startswith("."))
+        self.assertEqual(len(re.findall(r"\bfetch\(", home_code)), 2)
         self.assertRegex(client_code, r"priority\s*:\s*[`'\"]low[`'\"]")
         self.assertRegex(client_code, r"Accept\s*:\s*[`'\"]application/json[`'\"]")
         self.assertNotIn("UMAMI_API_KEY", client_code)
