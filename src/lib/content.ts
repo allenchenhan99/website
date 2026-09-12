@@ -42,7 +42,7 @@ export type PerfumePost = {
   content: string[];
   scents: string[];
   notes: PerfumeNotes;
-  ratings: PerfumeRatings;
+  ratings: PerfumeRatings | null;
   cover: string;
   source: string;
 };
@@ -149,7 +149,8 @@ const requirePerfumeNotes = (record: ContentRecord, label: string): PerfumeNotes
   };
 };
 
-const requirePerfumeRatings = (record: ContentRecord, label: string): PerfumeRatings => {
+const requirePerfumeRatings = (record: ContentRecord, label: string): PerfumeRatings | null => {
+  if (record.ratings === null) return null;
   const ratings = asRecord(record.ratings, `${label} ratings`);
   const unsupportedKeys = Object.keys(ratings).filter(
     (key) => !perfumeRatingKeys.includes(key as PerfumeRatingKey),

@@ -418,12 +418,12 @@ test('renders and opens the selected Starwalker perfume entry', async ({ page })
   const errors = collectRuntimeErrors(page);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('perfume.html');
-  const card = page.locator('[data-perfume-card]');
+  const card = page.locator('[data-perfume-card][data-post-id="1"]');
   await expect(card).toHaveCount(1);
   await expect(card).toContainText('Montblanc');
   await expect(card).toContainText('Starwalker');
   await expect(card.locator('.personal-title')).toHaveText('安靜得剛剛好。');
-  await expect(page.locator('[data-perfume-count]')).toHaveText('1 fragrance');
+  await expect(page.locator('[data-perfume-count]')).toHaveText('2 fragrances');
   await expect(page.locator('[data-perfume-empty]')).toBeHidden();
   await expect(page.locator('.hero-description')).toContainText('To me, perfume is part of an outfit');
   await expect(page.locator('.hero-collection-rail')).toBeVisible();
@@ -638,3 +638,23 @@ for (const viewport of [
     expect(errors).toEqual([]);
   });
 }
+
+
+test('opens Authentic without inventing subjective ratings, then restores Starwalker scores', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('perfume.html');
+  await page.locator('[data-perfume-card][data-post-id="2"]').click();
+  const dialog = page.locator('[data-perfume-dialog]');
+  await expect(dialog.locator('[data-dialog-title]')).toHaveText('關於二十歲左右的味道');
+  await expect(dialog.locator('[data-dialog-content] p')).toHaveCount(6);
+  await expect(dialog.locator('[data-dialog-radar]')).toHaveText('尚未評分');
+  await expect(dialog.locator('[data-dialog-radar] svg')).toHaveCount(0);
+  await expect(dialog.locator('[data-dialog-scores]')).toBeHidden();
+  await expect(dialog.locator('[data-dialog-cover]')).toBeVisible();
+  await expect.poll(() => dialog.locator('[data-dialog-cover]').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  await dialog.locator('[data-dialog-close]').click();
+  await page.locator('[data-perfume-card][data-post-id="1"]').click();
+  await expect(dialog.locator('[data-dialog-scores]')).toBeVisible();
+  await expect(dialog.locator('[data-dialog-scores] li')).toHaveCount(6);
+  expect(errors).toEqual([]);
+});

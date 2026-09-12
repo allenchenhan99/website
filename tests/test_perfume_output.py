@@ -72,18 +72,18 @@ class PerfumeOutputTest(unittest.TestCase):
         self.assertNotIn("unpkg.com/vue", self.html)
         self.assertNotIn("Vue.createApp", self.html)
 
-    def test_current_collection_has_one_starwalker_entry_and_hidden_empty_state(self):
+    def test_current_collection_includes_authentic_and_starwalker(self):
         expected = json.loads((ROOT / "posts" / "perfume.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(len(expected), 1)
-        self.assertEqual(expected[0]["brand"], "Montblanc")
-        self.assertEqual(expected[0]["name"], "Starwalker")
-        self.assertEqual(expected[0]["title"], "安靜得剛剛好。")
-        self.assertEqual(len(expected[0]["content"]), 5)
-        self.assertEqual("".join(self.parser.count_text).strip(), "1 fragrance")
+        self.assertEqual(expected[0]["name"], "Authentic")
+        self.assertEqual(expected[0]["title"], "關於二十歲左右的味道")
+        self.assertIsNone(expected[0]["ratings"])
+        self.assertEqual(len(expected[0]["content"]), 6)
+        self.assertTrue(any(post["name"] == "Starwalker" for post in expected))
+        self.assertEqual("".join(self.parser.count_text).strip(), f"{len(expected)} fragrances")
         self.assertEqual(len(self.parser.empty_states), 1)
         self.assertIn("hidden", self.parser.empty_states[0])
-        self.assertEqual(len(self.parser.filter_tags), 4)
+        self.assertEqual(len(self.parser.filter_tags), 1 + len({scent for post in expected for scent in post["scents"]}))
         self.assertEqual(self.parser.filter_tags[0].get("data-filter-value"), "All")
 
     def test_uses_compact_cards_and_defers_the_article_to_the_dialog(self):
@@ -118,7 +118,7 @@ class PerfumeOutputTest(unittest.TestCase):
         css = (ROOT / "src" / "styles" / "perfume.css").read_text(encoding="utf-8")
         perfume_data = json.loads((ROOT / "posts" / "perfume.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(perfume_data[0]["cover"], "assets/images/perfume-starwalker.jpg")
+        self.assertEqual(next(post for post in perfume_data if post["name"] == "Starwalker")["cover"], "assets/images/perfume-starwalker.jpg")
         self.assertTrue((ROOT / "public" / "assets" / "images" / "perfume-starwalker.jpg").exists())
         self.assertRegex(css, r"\.collection-grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(4,")
         self.assertRegex(css, r"\.compact-card\s*\{[\s\S]*?grid-template-rows:\s*210px\s+auto")
@@ -130,7 +130,7 @@ class PerfumeOutputTest(unittest.TestCase):
 
     def test_detail_dialog_uses_the_approved_split_dossier(self):
         css = (ROOT / "src" / "styles" / "perfume.css").read_text(encoding="utf-8")
-        expected = json.loads((ROOT / "posts" / "perfume.json").read_text(encoding="utf-8"))[0]
+        expected = next(post for post in json.loads((ROOT / "posts" / "perfume.json").read_text(encoding="utf-8")) if post["name"] == "Starwalker")
 
         self.assertIn("notes", expected)
         self.assertIn("ratings", expected)

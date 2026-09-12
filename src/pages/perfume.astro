@@ -117,7 +117,7 @@ const fragranceCount = `${perfumePosts.length} ${perfumePosts.length === 1 ? "fr
         {post.notes.top.map((note) => <span data-source-note="top">{note}</span>)}
         {post.notes.middle.map((note) => <span data-source-note="middle">{note}</span>)}
         {post.notes.base.map((note) => <span data-source-note="base">{note}</span>)}
-        {perfumeRatingKeys.map((key) => <span data-source-rating={key}>{post.ratings[key]}</span>)}
+        {post.ratings && perfumeRatingKeys.map((key) => <span data-source-rating={key}>{post.ratings![key]}</span>)}
       </article>
     ))}
   </div>

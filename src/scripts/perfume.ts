@@ -263,14 +263,14 @@ function readStaticPosts(): PerfumePost[] {
         base: [...detail.querySelectorAll<HTMLElement>('[data-source-note="base"]')]
           .map((note) => note.textContent ?? ''),
       },
-      ratings: {
+      ratings: detail.querySelector('[data-source-rating]') ? {
         longevity: readRating('longevity'),
         presence: readRating('presence'),
         sweetness: readRating('sweetness'),
         warmth: readRating('warmth'),
         complexity: readRating('complexity'),
         dailyWearability: readRating('dailyWearability'),
-      },
+      } : null,
       cover: detail.dataset.coverPath ?? '',
       source: detail.dataset.sourceUrl ?? '',
     }];
@@ -361,8 +361,14 @@ function initializeDetailDialog(posts: PerfumePost[]) {
       topNotes.textContent = post.notes.top.join(' · ');
       middleNotes.textContent = post.notes.middle.join(' · ');
       baseNotes.textContent = post.notes.base.join(' · ');
-      renderPerfumeRadar({ mount: radar, name: post.name, ratings: post.ratings });
-      renderPerfumeScores({ list: scores, ratings: post.ratings });
+      scores.hidden = post.ratings === null;
+      if (post.ratings) {
+        renderPerfumeRadar({ mount: radar, name: post.name, ratings: post.ratings });
+        renderPerfumeScores({ list: scores, ratings: post.ratings });
+      } else {
+        radar.textContent = '尚未評分';
+        scores.replaceChildren();
+      }
       cover.hidden = presentation.showPlaceholder;
       emptyCover.hidden = !presentation.showPlaceholder;
       if (presentation.coverUrl) {

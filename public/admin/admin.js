@@ -190,7 +190,8 @@ function fillPerfume(post) {
   setFormValue(form, 'notes-middle', post.notes.middle.join(', '));
   setFormValue(form, 'notes-base', post.notes.base.join(', '));
   setFormValue(form, 'content', post.content.join('\n\n'));
-  ratingKeys.forEach((key) => setFormValue(form, key, post.ratings[key]));
+  form.elements.namedItem('unrated').checked = post.ratings === null;
+  ratingKeys.forEach((key) => setFormValue(form, key, post.ratings?.[key] ?? 3));
   form.dataset.cover = post.cover || '';
   state.selectedId = post.id;
   setPreview('perfume', post.cover);
@@ -255,6 +256,7 @@ function selectTab(tab) {
 }
 
 function ratingValues() {
+  if (elements.perfumeForm.elements.namedItem('unrated').checked) return null;
   return Object.fromEntries(ratingKeys.map((key) => [
     key,
     Number(elements.perfumeForm.elements.namedItem(key).value),
@@ -280,6 +282,10 @@ function drawRadar() {
   const cy = cssHeight / 2 - 3;
   const radius = 102;
   const values = ratingValues();
+  if (!values) {
+    context.fillStyle = '#999'; context.font = '16px sans-serif'; context.textAlign = 'center';
+    context.fillText('尚未評分', cx, cy); return;
+  }
 
   for (let level = 1; level <= 5; level += 1) {
     context.beginPath();
@@ -323,8 +329,10 @@ function drawRadar() {
 
 function updateRatings() {
   ratingKeys.forEach((key) => {
-    const value = Number(elements.perfumeForm.elements.namedItem(key).value);
-    document.querySelector(`[data-output="${key}"]`).textContent = value.toFixed(1);
+    const input = elements.perfumeForm.elements.namedItem(key);
+    input.disabled = elements.perfumeForm.elements.namedItem('unrated').checked;
+    const value = Number(input.value);
+    document.querySelector(`[data-output="${key}"]`).textContent = input.disabled ? '—' : value.toFixed(1);
   });
   drawRadar();
 }
@@ -626,7 +634,7 @@ document.querySelectorAll('.tab').forEach((button) => button.addEventListener('c
 elements.newEntry.addEventListener('click', () => state.tab === 'perfume' ? resetPerfume() : resetMusic());
 elements.perfumeForm.addEventListener('input', (event) => {
   elements.dirty.textContent = 'UNPUBLISHED CHANGES';
-  if (event.target.type === 'range') updateRatings();
+  if (event.target.type === 'range' || event.target.name === 'unrated') updateRatings();
 });
 elements.musicForm.addEventListener('input', () => { elements.dirty.textContent = 'UNPUBLISHED CHANGES'; });
 elements.perfumeForm.addEventListener('submit', (event) => {

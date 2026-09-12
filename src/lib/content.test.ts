@@ -101,6 +101,10 @@ describe('content validation', () => {
     expect(() => parsePerfumePosts([perfume(1, { ratings: undefined })])).toThrow(/ratings/);
   });
 
+  test('allows explicitly unrated perfume entries without assigning scores', () => {
+    expect(parsePerfumePosts([perfume(2, { ratings: null })])[0]?.ratings).toBeNull();
+  });
+
   test('rejects incomplete note pyramids and invalid subjective ratings', () => {
     expect(() => parsePerfumePosts([perfume(1, {
       notes: { top: ['Bergamot'], middle: ['Cedar'] },
