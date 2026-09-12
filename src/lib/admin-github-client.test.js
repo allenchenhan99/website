@@ -193,26 +193,66 @@ describe('direct GitHub publication', () => {
     expect(JSON.parse(refCall.init.body)).toEqual({ sha: 'next-commit-sha', force: false });
   });
 
-  test('stops before writing when the loaded revision is stale', async () => {
-    const calls = [];
-    const fetcher = async (url, init) => {
-      calls.push({ url: String(url), init });
-      return Response.json({ object: { sha: 'new-head' } });
-    };
+  function publicationClient(before, current) {
+    const writes = [];
     const client = new githubClient.GitHubAdminClient({
-      token: 'github_pat_test',
-      owner: 'allenchenhan99',
-      repo: 'website',
-      branch: 'main',
-      fetcher,
+      token: 'test', owner: 'owner', repo: 'repo',
+      fetcher: async (url, init) => {
+        const path = String(url);
+        if (init.method) {
+          writes.push({ path, body: JSON.parse(init.body) });
+          return Response.json({sha:'published-sha'});
+        }
+        if (path.includes('/git/ref/')) return Response.json({object:{sha:'new-head'}});
+        if (path.includes('/git/commits/')) return Response.json({tree:{sha:'new-tree'}});
+        if (path.includes('/contents/')) return Response.json({encoding:'base64',content:Buffer.from(JSON.stringify(path.endsWith('old-head') ? before : current)).toString('base64')});
+        throw new Error('Unexpected request');
+      },
     });
+    return {client, writes};
+  }
 
-    await expect(client.publish('music', {
-      action: 'delete',
-      revision: 'old-head',
-      id: 1,
-    })).rejects.toThrow(/changed since/i);
-    expect(calls).toHaveLength(1);
-    expect(calls[0].init?.method).toBeUndefined();
+  test('publishes across unrelated commits while preserving other entries', async () => {
+    const original = {id:1,title:'Original'};
+    const {client,writes} = publicationClient([original], [original,{id:2,title:'Another author'}]);
+    await client.publish('music',{action:'upsert',revision:'old-head',item:{...original,title:'Edited'}});
+    const content = writes.find(call=>call.path.endsWith('/git/blobs')).body.content;
+    expect(JSON.parse(content)).toEqual([{id:1,title:'Edited'},{id:2,title:'Another author'}]);
+    expect(writes.find(call=>call.path.endsWith('/git/commits')).body.parents).toEqual(['new-head']);
+    expect(writes.at(-1).body.force).toBe(false);
+  });
+
+  test('recognizes a save that already succeeded without writing again', async () => {
+    const edited={id:1,title:'Edited'};
+    const {client,writes}=publicationClient([{id:1,title:'Original'}],[edited]);
+    await expect(client.publish('music',{action:'upsert',revision:'old-head',item:edited})).resolves.toMatchObject({post:edited,commitSha:'new-head'});
+    expect(writes).toEqual([]);
+  });
+
+  test('rejects conflicting updates and deletes without writing', async () => {
+    for (const action of ['upsert','delete']) {
+      const {client,writes}=publicationClient([{id:1,title:'Original'}],[{id:1,title:'Changed elsewhere'}]);
+      await expect(client.publish('music',{action,revision:'old-head',id:1,item:{id:1,title:'My edit'}})).rejects.toThrow(/entry changed/i);
+      expect(writes).toEqual([]);
+    }
+  });
+
+  test('does not recreate an entry deleted in another session', async () => {
+    const {client,writes}=publicationClient([{id:1,title:'Original'}],[]);
+    await expect(client.publish('music',{action:'upsert',revision:'old-head',item:{id:1,title:'My edit'}})).rejects.toThrow(/entry changed/i);
+    expect(writes).toEqual([]);
+  });
+});
+
+describe('post-publication refresh', () => {
+  test('reads the returned commit directly and bypasses browser cache', async () => {
+    const urls=[];
+    const client=new githubClient.GitHubAdminClient({token:'test',owner:'owner',repo:'repo',fetcher:async (url,init)=>{
+      urls.push(String(url)); expect(init.cache).toBe('no-store');
+      return Response.json({encoding:'base64',content:Buffer.from('[]').toString('base64')});
+    }});
+    await expect(client.loadContent('saved-sha')).resolves.toEqual({perfume:[],music:[],revision:'saved-sha'});
+    expect(urls).toHaveLength(2);
+    expect(urls.every(url=>url.endsWith('?ref=saved-sha'))).toBe(true);
   });
 });

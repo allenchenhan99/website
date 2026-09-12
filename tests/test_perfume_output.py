@@ -77,7 +77,7 @@ class PerfumeOutputTest(unittest.TestCase):
 
         self.assertEqual(expected[0]["name"], "Authentic")
         self.assertEqual(expected[0]["title"], "關於二十歲左右的味道")
-        self.assertIsNone(expected[0]["ratings"])
+        self.assertIn("ratings", expected[0])
         self.assertEqual(len(expected[0]["content"]), 6)
         self.assertTrue(any(post["name"] == "Starwalker" for post in expected))
         self.assertEqual("".join(self.parser.count_text).strip(), f"{len(expected)} fragrances")

@@ -642,6 +642,15 @@ for (const viewport of [
 
 test('opens Authentic without inventing subjective ratings, then restores Starwalker scores', async ({ page }) => {
   const errors = collectRuntimeErrors(page);
+  // Exercise the unrated state independently of the author's live ratings.
+  await page.route('**/perfume.html', async route => {
+    const response = await route.fetch();
+    const html = (await response.text()).replace(
+      /(<article\b[^>]*data-perfume-detail[^>]*data-post-id="2"[^>]*>)([\s\S]*?)(<\/article>)/,
+      (_match, start, body, end) => start + body.replace(/<span data-source-rating="[^"]*">[\s\S]*?<\/span>/g, '') + end,
+    );
+    await route.fulfill({response, body:html});
+  });
   await page.goto('perfume.html');
   await page.locator('[data-perfume-card][data-post-id="2"]').click();
   const dialog = page.locator('[data-perfume-dialog]');

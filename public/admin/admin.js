@@ -540,7 +540,7 @@ async function publish(type, item) {
       image: state.images[type] || undefined,
     });
     showToast('Published. GitHub Pages is rebuilding now.', { link: payload.commitUrl });
-    await loadContent(payload.post?.id);
+    await loadContent(payload.post?.id, payload.commitSha);
   } catch (error) {
     showToast(error.message, { error: true });
   } finally {
@@ -558,7 +558,7 @@ async function deleteEntry(type) {
       id: state.selectedId,
     });
     showToast('Deleted. GitHub Pages is rebuilding now.', { link: payload.commitUrl });
-    await loadContent();
+    await loadContent(undefined, payload.commitSha);
   } catch (error) {
     showToast(error.message, { error: true });
   } finally {
@@ -566,8 +566,8 @@ async function deleteEntry(type) {
   }
 }
 
-async function loadContent(preferredId) {
-  const content = await state.client.loadContent();
+async function loadContent(preferredId, revision) {
+  const content = await state.client.loadContent(revision);
   state.perfume = content.perfume;
   state.music = content.music;
   state.revision = content.revision;

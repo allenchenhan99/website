@@ -40,6 +40,14 @@ function imageExtension(type) {
   return extension;
 }
 
+function sameEntry(left, right) {
+  const canonical = value => JSON.stringify(value, (_key, item) =>
+    item && typeof item === 'object' && !Array.isArray(item)
+      ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]]))
+      : item);
+  return canonical(left) === canonical(right);
+}
+
 export class GitHubAdminClient {
   constructor({ token, owner, repo, branch = 'main', fetcher }) {
     this.token = token;
@@ -54,6 +62,7 @@ export class GitHubAdminClient {
     const fetcher = this.fetcher;
     const response = await fetcher(`${GITHUB_API}${path}`, {
       ...init,
+      cache: 'no-store',
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${this.token}`,
@@ -107,8 +116,8 @@ export class GitHubAdminClient {
     return reference.object.sha;
   }
 
-  async loadContent() {
-    const revision = await this.headRevision();
+  async loadContent(revision = undefined) {
+    revision ??= await this.headRevision();
     const [perfume, music] = await Promise.all([
       this.readJsonFile('posts/perfume.json', revision),
       this.readJsonFile('posts/music.json', revision),
@@ -141,12 +150,26 @@ export class GitHubAdminClient {
     if (!['upsert', 'delete'].includes(request.action)) throw new Error('Unsupported publish action.');
 
     const headSha = await this.headRevision();
-    if (!request.revision || request.revision !== headSha) {
-      throw new Error('Content changed since this editor was loaded. Reload before publishing.');
-    }
+    if (!request.revision) throw new Error('Load the editor before publishing.');
     const commitState = await this.request(`${this.repositoryPath}/git/commits/${headSha}`);
     const collection = await this.readJsonFile(config.path, headSha);
     if (!Array.isArray(collection)) throw new Error(`${config.path} is not an array.`);
+    if (request.revision !== headSha) {
+      const original = await this.readJsonFile(config.path, request.revision);
+      if (!Array.isArray(original)) throw new Error(`${config.path} is not an array.`);
+      const id = request.action === 'delete' ? request.id : request.item?.id;
+      if (id !== undefined && id !== null) {
+        const before = original.find(item => item.id === id);
+        const latest = collection.find(item => item.id === id);
+        if (request.action === 'upsert' && !request.image && latest && sameEntry(latest, request.item)) {
+          return {post:latest,commitSha:headSha,commitUrl:`https://github.com/${this.owner}/${this.repo}/commit/${headSha}`};
+        }
+        if (!before || !latest || !sameEntry(before, latest)) {
+          throw new Error('This entry changed in another session. Your edits are still in the form; copy them before reloading to compare.');
+        }
+      }
+    }
+
 
     let post;
     let message;
