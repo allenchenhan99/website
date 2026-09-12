@@ -36,7 +36,14 @@
         "Suede"
       ]
     },
-    "ratings": null,
+    "ratings": {
+      "longevity": 2,
+      "presence": 3,
+      "sweetness": 2.5,
+      "warmth": 4,
+      "complexity": 3,
+      "dailyWearability": 4
+    },
     "cover": "assets/images/perfume-authentic-man.jpg",
     "source": "https://www.next.co.uk/style/su487028/ag0013"
   },
