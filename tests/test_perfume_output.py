@@ -90,7 +90,7 @@ class PerfumeOutputTest(unittest.TestCase):
         self.assertIn('class="collection-grid"', self.html)
         self.assertIn('class="compact-card-visual product-stage"', self.html)
         self.assertIn('class="compact-card-copy"', self.html)
-        self.assertIn('class="personal-title">安靜得剛剛好。</span>', self.html)
+        self.assertIn('class="personal-title">安靜得剛剛好</span>', self.html)
         self.assertNotIn('class="featured"', self.html)
         self.assertNotIn('class="featured-excerpt"', self.html)
         self.assertEqual(self.html.count('class="detail-text article-copy"'), 1)
