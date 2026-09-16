@@ -118,11 +118,12 @@ export class GitHubAdminClient {
 
   async loadContent(revision = undefined) {
     revision ??= await this.headRevision();
-    const [perfume, music] = await Promise.all([
+    const [perfume, music, articles] = await Promise.all([
       this.readJsonFile('posts/perfume.json', revision),
       this.readJsonFile('posts/music.json', revision),
+      this.readJsonFile('src/data/articles.json', revision),
     ]);
-    return { perfume, music, revision };
+    return { perfume, music, articles, revision };
   }
 
   async createBlob(content, encoding) {
@@ -144,6 +145,12 @@ export class GitHubAdminClient {
         path: 'posts/music.json',
         label: (item) => item.title,
         slug: (item) => item.title,
+      },
+      articles: {
+        path: 'src/data/articles.json',
+        label: (item) => item.title,
+        slug: (item) => item.slug,
+        idType: 'string',
       },
     }[type];
     if (!config) throw new Error('Unsupported content type.');
@@ -180,13 +187,18 @@ export class GitHubAdminClient {
       message = `Delete ${type} entry: ${config.label(removed)}`;
     } else {
       if (!request.item || typeof request.item !== 'object') throw new Error('The entry is incomplete.');
-      const requestedId = Number.isSafeInteger(request.item.id) ? request.item.id : undefined;
+      const requestedId = config.idType === 'string'
+        ? typeof request.item.id === 'string' && request.item.id ? request.item.id : undefined
+        : Number.isSafeInteger(request.item.id) ? request.item.id : undefined;
       const index = requestedId === undefined
         ? -1
         : collection.findIndex((item) => item.id === requestedId);
       const id = index >= 0
         ? collection[index].id
-        : Math.max(0, ...collection.map((item) => Number(item.id) || 0)) + 1;
+        : config.idType === 'string'
+          ? requestedId
+          : Math.max(0, ...collection.map((item) => Number(item.id) || 0)) + 1;
+      if (id === undefined) throw new Error('The entry is incomplete.');
       post = { ...request.item, id };
       if (request.image) {
         post.cover = `assets/images/uploads/${type}-${id}-${slugify(config.slug(post))}-${now()}.${imageExtension(request.image.type)}`;

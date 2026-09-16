@@ -115,7 +115,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   background: rgb(23 23 23 / 85%);
 }
 
-.library-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+.library-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
 .tab {
   position: relative;
   padding: 17px 10px;
@@ -129,6 +129,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .tab.active { color: var(--text); background: var(--panel); }
 .tab.active::after { position: absolute; right: 20%; bottom: -1px; left: 20%; height: 2px; background: var(--accent); content: ""; }
 .tab[data-tab="music"].active::after { background: var(--music); }
+.tab[data-tab="journal"].active::after { background: #c6a6e8; }
+.tab[data-tab="research"].active::after { background: #87b9e8; }
 
 .library-heading {
   display: flex;
@@ -247,6 +249,10 @@ input::placeholder, textarea::placeholder { color: #4f4f4f; }
 .writing-section { display: grid; grid-template-columns: .7fr 1.3fr; gap: 18px; }
 .writing-section .section-label { grid-column: 1 / -1; margin-bottom: 4px; }
 .writing-section textarea[name="content"] { min-height: 250px; }
+.article-writing-section textarea[name="body"] { min-height: 390px; font-family: inherit; }
+.article-help { display: block; margin-top: 8px; color: var(--dim); font-size: 9px; line-height: 1.5; }
+.check-label { flex-direction: row; align-items: center; gap: 9px; padding-top: 25px; }
+.check-label input { width: 14px; height: 14px; margin: 0; accent-color: var(--accent); }
 
 .impression-grid { display: grid; grid-template-columns: 1fr minmax(280px, .8fr); gap: 30px; align-items: center; }
 .rating-list { display: flex; flex-direction: column; gap: 16px; }
@@ -382,6 +388,8 @@ input[type="range"] { height: 14px; padding: 0; border: 0; accent-color: var(--a
   .editor-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
   .form-section { padding: 18px 14px; }
   .field-row, .notes-grid { grid-template-columns: 1fr; }
+  .library-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .check-label { padding-top: 0; }
   .publish-bar { align-items: stretch; flex-direction: column; bottom: 8px; }
   .publish-bar > div { justify-content: flex-end; }
   .publish-button { flex: 1; }

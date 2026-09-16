@@ -23,6 +23,7 @@ PAGES_ADMIN_FILES = (
     "admin.js",
     "github-client.js",
     "image-crop.js",
+    "article-admin.js",
 )
 GENERATED_TEXT_SUFFIXES = {".html", ".js", ".mjs"}
 
@@ -97,6 +98,26 @@ class AstroArchitectureTest(unittest.TestCase):
             for relative_path in PAGES_ADMIN_FILES:
                 with self.subTest(root=root, relative_path=relative_path):
                     self.assertTrue((root / relative_path).exists())
+
+    def test_admin_exposes_all_editable_content_categories(self):
+        for root in (ROOT / "public" / "admin", DIST / "admin"):
+            content = (root / "index.html").read_text(encoding="utf-8")
+            with self.subTest(root=root):
+                self.assertIn('data-tab="journal"', content)
+                self.assertIn('data-tab="research"', content)
+                self.assertIn('id="article-form"', content)
+                for field in ("type", "topic", "title", "slug", "summary", "date", "status", "body"):
+                    self.assertIn(f'name="{field}"', content)
+                self.assertIn('id="delete-article"', content)
+                self.assertIn('Publish article', content)
+
+    def test_admin_entry_points_use_unified_editor(self):
+        for root in (ROOT / "public" / "admin", DIST / "admin"):
+            content = (root / "index.html").read_text(encoding="utf-8")
+            with self.subTest(root=root):
+                self.assertNotIn("admin-articles.html", content)
+                self.assertIn("Journal", content)
+                self.assertIn("Research", content)
 
 
 if __name__ == "__main__":

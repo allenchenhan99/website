@@ -37,10 +37,10 @@ npm run preview      # preview dist/ locally
 
 Pull requests run checks, unit/contracts, a production build, and Playwright E2E tests without deploying. Pushes to `main` execute the same validation, upload `dist`, and deploy it to GitHub Pages at <https://allenchenhan99.github.io/website/>. Manual runs deploy only when dispatched from `main`; other selected refs run validation without uploading or deploying. Pull request validation is isolated from release runs. Running releases are not canceled, and deployment jobs serialize through a shared production group; GitHub Actions may replace an older pending run when a newer run enters the same concurrency group. In repository settings, GitHub Pages must use **GitHub Actions** as its source.
 
-## Journal and Research authoring
+## Admin authoring
 
-Open `/website/admin-articles.html` while running `npm run dev` on localhost. Choose Journal or Research, fill in the metadata, and use **帶入寫作架構** for competition, weekly-note or research outlines. Markdown supports links, images, tables and code blocks; raw HTML is disabled.
+Open `/website/admin/` (or `/website/admin.html`) to edit all four content categories: Perfume, Music, Journal and Research. The Content Desk uses a fine-grained GitHub token, reads each collection at one repository revision, and publishes an edit or delete as one commit that starts the normal Pages deployment.
 
-**儲存到專案** writes to `src/data/articles.json`. Drafts remain editable locally and are excluded from generated website files. Selecting **發布（待部署）** includes an entry in its category and generates `/website/journal/<slug>.html` or `/website/research/<slug>.html` with its title and summary metadata. Commit and deploy after reviewing the article to update the live site. The local editor itself does not push to GitHub. Drafts committed to a public repository are visible in repository source, even though the website does not render them.
+Journal and Research entries are stored in `src/data/articles.json`. Choose the category tab, fill in the metadata and Markdown body, then publish as a draft or published entry. Published entries generate `/website/journal/<slug>.html` or `/website/research/<slug>.html`; drafts stay out of generated website files while remaining visible in repository source.
 
-The editor detects conflicting saves from another window and preserves the unsaved form on failure. Existing prototype examples in browser storage are not imported as real posts. The initial article collection is empty, ready for the first authored entry.
+The old `/website/admin-articles.html` page remains as a localhost-only authoring preview for compatibility. It does not push to GitHub and is no longer required for the publishing workflow. The GitHub-backed Content Desk detects conflicting saves from another window and preserves the unsaved form on failure.
