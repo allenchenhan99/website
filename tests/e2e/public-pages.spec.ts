@@ -422,7 +422,7 @@ test('renders and opens the selected Starwalker perfume entry', async ({ page })
   await expect(card).toHaveCount(1);
   await expect(card).toContainText('Montblanc');
   await expect(card).toContainText('Starwalker');
-  await expect(card.locator('.personal-title')).toHaveText('安靜得剛剛好。');
+  await expect(card.locator('.personal-title')).toHaveText('安靜得剛剛好');
   await expect(page.locator('[data-perfume-count]')).toHaveText('2 fragrances');
   await expect(page.locator('[data-perfume-empty]')).toBeHidden();
   await expect(page.locator('.hero-description')).toContainText('To me, perfume is part of an outfit');
@@ -468,7 +468,7 @@ test('renders and opens the selected Starwalker perfume entry', async ({ page })
   await card.click();
   const dialog = page.locator('[data-perfume-dialog]');
   await expect(dialog).toHaveJSProperty('open', true);
-  await expect(dialog.locator('[data-dialog-title]')).toHaveText('安靜得剛剛好。');
+  await expect(dialog.locator('[data-dialog-title]')).toHaveText('安靜得剛剛好');
   await expect(dialog.locator('[data-dialog-content] p')).toHaveCount(5);
   await expect(dialog.locator('[data-dialog-notes="top"]')).toContainText('Bamboo');
   await expect(dialog.locator('[data-dialog-notes="middle"]')).toContainText('White Musk');
