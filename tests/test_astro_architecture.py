@@ -98,6 +98,18 @@ class AstroArchitectureTest(unittest.TestCase):
                 with self.subTest(root=root, relative_path=relative_path):
                     self.assertTrue((root / relative_path).exists())
 
+    def test_admin_exposes_all_editable_content_categories(self):
+        for root in (ROOT / "public" / "admin", DIST / "admin"):
+            content = (root / "index.html").read_text(encoding="utf-8")
+            with self.subTest(root=root):
+                self.assertIn('data-tab="journal"', content)
+                self.assertIn('data-tab="research"', content)
+                self.assertIn('id="article-form"', content)
+                for field in ("type", "topic", "title", "slug", "summary", "date", "status", "body"):
+                    self.assertIn(f'name="{field}"', content)
+                self.assertIn('id="delete-article"', content)
+                self.assertIn('Publish article', content)
+
 
 if __name__ == "__main__":
     unittest.main()

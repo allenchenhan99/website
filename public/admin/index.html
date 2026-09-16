@@ -55,6 +55,8 @@
         <div class="library-tabs" role="tablist" aria-label="Content type">
           <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="perfume">Perfume</button>
           <button class="tab" type="button" role="tab" aria-selected="false" data-tab="music">Music</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-tab="journal">Journal</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-tab="research">Research</button>
         </div>
         <div class="library-heading">
           <div>
@@ -178,6 +180,54 @@
             <div>
               <button id="delete-music" class="danger-button" type="button" hidden>Delete</button>
               <button class="publish-button music-button" type="submit">Publish music →</button>
+            </div>
+          </div>
+        </form>
+
+        <form id="article-form" class="content-form" hidden>
+          <input type="hidden" name="id">
+          <section class="form-section article-section">
+            <div class="section-label"><span>01</span> Article identity</div>
+            <div class="field-stack">
+              <div class="field-row">
+                <label>Type<select name="type"><option value="journal">Journal</option><option value="research">Research</option></select></label>
+                <label>Topic<select name="topic"></select></label>
+              </div>
+              <label>Title<input name="title" required maxlength="160" placeholder="A question worth keeping"></label>
+              <label>Summary<textarea name="summary" rows="3" required maxlength="400" placeholder="Two sentences that tell readers what this is about."></textarea></label>
+              <div class="field-row">
+                <label>URL slug<input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="my-first-note"></label>
+                <label>Date<input name="date" type="date" required></label>
+              </div>
+              <div class="field-row">
+                <label>Status<select name="status"><option value="draft">Draft</option><option value="published">Published</option></select></label>
+                <label class="check-label"><input name="featured" type="checkbox"> Featured article</label>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section" id="article-type-fields">
+            <div id="article-research-fields" class="field-row" hidden>
+              <label>Research stage<select name="stage"><option value="進行中">進行中</option><option value="已完成">已完成</option></select></label>
+              <label>Code / report link<input name="link" type="url" placeholder="https://github.com/…"></label>
+            </div>
+            <div id="article-competition-fields" class="field-row" hidden>
+              <label>Competition / event<input name="event" placeholder="Event name"></label>
+              <label>My role<input name="role" placeholder="What I was responsible for"></label>
+            </div>
+          </section>
+
+          <section class="form-section article-writing-section">
+            <div class="section-label"><span>02</span> Markdown body</div>
+            <label>Article body<textarea name="body" rows="22" required spellcheck="false" placeholder="# Start writing here"></textarea></label>
+            <small class="article-help">Markdown supports headings, links, images, tables and code blocks.</small>
+          </section>
+
+          <div class="publish-bar">
+            <p><span class="status-dot"></span>Publishing creates one GitHub commit and starts the site deployment.</p>
+            <div>
+              <button id="delete-article" class="danger-button" type="button" hidden>Delete</button>
+              <button class="publish-button" type="submit">Publish article →</button>
             </div>
           </div>
         </form>
