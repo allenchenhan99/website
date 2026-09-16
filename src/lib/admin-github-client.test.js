@@ -108,7 +108,7 @@ describe('GitHub admin identity and content loading', () => {
     await expect(client.verify()).rejects.toThrow(/allenchenhan99/i);
   });
 
-  test('loads both collections at one repository revision', async () => {
+  test('loads all editable collections at one repository revision', async () => {
     const encode = (value) => Buffer.from(JSON.stringify(value), 'utf8').toString('base64');
     const fetcher = async (url) => {
       const path = String(url);
@@ -120,6 +120,9 @@ describe('GitHub admin identity and content loading', () => {
       }
       if (path.includes('posts/music.json')) {
         return Response.json({ encoding: 'base64', content: encode([{ id: 2, title: 'Nujabes' }]) });
+      }
+      if (path.includes('src/data/articles.json')) {
+        return Response.json({ encoding: 'base64', content: encode([{ id: 'article-1', type: 'journal', title: 'Note' }]) });
       }
       return Response.json({ message: 'Not found' }, { status: 404 });
     };
@@ -134,6 +137,7 @@ describe('GitHub admin identity and content loading', () => {
     await expect(client.loadContent()).resolves.toEqual({
       perfume: [{ id: 1, name: 'Starwalker' }],
       music: [{ id: 2, title: 'Nujabes' }],
+      articles: [{ id: 'article-1', type: 'journal', title: 'Note' }],
       revision: 'head-sha',
     });
   });
@@ -193,6 +197,44 @@ describe('direct GitHub publication', () => {
     expect(JSON.parse(refCall.init.body)).toEqual({ sha: 'next-commit-sha', force: false });
   });
 
+  test('publishes an article collection while preserving its string id', async () => {
+    const current = [{ id: 'article-1', type: 'journal', title: 'Original', slug: 'original' }];
+    const updated = { ...current[0], title: 'Edited', slug: 'edited' };
+    const calls = [];
+    const responses = [
+      { object: { sha: 'head-sha' } },
+      { tree: { sha: 'base-tree-sha' } },
+      { encoding: 'base64', content: Buffer.from(JSON.stringify(current), 'utf8').toString('base64') },
+      { sha: 'json-blob-sha' },
+      { sha: 'next-tree-sha' },
+      { sha: 'next-commit-sha', html_url: 'https://github.com/allenchenhan99/website/commit/next-commit-sha' },
+      { object: { sha: 'next-commit-sha' } },
+    ];
+    const fetcher = async (url, init) => {
+      calls.push({ url: String(url), init });
+      return Response.json(responses.shift());
+    };
+    const client = new githubClient.GitHubAdminClient({
+      token: 'github_pat_test',
+      owner: 'allenchenhan99',
+      repo: 'website',
+      branch: 'main',
+      fetcher,
+    });
+
+    const result = await client.publish('articles', {
+      action: 'upsert',
+      revision: 'head-sha',
+      item: updated,
+    });
+
+    expect(result.post).toEqual(updated);
+    const treeCall = calls.find(({ url }) => url.endsWith('/git/trees'));
+    expect(JSON.parse(treeCall.init.body).tree).toEqual([
+      { path: 'src/data/articles.json', mode: '100644', type: 'blob', sha: 'json-blob-sha' },
+    ]);
+  });
+
   function publicationClient(before, current) {
     const writes = [];
     const client = new githubClient.GitHubAdminClient({
@@ -242,6 +284,19 @@ describe('direct GitHub publication', () => {
     await expect(client.publish('music',{action:'upsert',revision:'old-head',item:{id:1,title:'My edit'}})).rejects.toThrow(/entry changed/i);
     expect(writes).toEqual([]);
   });
+
+  test('rejects conflicting article updates without writing', async () => {
+    const {client,writes} = publicationClient(
+      [{id:'article-1',title:'Original'}],
+      [{id:'article-1',title:'Changed elsewhere'}],
+    );
+    await expect(client.publish('articles', {
+      action: 'upsert',
+      revision: 'old-head',
+      item: {id:'article-1',title:'My edit'},
+    })).rejects.toThrow(/entry changed/i);
+    expect(writes).toEqual([]);
+  });
 });
 
 describe('post-publication refresh', () => {
@@ -251,8 +306,8 @@ describe('post-publication refresh', () => {
       urls.push(String(url)); expect(init.cache).toBe('no-store');
       return Response.json({encoding:'base64',content:Buffer.from('[]').toString('base64')});
     }});
-    await expect(client.loadContent('saved-sha')).resolves.toEqual({perfume:[],music:[],revision:'saved-sha'});
-    expect(urls).toHaveLength(2);
+    await expect(client.loadContent('saved-sha')).resolves.toEqual({perfume:[],music:[],articles:[],revision:'saved-sha'});
+    expect(urls).toHaveLength(3);
     expect(urls.every(url=>url.endsWith('?ref=saved-sha'))).toBe(true);
   });
 });
