@@ -111,6 +111,14 @@ class AstroArchitectureTest(unittest.TestCase):
                 self.assertIn('id="delete-article"', content)
                 self.assertIn('Publish article', content)
 
+    def test_admin_entry_points_use_unified_editor(self):
+        for root in (ROOT / "public" / "admin", DIST / "admin"):
+            content = (root / "index.html").read_text(encoding="utf-8")
+            with self.subTest(root=root):
+                self.assertNotIn("admin-articles.html", content)
+                self.assertIn("Journal", content)
+                self.assertIn("Research", content)
+
 
 if __name__ == "__main__":
     unittest.main()
