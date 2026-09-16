@@ -5,6 +5,7 @@ import {
   saveAdminToken,
 } from './github-client.js';
 import { getCoverPlacement, getCropPreset } from './image-crop.js';
+import { articlePayload, articleTopics, filterArticles } from './article-admin.js';
 
 const SITE_ROOT = 'https://allenchenhan99.github.io/website/';
 const GITHUB_CONFIG = { owner: 'allenchenhan99', repo: 'website', branch: 'main' };
@@ -15,6 +16,7 @@ const state = {
   tab: 'perfume',
   perfume: [],
   music: [],
+  articles: [],
   revision: '',
   selectedId: null,
   images: { perfume: null, music: null },
@@ -55,12 +57,16 @@ const elements = {
   dirty: document.querySelector('#dirty-state'),
   perfumeForm: document.querySelector('#perfume-form'),
   musicForm: document.querySelector('#music-form'),
+  articleForm: document.querySelector('#article-form'),
   perfumePreview: document.querySelector('#perfume-preview'),
   musicPreview: document.querySelector('#music-preview'),
   radar: document.querySelector('#radar'),
   toast: document.querySelector('#toast'),
   deletePerfume: document.querySelector('#delete-perfume'),
   deleteMusic: document.querySelector('#delete-music'),
+  deleteArticle: document.querySelector('#delete-article'),
+  articleResearchFields: document.querySelector('#article-research-fields'),
+  articleCompetitionFields: document.querySelector('#article-competition-fields'),
   clearPerfumeImage: document.querySelector('#clear-perfume-image'),
   clearMusicImage: document.querySelector('#clear-music-image'),
   logout: document.querySelector('#logout'),
@@ -85,6 +91,18 @@ function today() {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}/${month}/${day}`;
+}
+
+function articleToday() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function isArticleTab(tab) {
+  return tab === 'journal' || tab === 'research';
 }
 
 function assetUrl(path) {
@@ -179,6 +197,36 @@ function resetMusic() {
   renderList();
 }
 
+function updateArticleFields() {
+  const form = elements.articleForm;
+  const type = form.elements.namedItem('type').value === 'research' ? 'research' : 'journal';
+  const topic = form.elements.namedItem('topic');
+  const currentTopic = topic.value;
+  topic.replaceChildren(...articleTopics(type).map((value) => {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    return option;
+  }));
+  topic.value = articleTopics(type).includes(currentTopic) ? currentTopic : articleTopics(type)[0];
+  elements.articleResearchFields.hidden = type !== 'research';
+  elements.articleCompetitionFields.hidden = type !== 'journal' || topic.value !== 'Competitions';
+}
+
+function resetArticle(type = state.tab) {
+  const form = elements.articleForm;
+  form.reset();
+  setFormValue(form, 'id', crypto.randomUUID());
+  setFormValue(form, 'type', type === 'research' ? 'research' : 'journal');
+  setFormValue(form, 'date', articleToday());
+  updateArticleFields();
+  state.selectedId = null;
+  elements.deleteArticle.hidden = true;
+  elements.editorMode.textContent = 'NEW ENTRY';
+  elements.editorTitle.textContent = state.tab === 'research' ? 'Add research' : 'Add a journal entry';
+  renderList();
+}
+
 function fillPerfume(post) {
   const form = elements.perfumeForm;
   clearImage('perfume');
@@ -215,8 +263,27 @@ function fillMusic(post) {
   renderList();
 }
 
+function fillArticle(post) {
+  const form = elements.articleForm;
+  setFormValue(form, 'id', post.id);
+  setFormValue(form, 'type', post.type);
+  updateArticleFields();
+  for (const field of ['topic', 'title', 'slug', 'summary', 'date', 'status', 'stage', 'body', 'link', 'event', 'role']) {
+    setFormValue(form, field, post[field]);
+  }
+  form.elements.namedItem('featured').checked = post.featured;
+  updateArticleFields();
+  state.selectedId = post.id;
+  elements.deleteArticle.hidden = false;
+  elements.editorMode.textContent = `EDITING / ${post.type === 'research' ? 'RESEARCH' : 'JOURNAL'}`;
+  elements.editorTitle.textContent = post.title || 'Untitled article';
+  renderList();
+}
+
 function renderList() {
-  const posts = state[state.tab];
+  const posts = isArticleTab(state.tab)
+    ? filterArticles(state.articles, state.tab)
+    : state[state.tab];
   elements.count.textContent = `${posts.length} ${posts.length === 1 ? 'entry' : 'entries'}`;
   elements.list.replaceChildren();
   if (posts.length === 0) {
@@ -233,11 +300,19 @@ function renderList() {
     const title = document.createElement('strong');
     title.textContent = state.tab === 'perfume' ? `${post.brand} — ${post.name}` : post.title;
     const subtitle = document.createElement('span');
-    subtitle.textContent = state.tab === 'perfume' ? post.title : post.tag;
+    subtitle.textContent = state.tab === 'perfume'
+      ? post.title
+      : isArticleTab(state.tab)
+        ? `${post.topic} · ${post.status === 'published' ? 'Published' : 'Draft'}`
+        : post.tag;
     const meta = document.createElement('small');
     meta.textContent = `${post.date}  ·  #${String(post.id).padStart(2, '0')}`;
     button.append(title, subtitle, meta);
-    button.addEventListener('click', () => state.tab === 'perfume' ? fillPerfume(post) : fillMusic(post));
+    button.addEventListener('click', () => {
+      if (state.tab === 'perfume') fillPerfume(post);
+      else if (state.tab === 'music') fillMusic(post);
+      else fillArticle(post);
+    });
     elements.list.append(button);
   });
 }
@@ -251,8 +326,10 @@ function selectTab(tab) {
   });
   elements.perfumeForm.hidden = tab !== 'perfume';
   elements.musicForm.hidden = tab !== 'music';
+  elements.articleForm.hidden = !isArticleTab(tab);
   if (tab === 'perfume') resetPerfume();
-  else resetMusic();
+  else if (tab === 'music') resetMusic();
+  else resetArticle(tab);
 }
 
 function ratingValues() {
@@ -530,6 +607,26 @@ function musicPayload() {
   };
 }
 
+function articleFormPayload() {
+  const form = elements.articleForm;
+  return articlePayload({
+    id: form.elements.namedItem('id').value,
+    type: form.elements.namedItem('type').value,
+    topic: form.elements.namedItem('topic').value,
+    title: form.elements.namedItem('title').value,
+    slug: form.elements.namedItem('slug').value,
+    summary: form.elements.namedItem('summary').value,
+    date: form.elements.namedItem('date').value,
+    status: form.elements.namedItem('status').value,
+    stage: form.elements.namedItem('stage').value,
+    featured: form.elements.namedItem('featured').checked,
+    body: form.elements.namedItem('body').value,
+    link: form.elements.namedItem('link').value,
+    event: form.elements.namedItem('event').value,
+    role: form.elements.namedItem('role').value,
+  });
+}
+
 async function publish(type, item) {
   setBusy(true);
   try {
@@ -570,12 +667,18 @@ async function loadContent(preferredId, revision) {
   const content = await state.client.loadContent(revision);
   state.perfume = content.perfume;
   state.music = content.music;
+  state.articles = content.articles;
   state.revision = content.revision;
   elements.identity.textContent = `@${state.identity}`;
-  const selected = state[state.tab].find((post) => post.id === preferredId);
-  if (selected) state.tab === 'perfume' ? fillPerfume(selected) : fillMusic(selected);
-  else if (state.tab === 'perfume') resetPerfume();
-  else resetMusic();
+  const collection = isArticleTab(state.tab) ? filterArticles(state.articles, state.tab) : state[state.tab];
+  const selected = collection.find((post) => post.id === preferredId);
+  if (selected) {
+    if (state.tab === 'perfume') fillPerfume(selected);
+    else if (state.tab === 'music') fillMusic(selected);
+    else fillArticle(selected);
+  } else if (state.tab === 'perfume') resetPerfume();
+  else if (state.tab === 'music') resetMusic();
+  else resetArticle(state.tab);
   elements.dirty.textContent = `SYNCED / ${content.revision.slice(0, 7)}`;
 }
 
@@ -626,17 +729,23 @@ function logout() {
   state.identity = '';
   state.perfume = [];
   state.music = [];
+  state.articles = [];
   showLogin();
 }
 
 document.querySelectorAll('.content-form .publish-button').forEach((button) => { button.dataset.label = button.textContent; });
 document.querySelectorAll('.tab').forEach((button) => button.addEventListener('click', () => selectTab(button.dataset.tab)));
-elements.newEntry.addEventListener('click', () => state.tab === 'perfume' ? resetPerfume() : resetMusic());
+elements.newEntry.addEventListener('click', () => {
+  if (state.tab === 'perfume') resetPerfume();
+  else if (state.tab === 'music') resetMusic();
+  else resetArticle(state.tab);
+});
 elements.perfumeForm.addEventListener('input', (event) => {
   elements.dirty.textContent = 'UNPUBLISHED CHANGES';
   if (event.target.type === 'range' || event.target.name === 'unrated') updateRatings();
 });
 elements.musicForm.addEventListener('input', () => { elements.dirty.textContent = 'UNPUBLISHED CHANGES'; });
+elements.articleForm.addEventListener('input', () => { elements.dirty.textContent = 'UNPUBLISHED CHANGES'; });
 elements.perfumeForm.addEventListener('submit', (event) => {
   event.preventDefault();
   if (!state.publishing) publish('perfume', perfumePayload());
@@ -645,6 +754,23 @@ elements.musicForm.addEventListener('submit', (event) => {
   event.preventDefault();
   if (!state.publishing) publish('music', musicPayload());
 });
+elements.articleForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!state.publishing) publish('articles', articleFormPayload());
+});
+elements.deleteArticle.addEventListener('click', () => deleteEntry('articles'));
+elements.articleForm.elements.namedItem('type').addEventListener('change', (event) => {
+  const type = event.target.value === 'research' ? 'research' : 'journal';
+  state.tab = type;
+  document.querySelectorAll('.tab').forEach((button) => {
+    const active = button.dataset.tab === type;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', String(active));
+  });
+  updateArticleFields();
+  renderList();
+});
+elements.articleForm.elements.namedItem('topic').addEventListener('change', updateArticleFields);
 document.querySelector('#perfume-image').addEventListener('change', (event) => acceptImage('perfume', event.target.files[0], event.target));
 document.querySelector('#music-image').addEventListener('change', (event) => acceptImage('music', event.target.files[0], event.target));
 document.querySelectorAll('.image-field').forEach((field) => {

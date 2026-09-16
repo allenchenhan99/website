@@ -23,6 +23,7 @@ PAGES_ADMIN_FILES = (
     "admin.js",
     "github-client.js",
     "image-crop.js",
+    "article-admin.js",
 )
 GENERATED_TEXT_SUFFIXES = {".html", ".js", ".mjs"}
 
