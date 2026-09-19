@@ -1,6 +1,6 @@
-# AllenLin
+# AllenLin — Personal Website
 
-AllenLin is a statically generated Astro site. Public pages ship prerendered HTML and small native scripts; the Admin page remains a separate legacy Vue tool for editing repository content.
+AllenLin is a personal portfolio and writing site built with Astro. It brings together profile and CV information, research notes, journal entries, music listening notes, and a perfume collection in one carefully curated space.
 
 Live site: <https://allenchenhan99.github.io/website/>
 
@@ -29,7 +29,7 @@ npm run preview      # preview dist/ locally
 ## Content and Admin
 
 - `posts/music.json` and `posts/perfume.json` are the source of public post content. Astro validates and prerenders them during the build.
-- The deployed `/website/admin.html` tool reads and writes those files through the GitHub Contents API. It requires a GitHub token with access to this repository and intentionally remains separate from the Astro public-page runtime.
+- The deployed `/website/admin.html` tool manages all four content categories through the GitHub Contents API. It requires a GitHub token with access to this repository and remains separate from the public-page runtime.
 - Cropped Admin images are committed to `public/assets/images/uploads`; JSON stores their public path as `assets/images/uploads/...`. Uploading an image and saving a post are separate repository updates, so complete both actions when adding a cover.
 - The source brand icon is `public/assets/brand/allenlin-icon.svg`. Replace it with a transparent, square-friendly SVG, then run `npm run icons` (or `npm run build`) to regenerate `favicon-32.png` and `apple-touch-icon.png` in the same directory.
 
