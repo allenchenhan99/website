@@ -20,6 +20,10 @@ class MusicOutputParser(HTMLParser):
         self.picture_types = []
         self.vinyl_records = []
         self.vinyl_materials = []
+        self.text = []
+
+    def handle_data(self, data):
+        self.text.append(data)
 
     @staticmethod
     def _classes(attributes):
@@ -66,9 +70,10 @@ class MusicOutputTest(unittest.TestCase):
         expected = json.loads((ROOT / "posts" / "music.json").read_text(encoding="utf-8"))
 
         self.assertEqual(len(self.parser.cards), len(expected))
+        rendered_text = "".join(self.parser.text)
         for post in expected:
-            self.assertIn(post["title"], self.html)
-            self.assertIn(post["excerpt"], self.html)
+            self.assertIn(post["title"], rendered_text)
+            self.assertIn(post["excerpt"], rendered_text)
         self.assertNotIn("posts/music.json", self.html)
 
     def test_moves_compact_playlist_links_into_the_hero_and_removes_large_embeds(self):
