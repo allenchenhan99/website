@@ -408,8 +408,8 @@ test('keeps compact Spotify links beside the Music description and persists list
   expect(errors).toEqual([]);
 });
 
-// AC: The Starwalker card, filters, and five-paragraph detail work without page errors.
-// Behavior: Open the collection, filter its single entry, and open its article → the selected B presentation stays intact.
+// AC: Starwalker remains available in the perfume collection and opens its complete detail without page errors.
+// Behavior: Open the collection, filter by brand and scent, and open Starwalker → its scores and detail stay intact.
 // @category: e2e
 // @dependency: full-system
 // @complexity: medium
@@ -423,7 +423,8 @@ test('renders and opens the selected Starwalker perfume entry', async ({ page })
   await expect(card).toContainText('Montblanc');
   await expect(card).toContainText('Starwalker');
   await expect(card.locator('.personal-title')).toHaveText('安靜得剛剛好');
-  await expect(page.locator('[data-perfume-count]')).toHaveText('2 fragrances');
+  const collectionSize = await page.locator('[data-perfume-card]').count();
+  await expect(page.locator('[data-perfume-count]')).toHaveText(`${collectionSize} fragrances`);
   await expect(page.locator('[data-perfume-empty]')).toBeHidden();
   await expect(page.locator('.hero-description')).toContainText('To me, perfume is part of an outfit');
   await expect(page.locator('.hero-collection-rail')).toBeVisible();
