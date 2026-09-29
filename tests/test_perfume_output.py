@@ -72,13 +72,17 @@ class PerfumeOutputTest(unittest.TestCase):
         self.assertNotIn("unpkg.com/vue", self.html)
         self.assertNotIn("Vue.createApp", self.html)
 
-    def test_current_collection_includes_authentic_and_starwalker(self):
+    def test_current_collection_includes_fierce_authentic_and_starwalker(self):
         expected = json.loads((ROOT / "posts" / "perfume.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(expected[0]["name"], "Authentic")
-        self.assertEqual(expected[0]["title"], "關於二十歲左右的味道")
-        self.assertIn("ratings", expected[0])
-        self.assertEqual(len(expected[0]["content"]), 6)
+        fierce = expected[0]
+        self.assertEqual(fierce["name"], "Fierce")
+        self.assertEqual(fierce["title"], "從「行走的荷爾蒙」到不敗經典")
+        self.assertIn("ratings", fierce)
+        self.assertEqual(len(fierce["content"]), 5)
+        authentic = next(post for post in expected if post["name"] == "Authentic")
+        self.assertEqual(authentic["title"], "關於二十歲左右的味道")
+        self.assertEqual(len(authentic["content"]), 6)
         self.assertTrue(any(post["name"] == "Starwalker" for post in expected))
         self.assertEqual("".join(self.parser.count_text).strip(), f"{len(expected)} fragrances")
         self.assertEqual(len(self.parser.empty_states), 1)
