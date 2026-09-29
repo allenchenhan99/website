@@ -564,9 +564,15 @@ body {
     margin-bottom: 4px;
 }
 
-.list-body .post-title,
-.list-body .post-excerpt {
+.list-body .post-title {
     display: block;
+}
+
+.list-body .post-excerpt {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .list-body .post-title {
@@ -781,5 +787,4 @@ body {
 @media (max-width:700px) {
   .list-open { grid-template-columns:140px minmax(0,1fr); }
   .list-open .list-body { padding:16px; }
-  .list-open .post-excerpt { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 }
