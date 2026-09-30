@@ -410,12 +410,6 @@ body {
     transform: scale(1.035);
 }
 
-/* Balance the extra space above the bottle in the Fierce product photo. */
-.compact-card-image[src$="/perfume-fierce.jpg"],
-.detail-product-image[src$="/perfume-fierce.jpg"] {
-    translate: 0 -3.3%;
-}
-
 .compact-card-copy {
     position: relative;
     display: flex;
