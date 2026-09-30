@@ -42,6 +42,7 @@ export type PerfumePost = {
   content: string[];
   scents: string[];
   notes: PerfumeNotes;
+  notesSource?: string;
   ratings: PerfumeRatings | null;
   cover: string;
   source: string;
@@ -223,6 +224,7 @@ export function parsePerfumePosts(
       content,
       scents,
       notes: requirePerfumeNotes(record, label),
+      ...(record.notesSource ? { notesSource: requireString(record, 'notesSource', label) } : {}),
       ratings: requirePerfumeRatings(record, label),
       cover: getCover(record, label, assetExists),
       source: requireString(record, 'source', label),

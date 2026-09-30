@@ -22,15 +22,26 @@
     ],
     "notes": {
       "top": [
-        "Salty sea air",
-        "Citrus"
+        "Fir",
+        "Lemon",
+        "Orange",
+        "Sea Notes",
+        "Petitgrain",
+        "Cardamom"
       ],
       "middle": [
-        "Clean soap"
+        "Rosemary",
+        "Lily-of-the-Valley",
+        "Jasmine",
+        "Sage",
+        "Rose"
       ],
       "base": [
-        "Woods",
-        "Musk"
+        "Musk",
+        "Vetiver",
+        "Oakmoss",
+        "Brazilian Rosewood",
+        "Sandalwood"
       ]
     },
     "ratings": {
@@ -41,6 +52,7 @@
       "complexity": 3,
       "dailyWearability": 4
     },
+    "notesSource": "https://www.fragrantica.com/perfume/Abercrombie-Fitch/Fierce-3508.html",
     "cover": "assets/images/perfume-fierce-bottle.jpg",
     "source": "https://www.maxaroma.com/fragrance/men/fierce-by-abercrombie-fitch/pid/10056/3"
   },

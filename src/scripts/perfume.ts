@@ -273,6 +273,7 @@ function readStaticPosts(): PerfumePost[] {
       } : null,
       cover: detail.dataset.coverPath ?? '',
       source: detail.dataset.sourceUrl ?? '',
+      notesSource: detail.dataset.notesSourceUrl ?? '',
     }];
   });
 }
@@ -341,6 +342,7 @@ function initializeDetailDialog(posts: PerfumePost[]) {
   const radar = dialog?.querySelector<HTMLElement>('[data-dialog-radar]');
   const scores = dialog?.querySelector<HTMLElement>('[data-dialog-scores]');
   const source = dialog?.querySelector<HTMLAnchorElement>('[data-dialog-source]');
+  const notesSource = dialog?.querySelector<HTMLAnchorElement>('[data-dialog-notes-source]');
   if (
     !dialog || !cover || !emptyCover || !brand || !date || !name || !title || !content
     || !topNotes || !middleNotes || !baseNotes || !radar || !scores || !source
@@ -361,6 +363,10 @@ function initializeDetailDialog(posts: PerfumePost[]) {
       topNotes.textContent = post.notes.top.join(' · ');
       middleNotes.textContent = post.notes.middle.join(' · ');
       baseNotes.textContent = post.notes.base.join(' · ');
+      if (notesSource) {
+        notesSource.hidden = !post.notesSource;
+        notesSource.href = post.notesSource || '#';
+      }
       scores.hidden = post.ratings === null;
       if (post.ratings) {
         renderPerfumeRadar({ mount: radar, name: post.name, ratings: post.ratings });

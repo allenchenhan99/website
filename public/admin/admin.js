@@ -571,6 +571,7 @@ function formId(form) {
 
 function perfumePayload() {
   const form = elements.perfumeForm;
+  const notesSource = state.perfume.find((post) => post.id === formId(form))?.notesSource;
   const content = form.elements.namedItem('content').value
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
@@ -590,6 +591,7 @@ function perfumePayload() {
       base: splitList(form.elements.namedItem('notes-base').value),
     },
     ratings: ratingValues(),
+    ...(notesSource ? { notesSource } : {}),
     cover: form.dataset.cover || '',
     source: form.elements.namedItem('source').value.trim(),
   };

@@ -106,7 +106,7 @@ const fragranceCount = `${perfumePosts.length} ${perfumePosts.length === 1 ? "fr
 
   <div hidden data-perfume-details>
     {perfumePosts.map((post) => (
-      <article data-perfume-detail data-post-id={String(post.id)} data-cover-path={post.cover} data-source-url={post.source}>
+      <article data-perfume-detail data-post-id={String(post.id)} data-cover-path={post.cover} data-source-url={post.source} data-notes-source-url={post.notesSource}>
         <span data-source-brand>{post.brand}</span>
         <span data-source-date>{post.date}</span>
         <span data-source-name>{post.name}</span>
@@ -159,6 +159,7 @@ const fragranceCount = `${perfumePosts.length} ${perfumePosts.length === 1 ? "fr
                 <p data-dialog-notes="base"></p>
               </div>
             </div>
+            <a class="image-credit" href="#" target="_blank" rel="noreferrer" data-dialog-notes-source hidden>香調資料來源 ↗</a>
           </section>
         </section>
       </div>
