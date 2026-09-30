@@ -75,7 +75,7 @@ class PerfumeOutputTest(unittest.TestCase):
     def test_current_collection_includes_fierce_authentic_and_starwalker(self):
         expected = json.loads((ROOT / "posts" / "perfume.json").read_text(encoding="utf-8"))
 
-        fierce = expected[0]
+        fierce = next(post for post in expected if post["name"] == "Fierce")
         self.assertEqual(fierce["name"], "Fierce")
         self.assertEqual(fierce["title"], "從「行走的荷爾蒙」到不敗經典")
         self.assertIn("ratings", fierce)
