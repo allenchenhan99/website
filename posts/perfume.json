@@ -1,5 +1,55 @@
 [
   {
+    "id": 4,
+    "date": "2026/09/30",
+    "brand": "Acqua di Parma",
+    "name": "Oud",
+    "title": "明與暗的完美碰撞",
+    "excerpt": "第一次聞 Acqua di Parma Oud，最直接的感受就是很明確的高級感，而讓我留下印象的，是柑橘的明亮和沉香的深沉放在一起時，那種當時覺得很新穎的反差。",
+    "content": [
+      "第一次聞 Acqua di Parma Oud，最直接的感受就是很明確的高級感，而讓我留下印象的，是柑橘的明亮和沉香的深沉放在一起時，那種當時覺得很新穎的反差。",
+      "前調的香橙和佛手柑很亮，也正是這股明亮，打破了沉香原本容易給人的厚重、沉悶和距離感。它先用柑橘把整體提亮，再慢慢帶出沉香、皮革和木質的沉穩，讓整支香水有一個從明到暗的過程，深色的氣味也因此多了一點呼吸的空間。",
+      "除了香味，黑金瓶身其實也給我一樣的感覺。純黑色本來就很沉，搭配金色放射狀紋路和字樣之後，視覺上反而有了層次，像是在深色的底上透出一點光。黑與金的搭配，剛好呼應了香水裡明亮與深沉交錯的個性。",
+      "整體來說，這支給我的感覺偏成熟、沉穩，也帶著一點距離感。我會覺得它很適合本身氣質比較沉、有一點底蘊的人，穿在這樣的人身上，香味和人的狀態應該會很合。唯一美中不足的，大概就是台灣的夏天真的比較不適合，再喜歡這種厚度，遇到悶熱的天氣，還是會想把它留到涼一點的時候。"
+    ],
+    "scents": [
+      "Citrus",
+      "Oud",
+      "Woody",
+      "Leather",
+      "Spicy"
+    ],
+    "notes": {
+      "top": [
+        "Bergamot",
+        "Orange"
+      ],
+      "middle": [
+        "Haitian Amyris Oil",
+        "Russian Coriander",
+        "Agarwood (Oud)"
+      ],
+      "base": [
+        "Cedarwood",
+        "Leather Accord",
+        "Patchouli Oil",
+        "Sandalwood",
+        "Musk"
+      ]
+    },
+    "ratings": {
+      "longevity": 4,
+      "presence": 4.5,
+      "sweetness": 2,
+      "warmth": 4.5,
+      "complexity": 5,
+      "dailyWearability": 3.5
+    },
+    "notesSource": "https://www.acquadiparma.com/en/us/oud/OUDEDPSPRAY.html",
+    "cover": "assets/images/perfume-acqua-di-parma-oud.jpg",
+    "source": "https://lyko.com/en/acqua-di-parma/acqua-di-parma-oud-edp-100-ml"
+  },
+  {
     "id": 3,
     "date": "2026/09/30",
     "brand": "Abercrombie & Fitch",
