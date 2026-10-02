@@ -1,0 +1,220 @@
+{
+  "start": "2015-04-01",
+  "end": "2026-06-30",
+  "months": 135,
+  "expected_sessions": 2828,
+  "retained_sessions": 2693,
+  "coverage": 0.9522630834512023,
+  "first_monthly_session_excluded": 135,
+  "missing_after_entry_filter": 0,
+  "groups": [
+    {
+      "mean_bps": 16.861402085648674,
+      "se_bps": 5.365855749143838,
+      "ci95_low_bps": 6.344324817326753,
+      "ci95_high_bps": 27.378479353970597,
+      "p_normal_two_sided": 0.0016759700026236267,
+      "period": "full",
+      "group": "MU",
+      "sessions": 2693,
+      "overnight_annual_252": 0.41939088879579867,
+      "intraday_annual_252": -0.07195912842792798
+    },
+    {
+      "mean_bps": 0.5589803448199567,
+      "se_bps": 4.141294674157807,
+      "ci95_low_bps": -7.557957216529345,
+      "ci95_high_bps": 8.675917906169257,
+      "p_normal_two_sided": 0.8926299039087935,
+      "period": "full",
+      "group": "matched",
+      "sessions": 2693,
+      "overnight_annual_252": 0.09369553554096394,
+      "intraday_annual_252": 0.07839740699853484
+    },
+    {
+      "mean_bps": 22.945848203357112,
+      "se_bps": 7.996525608520744,
+      "ci95_low_bps": 7.272658010656456,
+      "ci95_high_bps": 38.619038396057775,
+      "p_normal_two_sided": 0.004111509262536658,
+      "period": "2015-2019",
+      "group": "MU",
+      "sessions": 1140,
+      "overnight_annual_252": 0.38278287629413843,
+      "intraday_annual_252": -0.22441471569083038
+    },
+    {
+      "mean_bps": -0.16984062437544473,
+      "se_bps": 5.776961300855687,
+      "ci95_low_bps": -11.492684774052591,
+      "ci95_high_bps": 11.1530035253017,
+      "p_normal_two_sided": 0.9765458541444451,
+      "period": "2015-2019",
+      "group": "matched",
+      "sessions": 1140,
+      "overnight_annual_252": 0.08210558199973429,
+      "intraday_annual_252": 0.08674690159055057
+    },
+    {
+      "mean_bps": 7.557672172711937,
+      "se_bps": 7.556689889094858,
+      "ci95_low_bps": -7.253440009913983,
+      "ci95_high_bps": 22.368784355337855,
+      "p_normal_two_sided": 0.3172476050750805,
+      "period": "2020-2024",
+      "group": "MU",
+      "sessions": 1198,
+      "overnight_annual_252": 0.15994681438940506,
+      "intraday_annual_252": -0.04120614390129212
+    },
+    {
+      "mean_bps": -0.7046434955974936,
+      "se_bps": 5.6803790199788065,
+      "ci95_low_bps": -11.838186374755955,
+      "ci95_high_bps": 10.428899383560967,
+      "p_normal_two_sided": 0.9012767349319742,
+      "period": "2020-2024",
+      "group": "matched",
+      "sessions": 1198,
+      "overnight_annual_252": 0.043861527334331636,
+      "intraday_annual_252": 0.06256294254009125
+    },
+    {
+      "mean_bps": 28.719429864551728,
+      "se_bps": 18.37055669596284,
+      "ci95_low_bps": -7.286861259535437,
+      "ci95_high_bps": 64.7257209886389,
+      "p_normal_two_sided": 0.11797259650436587,
+      "period": "2025-2026H1",
+      "group": "MU",
+      "sessions": 355,
+      "overnight_annual_252": 2.050552205084873,
+      "intraday_annual_252": 0.47933548820594607
+    },
+    {
+      "mean_bps": 7.1637050369406845,
+      "se_bps": 16.541869161918243,
+      "ci95_low_bps": -25.258358520419073,
+      "ci95_high_bps": 39.58576859430044,
+      "p_normal_two_sided": 0.6649675283221986,
+      "period": "2025-2026H1",
+      "group": "matched",
+      "sessions": 355,
+      "overnight_annual_252": 0.32465545161675324,
+      "intraday_annual_252": 0.10586410204799507
+    }
+  ],
+  "contrasts": [
+    {
+      "mean_bps": 16.302421740828724,
+      "se_bps": 5.082514493692578,
+      "ci95_low_bps": 6.340693333191272,
+      "ci95_high_bps": 26.264150148466175,
+      "p_normal_two_sided": 0.0013387056991508428,
+      "period": "full",
+      "contrast": "MU minus own matched nonsemiconductors",
+      "sessions": 2693
+    },
+    {
+      "mean_bps": 23.115688827732562,
+      "se_bps": 7.738555142973576,
+      "ci95_low_bps": 7.9481207475043565,
+      "ci95_high_bps": 38.28325690796077,
+      "p_normal_two_sided": 0.0028165534927798355,
+      "period": "2015-2019",
+      "contrast": "MU minus own matched nonsemiconductors",
+      "sessions": 1140,
+      "p_holm": 0.008449660478339506
+    },
+    {
+      "mean_bps": 8.262315668309435,
+      "se_bps": 7.090613712980858,
+      "ci95_low_bps": -5.635287209133046,
+      "ci95_high_bps": 22.159918545751918,
+      "p_normal_two_sided": 0.24391906510755385,
+      "period": "2020-2024",
+      "contrast": "MU minus own matched nonsemiconductors",
+      "sessions": 1198,
+      "p_holm": 0.41226495061991353
+    },
+    {
+      "mean_bps": 21.555724827611048,
+      "se_bps": 17.049913033816413,
+      "ci95_low_bps": -11.862104718669123,
+      "ci95_high_bps": 54.97355437389122,
+      "p_normal_two_sided": 0.20613247530995676,
+      "period": "2025-2026H1",
+      "contrast": "MU minus own matched nonsemiconductors",
+      "sessions": 355,
+      "p_holm": 0.41226495061991353
+    }
+  ],
+  "common_date_comparison": [
+    {
+      "mean_bps": 14.660063171118946,
+      "se_bps": 4.145662256716551,
+      "ci95_low_bps": 6.534565147954507,
+      "ci95_high_bps": 22.785561194283385,
+      "p_normal_two_sided": 0.00040586339292134055,
+      "comparison": "MU minus semiconductor peers",
+      "sessions": 2617
+    },
+    {
+      "mean_bps": 13.70324557756571,
+      "se_bps": 4.777521988522887,
+      "ci95_low_bps": 4.339302480060851,
+      "ci95_high_bps": 23.067188675070568,
+      "p_normal_two_sided": 0.004127169895481057,
+      "comparison": "MU minus old peer-matched nonsemiconductors",
+      "sessions": 2617
+    },
+    {
+      "mean_bps": 15.802763878450573,
+      "se_bps": 5.159704477535571,
+      "ci95_low_bps": 5.689743102480856,
+      "ci95_high_bps": 25.915784654420293,
+      "p_normal_two_sided": 0.0021933038518790406,
+      "comparison": "MU minus own matched nonsemiconductors",
+      "sessions": 2617
+    },
+    {
+      "mean_bps": 2.0995183008848595,
+      "se_bps": 2.562658252688586,
+      "ci95_low_bps": -2.9232918743847693,
+      "ci95_high_bps": 7.122328476154489,
+      "p_normal_two_sided": 0.4126303204849882,
+      "comparison": "new excess minus old peer-matched excess",
+      "sessions": 2617
+    }
+  ],
+  "balance": {
+    "mean_abs_beta_z": 0.13450479180746097,
+    "max_abs_beta_z": 0.7994169432780102,
+    "mean_abs_logvol_z": 0.12400860035080465,
+    "max_abs_logvol_z": 0.6563009149818357,
+    "unique_controls": 105
+  },
+  "parameters": {
+    "target": "MU",
+    "control_pool": "nonsemiconductor historic S&P500 IDs",
+    "window": 252,
+    "minimum_valid_pairs": 200,
+    "market": "SPY close-to-close simple price returns",
+    "features": "beta and log annualized sample volatility; standardized in eligible nonsemi candidate pool",
+    "matching": "3 nearest distinct IDs, Euclidean distance; equal weights; no caliper",
+    "current_price": "valid consecutive price pair on prior-month fit cutoff",
+    "rebalance": "monthly; cutoff prior final exchange close; weights fixed next month",
+    "classification": "latest quarter-end snapshot <= cutoff; dated revisions only; quarter-level approximation",
+    "price_basis": "FMP split-adjusted price OHLC for both groups, no dividends/costs",
+    "timing": "exclude first session each month; overnight entry must strictly follow fitting close",
+    "tests": "paired HAC lag5 exchange dates, retain spacing across exclusions; 1 full-period primary contrast; 3 secondary periods Holm-corrected",
+    "shrinkage_test": "new excess minus previous peer-matched excess on shared dates; exploratory"
+  },
+  "limitations": [
+    "Risk balance is approximate; top three need not be close without a caliper.",
+    "Nonsemi controls leave industry differences; beta/volatility do not encompass all risk.",
+    "Quarterly memberships and missing-date selection limit inference.",
+    "Hypothesis proposed after inspecting historical MU performance: exploratory, not out-of-sample validation."
+  ]
+}

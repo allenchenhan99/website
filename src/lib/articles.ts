@@ -9,6 +9,8 @@ export type Article = {
   status: 'draft' | 'published';
   stage: '進行中' | '已完成';
   featured: boolean;
+  cover?: string;
+  tags?: string[];
   body: string;
   link: string;
   event: string;
@@ -20,6 +22,8 @@ export function isArticle(value: unknown): value is Article {
   if (!value || typeof value !== 'object') return false;
   const row = value as Record<string, unknown>;
   return ['id','title','slug','summary','date','topic','body','link','event','role'].every(key => typeof row[key] === 'string')
+    && (row.cover === undefined || (typeof row.cover === 'string' && /^assets\/[a-zA-Z0-9_./-]+$/.test(row.cover) && !row.cover.includes('..')))
+    && (row.tags === undefined || (Array.isArray(row.tags) && row.tags.every(tag => typeof tag === 'string')))
     && (row.type === 'journal' || row.type === 'research')
     && (row.status === 'draft' || row.status === 'published')
     && (row.stage === '進行中' || row.stage === '已完成') && typeof row.featured === 'boolean';

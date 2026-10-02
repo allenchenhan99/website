@@ -10,15 +10,28 @@ export async function getStaticPaths() {
   return (await loadArticleStore()).rows.filter(row => row.status === 'published').map(row => ({params:{type:row.type,slug:row.slug},props:{row}}));
 }
 const { row } = Astro.props;
+const sections: {id: string; label: string}[] = [];
+let bodyHtml = articleHtml(row.body);
+if (row.type === 'research') {
+  bodyHtml = bodyHtml.replace(/<h2>(.*?)<\/h2>/g, (_, label: string) => {
+    const id = `section-${sections.length + 1}`;
+    sections.push({id, label: label.replace(/<[^>]*>/g, '')});
+    return `<h2 id="${id}">${label}</h2>`;
+  }).replace(/<p>(<a [^>]+><img [^>]+><\/a>)<\/p>\s*<p><em>(.*?)<\/em><\/p>/g,
+    '<figure class="research-figure">$1<figcaption>$2</figcaption></figure>');
+}
 ---
 <BaseLayout pageTitle={row.title} description={row.summary} activePage={row.type} article>
-  <article class="article-reader">
+  <div class:list={[row.type === 'research' && 'research-layout']}>
+    {row.type === 'research' && <aside class="research-navigation"><nav aria-label="文章章節"><h2>文章導覽</h2>{sections.map(section => <a href={`#${section.id}`} set:html={section.label} />)}</nav></aside>}
+  <article class="article-reader" data-article-type={row.type}>
     <a class="reader-back" href={withBase(`${row.type}.html`)}>← 返回 {row.type === 'journal' ? 'Journal' : 'Research'}</a>
-    <p class="reader-meta"><time datetime={row.date}>{row.date}</time> / {row.topic}{row.type === 'research' && ` / ${row.stage}`}</p>
     <h1 class="reader-title">{row.title}</h1>
+    <p class="reader-meta"><time datetime={row.date}>{row.date}</time> / {row.topic}{row.type === 'research' && ` / ${row.stage}`}</p>
     <p class="reader-summary">{row.summary}</p>
     {row.type === 'journal' && row.topic === 'Competitions' && <dl class="reader-context">{row.event && <><dt>比賽／活動</dt><dd>{row.event}</dd></>}{row.role && <><dt>我的角色</dt><dd>{row.role}</dd></>}</dl>}
-    <div class="prose" set:html={articleHtml(row.body)} />
+    <div class="prose" set:html={bodyHtml} />
     {row.link && <p class="reader-meta"><a href={row.link} target="_blank" rel="noreferrer">相關專案／報告 ↗</a></p>}
   </article>
+  </div>
 </BaseLayout>
