@@ -21,7 +21,7 @@ export async function initializeArticleAdmin() {
   function field(name: string) { return form!.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement; }
   function blank(): Article { return {id:crypto.randomUUID(),type:'journal',title:'',slug:'',summary:'',date:new Date().toLocaleDateString('en-CA'),topic:'Weekly Notes',status:'draft',stage:'進行中',featured:false,body:'',link:'',event:'',role:''}; }
   function values(): Article {
-    return {id:selected,type:field('type').value === 'research'?'research':'journal',title:field('title').value.trim(),slug:field('slug').value.trim(),summary:field('summary').value.trim(),date:field('date').value,topic:field('topic').value,status:field('status').value === 'published'?'published':'draft',stage:field('stage').value === '已完成'?'已完成':'進行中',featured:(field('featured') as HTMLInputElement).checked,body:field('body').value,link:field('link').value,event:field('event').value,role:field('role').value};
+    return {...rows.find(row => row.id === selected),id:selected,type:field('type').value === 'research'?'research':'journal',title:field('title').value.trim(),slug:field('slug').value.trim(),summary:field('summary').value.trim(),date:field('date').value,topic:field('topic').value,status:field('status').value === 'published'?'published':'draft',stage:field('stage').value === '已完成'?'已完成':'進行中',featured:(field('featured') as HTMLInputElement).checked,body:field('body').value,link:field('link').value,event:field('event').value,role:field('role').value};
   }
   function updateFields(topic?: string) {
     const research=field('type').value==='research';

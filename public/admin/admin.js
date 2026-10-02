@@ -611,7 +611,8 @@ function musicPayload() {
 
 function articleFormPayload() {
   const form = elements.articleForm;
-  return articlePayload({
+  const existing = state.articles.find(article => article.id === form.elements.namedItem('id').value);
+  return { ...existing, ...articlePayload({
     id: form.elements.namedItem('id').value,
     type: form.elements.namedItem('type').value,
     topic: form.elements.namedItem('topic').value,
@@ -626,7 +627,7 @@ function articleFormPayload() {
     link: form.elements.namedItem('link').value,
     event: form.elements.namedItem('event').value,
     role: form.elements.namedItem('role').value,
-  });
+  }) };
 }
 
 async function publish(type, item) {
