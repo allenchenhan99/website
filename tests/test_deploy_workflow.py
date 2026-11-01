@@ -122,7 +122,7 @@ class DeployWorkflowContract(unittest.TestCase):
             commands,
             [
                 "npm ci",
-                "npx playwright install --with-deps chromium",
+                "npx playwright install --with-deps chromium webkit",
                 "npm run check",
                 "npm test",
                 "npm run build",

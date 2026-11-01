@@ -207,10 +207,10 @@ class HomeOutputTest(unittest.TestCase):
         self.assertNotIn("TODAY", self.html)
         self.assertNotIn("sample data", self.html)
 
-    def test_embeds_exact_ascii_source_but_leaves_target_empty(self):
+    def test_prerenders_the_complete_title_and_embeds_exact_animation_source(self):
         ascii_source = (ROOT / "asciiArt.txt").read_text(encoding="utf-8")
 
-        self.assertEqual("".join(self.parser.ascii_target), "")
+        self.assertEqual("".join(self.parser.ascii_target).rstrip(), ascii_source.rstrip())
         self.assertEqual("".join(self.parser.ascii_source).rstrip(), ascii_source.rstrip())
         self.assertIn('aria-label="Allen Lin ASCII art"', self.html)
 

@@ -7,7 +7,9 @@ import profileImage from "../assets/images/selfie.JPG";
 import asciiArt from "../../asciiArt.txt?raw";
 import chipi from "../../chipi.txt?raw";
 import chipiUrl from "../../chipi.txt?url";
+import asciiFontUrl from "../assets/fonts/site-ascii.woff2?url";
 import "../styles/style.css";
+import "../styles/ascii.css";
 import "../styles/responsive.css";
 
 const initialChipiFrame = chipi.trimEnd().split("\n").slice(0, 42).join("\n");
@@ -15,16 +17,22 @@ const reachStatsUrl = import.meta.env.PUBLIC_REACH_STATS_URL?.trim();
 ---
 
 <BaseLayout activePage="index">
+  <link slot="styles" rel="preload" href={asciiFontUrl} as="font" type="font/woff2" crossorigin />
   <div class="content">
-    <pre class="ascii-art" id="ascii-art" data-ascii-animation aria-label="Allen Lin ASCII art"></pre>
+    <div class="ascii-artwork ascii-artwork--title" data-ascii-artwork>
+      <pre class="ascii-art" id="ascii-art" lang="en" data-ascii-animation aria-label="Allen Lin ASCII art">{asciiArt.trimEnd()}</pre>
+    </div>
     <template data-ascii-source>{asciiArt}</template>
 
-    <pre
-      class="chipi-animation"
-      id="chipi-animation"
-      data-chipi-src={chipiUrl}
-      aria-label="Chipi ASCII animation"
-    >{initialChipiFrame}</pre>
+    <div class="ascii-artwork" data-ascii-artwork>
+      <pre
+        class="chipi-animation"
+        id="chipi-animation"
+        lang="en"
+        data-chipi-src={chipiUrl}
+        aria-label="Chipi ASCII animation"
+      >{initialChipiFrame}</pre>
+    </div>
 
     <section class="home-profile" aria-labelledby="profile-heading">
       <figure class="home-profile-visual">

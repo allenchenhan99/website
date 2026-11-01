@@ -1,3 +1,5 @@
+import { initializeAsciiLayout } from './ascii-layout';
+
 const ASCII_BLOCK_WIDTHS = [
   8, 8, 8, 8, 10, 4, 8, 4, 10,
 ] as const;
@@ -435,6 +437,7 @@ function initializeDetailDialog() {
 
 export function initializeHome() {
   initializeAsciiAnimation();
+  initializeAsciiLayout();
   initializeChipiAnimation();
   initializeReachSignal();
   initializeDetailDialog();

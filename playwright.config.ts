@@ -15,6 +15,24 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'android-ascii',
+      testMatch: 'ascii-layout.spec.ts',
+      use: { ...devices['Pixel 7'] },
+    },
+    {
+      name: 'webkit-ascii',
+      testMatch: 'ascii-layout.spec.ts',
+      use: { ...devices['iPhone 13'] },
+    },
+    {
+      name: 'large-text-ascii',
+      testMatch: 'ascii-layout.spec.ts',
+      use: {
+        ...devices['Pixel 7'],
+        launchOptions: { args: ['--blink-settings=minimumFontSize=12'] },
+      },
+    },
   ],
   webServer: {
     command: 'npm run build && ASTRO_PREVIEW_BACKGROUND=0 npm run preview -- --host 127.0.0.1 --port 4321',

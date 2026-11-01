@@ -1,0 +1,48 @@
+@font-face {
+    font-family: 'Site ASCII';
+    src: url('../assets/fonts/site-ascii.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+}
+
+.ascii-artwork {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.ascii-artwork--title {
+    --ascii-top: 20px;
+    padding-block: 20px;
+}
+
+.ascii-art,
+.chipi-animation {
+    width: max-content;
+    min-width: 0;
+    max-width: none;
+    margin: 0 auto;
+    padding: 0;
+    overflow: visible;
+    font-family: 'Site ASCII', 'DejaVu Sans Mono', 'Noto Sans Mono', Menlo, Consolas, monospace;
+    font-variant-ligatures: none;
+    font-weight: 400;
+    text-align: left;
+    white-space: pre;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+}
+
+.ascii-artwork[data-ascii-fitted] {
+    overflow: visible;
+}
+
+.ascii-artwork[data-ascii-fitted] > pre {
+    position: absolute;
+    top: var(--ascii-top, 0px);
+    left: 50%;
+    transform: translateX(-50%) scale(var(--ascii-scale, 1));
+    transform-origin: top center;
+}
